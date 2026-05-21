@@ -19,7 +19,12 @@ API.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      if (window.location.pathname !== '/login') {
+      
+      const publicRoutes = ['/', '/login', '/register', '/inventory', '/about', '/forgot-password', '/locator'];
+      const isPublic = publicRoutes.includes(window.location.pathname) || 
+                       window.location.pathname.startsWith('/reset-password/');
+      
+      if (!isPublic) {
         window.location.href = '/login';
       }
     }

@@ -1,0 +1,80 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────────────
+  # Job 1: Build & Verify (CI)
+  # Ensures the codebase builds successfully before deploying
+  # ────────────────────────────────────────────────────────────────────────────
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: |
+            client/package-lock.json
+            server/package-lock.json
+
+      # Install & Verify Backend dependencies
+      - name: Install Server Dependencies
+        run: |
+          cd server
+          npm ci
+
+      # Install & Verify Frontend compilation
+      - name: Install Client Dependencies
+        run: |
+          cd client
+          npm ci
+
+      - name: Build Client (Vite Compile Check)
+        run: |
+          cd client
+          npm run build
+
+  # ────────────────────────────────────────────────────────────────────────────
+  # Job 2: Deploy to EC2 (CD)
+  # Automatically deploys the changes to the EC2 server if the build passes
+  # ────────────────────────────────────────────────────────────────────────────
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT || 22 }}
+          script: |
+            # Navigate to the project directory on EC2
+            cd ${{ secrets.EC2_DEPLOY_PATH || '~/BloodBank' }}
+            
+            # Pull the latest changes from the main branch
+            git pull origin main
+
+            #docker compose down to stop the running containers before rebuilding
+            docker compose down
+
+            # Rebuild and restart the Docker containers in background
+            docker compose up -d --build
+            
+            # Clean up old unused docker images to prevent EC2 storage from filling up
+            docker image prune -f
