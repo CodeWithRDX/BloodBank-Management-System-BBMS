@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchRequests } from '../redux/slices/requestSlice';
 import { fetchInventorySummary } from '../redux/slices/inventorySlice';
 import { fetchAllAppointments } from '../redux/slices/appointmentSlice';
+import { fetchStaff } from '../redux/slices/staffSlice';
+import { fetchAllRegistrations } from '../redux/slices/campSlice';
 import StatsCard from '../components/StatsCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import BloodGroupBadge from '../components/BloodGroupBadge';
@@ -10,6 +12,7 @@ import StatusBadge from '../components/StatusBadge';
 import {
   HiOutlineBeaker, HiOutlineClipboardList,
   HiOutlineShieldCheck, HiOutlineCalendar,
+  HiOutlineUserGroup,
 } from 'react-icons/hi';
 
 import usePolling from '../hooks/usePolling';
@@ -26,14 +29,21 @@ const StaffDashboard = () => {
   const { requests, loading: rL } = useSelector(s => s.requests);
   const { summary, loading: iL } = useSelector(s => s.inventory);
   const { appointments } = useSelector(s => s.appointments);
+  const { staff } = useSelector(s => s.staff);
+  const { allRegistrations } = useSelector(s => s.camps);
 
   usePolling(() => {
     dispatch(fetchRequests());
     dispatch(fetchInventorySummary());
-    dispatch(fetchAllAppointments('status=scheduled'));
+    dispatch(fetchAllAppointments(''));
+    dispatch(fetchStaff({}));
+    dispatch(fetchAllRegistrations({ status: 'Pending Approval' }));
   }, 10000);
 
   const todaysApts = appointments?.filter(a => new Date(a.date).toDateString() === new Date().toDateString()) || [];
+  const pendingAptsCount = appointments?.filter(a => a.status === 'Pending').length || 0;
+  const pendingCampApprovalsCount = allRegistrations?.filter(r => r.status === 'Pending Approval').length || 0;
+  const totalStaff = staff?.length || 0;
   const pendingRequests = requests?.filter(r => r.status === 'pending').length || 0;
   const lowStock = summary?.filter(s => s.totalUnits < 10) || [];
   const totalUnits = summary?.reduce((acc, s) => acc + s.totalUnits, 0) || 0;
@@ -53,11 +63,12 @@ const StaffDashboard = () => {
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1rem' }}>
-        <StatsCard title="Today's Appointments" value={todaysApts.length}  icon={HiOutlineCalendar}     color="blue"   />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+        <StatsCard title="Pending Appointments"  value={pendingAptsCount}   icon={HiOutlineCalendar}     color="blue"   />
+        <StatsCard title="Pending Camp Approvals" value={pendingCampApprovalsCount} icon={HiOutlineShieldCheck} color="amber"  />
         <StatsCard title="Pending Requests"      value={pendingRequests}    icon={HiOutlineClipboardList} color="red"    />
-        <StatsCard title="Low-Stock Groups"      value={lowStock.length}    icon={HiOutlineShieldCheck}  color="amber"  />
-        <StatsCard title="Total Blood Units"     value={totalUnits}         icon={HiOutlineBeaker}       color="purple" />
+        <StatsCard title="Total Staff"           value={totalStaff}         icon={HiOutlineUserGroup}    color="purple" />
+        <StatsCard title="Total Blood Units"     value={totalUnits}         icon={HiOutlineBeaker}       color="emerald" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
@@ -132,7 +143,7 @@ const StaffDashboard = () => {
           <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.95rem' }}>Pending Blood Requests</h3>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.78rem' }}>{pendingRequests} pending</span>
         </div>
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'var(--bg-elevated)' }}>

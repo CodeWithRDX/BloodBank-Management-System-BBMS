@@ -68,10 +68,11 @@ const NAV_BY_ROLE = {
 };
 
 const ROLE_COLORS = {
-  admin:    { label: 'Administrator', dot: '#a78bfa' },
-  donor:    { label: 'Blood Donor',   dot: '#f87171' },
-  hospital: { label: 'Hospital',      dot: '#34d399' },
-  staff:    { label: 'Lab Staff',     dot: '#60a5fa' },
+  admin:        { label: 'Administrator', dot: '#a78bfa' },
+  donor:        { label: 'Blood Donor',   dot: '#f87171' },
+  hospital:     { label: 'Hospital',      dot: '#34d399' },
+  staff:        { label: 'Lab Staff',     dot: '#60a5fa' },
+  branch_admin: { label: 'Branch Admin',  dot: '#10b981' },
 };
 
 const Sidebar = ({ isOpen, setIsOpen }) => {

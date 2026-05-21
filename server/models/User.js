@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema(
     // Staff-specific fields
     staffRole: {
       type: String,
-      enum: ['inventory_staff', 'camp_staff', 'lab_staff', 'branch_manager', null],
+      enum: ['inventory_staff', 'camp_staff', 'lab_staff', 'branch_manager', 'reception_staff', null],
       default: null,
     },
     // Branch association for staff/branch_admin

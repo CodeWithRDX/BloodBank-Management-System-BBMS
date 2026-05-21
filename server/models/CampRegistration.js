@@ -23,8 +23,8 @@ const campRegistrationSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['registered', 'attended', 'donated', 'cancelled', 'no_show'],
-      default: 'registered',
+      enum: ['Pending Approval', 'Approved', 'Rejected', 'Attended', 'Missed'],
+      default: 'Pending Approval',
     },
     isEligible: {
       type: Boolean,

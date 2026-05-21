@@ -69,7 +69,7 @@ const DonationHistory = () => {
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Your donation history will appear here after your first contribution.</p>
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'var(--bg-elevated)' }}><TH c="Donation ID" /><TH c="Date" /><TH c="Group" /><TH c="Quantity" /><TH c="Status" /><TH c="Notes" /></tr></thead>
               <tbody>

@@ -80,7 +80,7 @@ const AdminUsers = () => {
           </span>
         </div>
         {loading ? <LoadingSpinner text="Loading users…" /> : (
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr><TH c="User" /><TH c="Email" /><TH c="Role" /><TH c="Phone" /><TH c="Status" /><TH c="Joined" /><TH c="Action" right /></tr></thead>
               <tbody>

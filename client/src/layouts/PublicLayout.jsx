@@ -7,6 +7,7 @@ import ThemePicker from '../components/ThemePicker';
 const NAV_LINKS = [
   { label: 'Home', path: '/' },
   { label: 'Blood Availability', path: '/inventory' },
+  { label: 'Donation Camps', path: '/camps' },
   { label: 'About Us', path: '/about' },
 ];
 

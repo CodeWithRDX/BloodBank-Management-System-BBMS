@@ -50,54 +50,54 @@ const AdminRequests = () => {
         </select>
       </div>
 
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
+      <div className="table-wrapper">
         {loading ? <LoadingSpinner text="Loading requests…" /> : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead><tr style={{ background: 'var(--bg-elevated)' }}><TH c="Request ID" /><TH c="Hospital" /><TH c="Patient" /><TH c="Group" /><TH c="Qty" /><TH c="Urgency" /><TH c="Date" /><TH c="Status" /><TH c="Actions" right /></tr></thead>
-              <tbody>
-                {filtered?.map(r => (
-                  <tr key={r._id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.15s' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-soft)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = ''; }}
-                  >
-                    <td style={{ padding: '0.875rem 1rem', color: 'var(--text-secondary)', fontSize: '0.72rem', fontFamily: 'monospace' }}>{r.requestId}</td>
-                    <td style={{ padding: '0.875rem 1rem', color: 'var(--text-primary)', fontSize: '0.85rem', fontWeight: 500, maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.hospitalId?.name || '—'}</td>
-                    <td style={{ padding: '0.875rem 1rem', color: 'var(--text-primary)', fontSize: '0.85rem' }}>{r.patientName}</td>
-                    <td style={{ padding: '0.875rem 1rem' }}><BloodGroupBadge group={r.bloodGroup} size="sm" /></td>
-                    <td style={{ padding: '0.875rem 1rem', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.85rem' }}>{r.quantity}u</td>
-                    <td style={{ padding: '0.875rem 1rem' }}><StatusBadge status={r.urgency} /></td>
-                    <td style={{ padding: '0.875rem 1rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{new Date(r.createdAt).toLocaleDateString()}</td>
-                    <td style={{ padding: '0.875rem 1rem' }}><StatusBadge status={r.status} /></td>
-                    <td style={{ padding: '0.875rem 1rem', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'flex-end' }}>
-                        {r.status === 'pending' && (
-                          <>
-                            <button onClick={() => handleStatus(r._id, 'approved')} title="Approve" style={{ padding: '0.3rem', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '0.5rem', cursor: 'pointer', color: '#4ade80', display: 'flex', transition: 'all 0.15s' }}
-                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.2)'; }}
-                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.1)'; }}>
-                              <HiOutlineCheck style={{ width: '0.9rem', height: '0.9rem' }} />
-                            </button>
-                            <button onClick={() => setSelected(r)} title="Reject" style={{ padding: '0.3rem', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: '0.5rem', cursor: 'pointer', color: '#f87171', display: 'flex', transition: 'all 0.15s' }}
-                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.2)'; }}
-                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.1)'; }}>
-                              <HiOutlineX style={{ width: '0.9rem', height: '0.9rem' }} />
-                            </button>
-                          </>
-                        )}
-                        {r.status === 'approved' && (
-                          <button onClick={() => handleStatus(r._id, 'completed')} title="Mark Completed" style={{ padding: '0.3rem 0.625rem', background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.3)', borderRadius: '0.5rem', cursor: 'pointer', color: '#60a5fa', fontSize: '0.72rem', fontWeight: 700, transition: 'all 0.15s' }}>
-                            Complete
+          <table style={{ borderCollapse: 'collapse' }}>
+            <thead><tr style={{ background: 'var(--bg-elevated)' }}><TH c="Request ID" /><TH c="Hospital" /><TH c="Patient" /><TH c="Group" /><TH c="Qty" /><TH c="Urgency" /><TH c="Date" /><TH c="Status" /><TH c="Actions" right /></tr></thead>
+            <tbody>
+              {filtered?.map(r => (
+                <tr key={r._id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.15s' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-soft)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = ''; }}
+                >
+                  <td style={{ padding: '0.875rem 1rem', color: 'var(--text-secondary)', fontSize: '0.72rem', fontFamily: 'monospace' }}>{r.requestId}</td>
+                  <td style={{ padding: '0.875rem 1rem', color: 'var(--text-primary)', fontSize: '0.85rem', fontWeight: 500, maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.hospitalId?.name || '—'}</td>
+                  <td style={{ padding: '0.875rem 1rem', color: 'var(--text-primary)', fontSize: '0.85rem' }}>{r.patientName}</td>
+                  <td style={{ padding: '0.875rem 1rem' }}><BloodGroupBadge group={r.bloodGroup} size="sm" /></td>
+                  <td style={{ padding: '0.875rem 1rem', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.85rem' }}>{r.quantity}u</td>
+                  <td style={{ padding: '0.875rem 1rem' }}><StatusBadge status={r.urgency} /></td>
+                  <td style={{ padding: '0.875rem 1rem', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>{new Date(r.createdAt).toLocaleDateString()}</td>
+                  <td style={{ padding: '0.875rem 1rem' }}><StatusBadge status={r.status} /></td>
+                  <td style={{ padding: '0.875rem 1rem', textAlign: 'right' }}>
+                    <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'flex-end' }}>
+                      {r.status === 'pending' && (
+                        <>
+                          <button onClick={() => handleStatus(r._id, 'approved')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '0.4rem', color: '#4ade80', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.2)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.1)'; }}>
+                            Approve
                           </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {!filtered?.length && <tr><td colSpan={9} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>No requests found.</td></tr>}
-              </tbody>
-            </table>
-          </div>
+                          <button onClick={() => { setSelected(r); setRejReason(''); }} style={{ padding: '0.25rem 0.625rem', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: '0.4rem', color: '#f87171', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.2)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.1)'; }}>
+                            Reject
+                          </button>
+                        </>
+                      )}
+                      {r.status === 'approved' && (
+                        <button onClick={() => handleStatus(r._id, 'completed')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '0.4rem', color: '#3b82f6', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.2)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(59,130,246,0.1)'; }}>
+                          Complete
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {!filtered?.length && <tr><td colSpan={9} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>No requests found.</td></tr>}
+            </tbody>
+          </table>
         )}
       </div>
 

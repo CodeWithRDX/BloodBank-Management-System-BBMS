@@ -3,6 +3,8 @@ import Donor from '../models/Donor.js';
 import Hospital from '../models/Hospital.js';
 import crypto from 'crypto';
 import sendEmail from '../utils/sendEmail.js';
+import Staff from '../models/Staff.js';
+import StaffLog from '../models/StaffLog.js';
 
 // Helper: send token response
 const sendTokenResponse = (user, statusCode, res) => {
@@ -86,6 +88,20 @@ export const login = async (req, res, next) => {
 
     if (!user.isActive) {
       return res.status(401).json({ success: false, message: 'Account is deactivated' });
+    }
+
+    if (user.role === 'staff' || user.role === 'branch_admin') {
+      const staffProfile = await Staff.findOne({ userId: user._id });
+      if (staffProfile) {
+        await StaffLog.create({
+          staffId: staffProfile._id,
+          branchId: staffProfile.branchId,
+          operationType: 'login',
+          description: `Staff member logged in`,
+          ipAddress: req.clientIp || req.ip || '',
+          userAgent: req.headers['user-agent'] || '',
+        });
+      }
     }
 
     sendTokenResponse(user, 200, res);
@@ -223,5 +239,22 @@ export const resetPassword = async (req, res, next) => {
 // @route   POST /api/auth/logout
 // @access  Private
 export const logout = async (req, res, next) => {
-  res.status(200).json({ success: true, message: 'Logged out successfully' });
+  try {
+    if (req.user && (req.user.role === 'staff' || req.user.role === 'branch_admin')) {
+      const staffProfile = await Staff.findOne({ userId: req.user.id });
+      if (staffProfile) {
+        await StaffLog.create({
+          staffId: staffProfile._id,
+          branchId: staffProfile.branchId,
+          operationType: 'logout',
+          description: `Staff member logged out`,
+          ipAddress: req.clientIp || req.ip || '',
+          userAgent: req.headers['user-agent'] || '',
+        });
+      }
+    }
+    res.status(200).json({ success: true, message: 'Logged out successfully' });
+  } catch (error) {
+    next(error);
+  }
 };

@@ -1,21 +1,52 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCamps, registerForCamp, fetchMyRegistrations } from '../redux/slices/campSlice';
+import { fetchCamps, registerForCamp, fetchMyRegistrations, fetchNearbyCamps } from '../redux/slices/campSlice';
+import { fetchPublicBranches } from '../redux/slices/branchSlice';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { FiCalendar, FiClock, FiMapPin, FiUsers, FiCheck, FiRefreshCw, FiAward } from 'react-icons/fi';
+import { FiCalendar, FiClock, FiMapPin, FiUsers, FiCheck, FiRefreshCw, FiAward, FiSliders } from 'react-icons/fi';
 
 export default function DonorCamps() {
   const dispatch = useDispatch();
   const { camps, myRegistrations, loading } = useSelector((s) => s.camps);
+  const { publicBranches } = useSelector((s) => s.branches);
+
+  const [coords, setCoords] = useState(null);
+  const [radius, setRadius] = useState(50);
+  const [dateFilter, setDateFilter] = useState('');
+  const [branchFilter, setBranchFilter] = useState('');
+  const [hideFullCamps, setHideFullCamps] = useState(false);
 
   useEffect(() => {
-    loadDonorCamps();
-  }, [dispatch]);
+    // Try to get user coordinates
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setCoords({ lat, lng });
+          dispatch(fetchNearbyCamps({ lat, lng, radius }));
+        },
+        (err) => {
+          console.warn('Geolocation failed or denied:', err);
+          dispatch(fetchCamps({ upcoming: true }));
+        }
+      );
+    } else {
+      dispatch(fetchCamps({ upcoming: true }));
+    }
+    dispatch(fetchMyRegistrations());
+    dispatch(fetchPublicBranches());
+  }, [dispatch, radius]);
 
   const loadDonorCamps = () => {
-    dispatch(fetchCamps({ upcoming: true }));
+    if (coords) {
+      dispatch(fetchNearbyCamps({ lat: coords.lat, lng: coords.lng, radius }));
+    } else {
+      dispatch(fetchCamps({ upcoming: true }));
+    }
     dispatch(fetchMyRegistrations());
+    dispatch(fetchPublicBranches());
   };
 
   const handleRegister = async (campId, campName) => {
@@ -37,6 +68,15 @@ export default function DonorCamps() {
   const getRegistrationDetails = (campId) => {
     return myRegistrations.find((reg) => reg.campId?._id === campId || reg.campId === campId);
   };
+
+  // Perform client side filter for date, branch, availability
+  const filteredCamps = camps.filter((camp) => {
+    if (camp.status !== 'upcoming') return false;
+    if (hideFullCamps && camp.totalRegistrations >= camp.maxDonors) return false;
+    if (dateFilter && new Date(camp.date).toDateString() !== new Date(dateFilter).toDateString()) return false;
+    if (branchFilter && camp.branchId?._id !== branchFilter && camp.branchId !== branchFilter) return false;
+    return true;
+  });
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }} className="animate-fadeIn">
@@ -60,9 +100,86 @@ export default function DonorCamps() {
       </div>
 
       {/* Main Grid: split into upcoming camps and registrations */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem', alignItems: 'flex-start' }}>
+      <div className="camps-grid" style={{ alignItems: 'flex-start' }}>
         {/* Upcoming Camps Column */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          
+          {/* Filters Bar */}
+          <div style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border)',
+            borderRadius: '1rem',
+            padding: '1.25rem',
+            boxShadow: 'var(--card-shadow)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+              <FiSliders style={{ color: 'var(--accent)' }} /> Search & Filter Camps
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem' }}>
+              {/* Distance Select (Only show if coords are present) */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: 4 }}>Distance Range</label>
+                <select 
+                  value={radius} 
+                  onChange={(e) => setRadius(Number(e.target.value))} 
+                  disabled={!coords}
+                  style={{ width: '100%', padding: '0.5rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.5rem', color: 'var(--text-primary)', fontSize: '0.82rem' }}
+                >
+                  <option value={10}>Within 10 km</option>
+                  <option value={25}>Within 25 km</option>
+                  <option value={50}>Within 50 km</option>
+                  <option value={100}>Within 100 km</option>
+                </select>
+                {!coords && (
+                  <span style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Enable location to search by distance</span>
+                )}
+              </div>
+
+              {/* Date Filter */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: 4 }}>Date</label>
+                <input 
+                  type="date" 
+                  value={dateFilter} 
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  style={{ width: '100%', padding: '0.5rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.5rem', color: 'var(--text-primary)', fontSize: '0.82rem' }}
+                />
+              </div>
+
+              {/* Branch Filter */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: 4 }}>Organizer Branch</label>
+                <select 
+                  value={branchFilter} 
+                  onChange={(e) => setBranchFilter(e.target.value)}
+                  style={{ width: '100%', padding: '0.5rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.5rem', color: 'var(--text-primary)', fontSize: '0.82rem' }}
+                >
+                  <option value="">All Branches</option>
+                  {publicBranches?.map(b => (
+                    <option key={b._id} value={b._id}>{b.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Availability Toggle */}
+              <div style={{ display: 'flex', alignItems: 'center', height: '100%', paddingTop: '1.25rem' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.82rem', color: 'var(--text-primary)', cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={hideFullCamps} 
+                    onChange={(e) => setHideFullCamps(e.target.checked)} 
+                    style={{ cursor: 'pointer' }}
+                  />
+                  Hide Full Camps
+                </label>
+              </div>
+            </div>
+          </div>
+
           <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
             Upcoming Donation Camps
           </h2>
@@ -71,7 +188,7 @@ export default function DonorCamps() {
             <LoadingSpinner text="Searching upcoming camps..." />
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {camps.filter(c => c.status === 'upcoming').map((camp) => {
+              {filteredCamps.map((camp) => {
                 const registered = isRegistered(camp._id);
                 const regDetails = getRegistrationDetails(camp._id);
 
@@ -89,15 +206,22 @@ export default function DonorCamps() {
                   >
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       <div>
-                        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
-                          {camp.name}
-                        </h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                            {camp.name}
+                          </h3>
+                          {camp.distance !== undefined && camp.distance !== null && (
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent)', background: 'var(--accent-soft)', padding: '2px 8px', borderRadius: '4px' }}>
+                              📍 {camp.distance} km away
+                            </span>
+                          )}
+                        </div>
                         <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '2px 0 0' }}>
-                          Organized by {camp.organizer}
+                          Organized by {camp.organizer} • Branch: {camp.branchId?.name || 'Central'}
                         </p>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: 4 }}>
+                      <div className="camp-card-grid" style={{ gap: '1rem', fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: 4 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <FiCalendar style={{ color: 'var(--accent)' }} />
                           {new Date(camp.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -161,9 +285,9 @@ export default function DonorCamps() {
                 );
               })}
 
-              {camps.filter(c => c.status === 'upcoming').length === 0 && (
+              {filteredCamps.length === 0 && (
                 <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 12, color: 'var(--text-secondary)' }}>
-                  No upcoming donation camps found in your area at the moment.
+                  No donation camps matching the criteria found at the moment.
                 </div>
               )}
             </div>

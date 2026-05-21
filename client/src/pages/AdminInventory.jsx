@@ -109,10 +109,9 @@ const AdminInventory = () => {
       </div>
 
       {/* Table */}
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
+      <div className="table-wrapper">
         {loading ? <LoadingSpinner text="Loading inventory…" /> : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table style={{ borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: 'var(--bg-elevated)' }}>
                   <TH c="Unit #" /><TH c="Group" /><TH c="Component" /><TH c="Qty" /><TH c="Expiry" /><TH c="Location" /><TH c="Status" /><TH c="Action" />
@@ -154,7 +153,6 @@ const AdminInventory = () => {
                 {!items?.length && <tr><td colSpan={8} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>No inventory records found.</td></tr>}
               </tbody>
             </table>
-          </div>
         )}
       </div>
 
@@ -174,7 +172,7 @@ const AdminInventory = () => {
             </div>
             {/* Modal body */}
             <form onSubmit={handleSubmit} style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
+              <div className="form-grid-2">
                 <div><Label>Blood Group</Label><select name="bloodGroup" value={form.bloodGroup} onChange={e => setForm({ ...form, bloodGroup: e.target.value })} style={selectStyle} disabled={!!editItem}>{BLOOD_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}</select></div>
                 <div><Label>Component</Label><select name="component" value={form.component} onChange={e => setForm({ ...form, component: e.target.value })} style={selectStyle}>{COMPONENTS.map(c => <option key={c} value={c}>{c.replace('_', ' ')}</option>)}</select></div>
                 <div><Label>Quantity</Label><input type="number" min="1" name="quantity" value={form.quantity} onChange={e => setForm({ ...form, quantity: e.target.value })} required style={inputStyle} /></div>

@@ -68,7 +68,7 @@ const HospitalDashboard = () => {
           <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.95rem' }}>Recent Requests</h3>
           <Link to="/hospital/requests" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '0.78rem', fontWeight: 700 }}>View All →</Link>
         </div>
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead><tr style={{ background: 'var(--bg-elevated)' }}><TH c="Request ID" /><TH c="Patient" /><TH c="Group" /><TH c="Urgency" /><TH c="Date" /><TH c="Status" /></tr></thead>
             <tbody>

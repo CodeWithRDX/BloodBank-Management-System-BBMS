@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { createAppointment } from '../redux/slices/appointmentSlice';
+import { createAppointment, fetchMyAppointments } from '../redux/slices/appointmentSlice';
+import { fetchPublicBranches } from '../redux/slices/branchSlice';
+import { fetchMyRegistrations } from '../redux/slices/campSlice';
 import toast from 'react-hot-toast';
 import { HiOutlineArrowLeft } from 'react-icons/hi';
 
 const TIME_SLOTS = ['09:00-10:00','10:00-11:00','11:00-12:00','12:00-13:00','14:00-15:00','15:00-16:00','16:00-17:00'];
-const LOCATIONS  = ['Main Blood Bank Center','City Hospital Branch','Mobile Donation Camp (Downtown)'];
 
 const iStyle = { width: '100%', padding: '0.7rem 0.875rem', fontSize: '0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', boxSizing: 'border-box' };
 const Lbl = ({ children }) => (
@@ -16,21 +17,46 @@ const Lbl = ({ children }) => (
 const NewAppointment = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading } = useSelector(s => s.appointments);
+  const { loading, myAppointments } = useSelector(s => s.appointments);
+  const { publicBranches } = useSelector(s => s.branches);
+  const { myRegistrations } = useSelector(s => s.camps);
 
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split('T')[0];
 
-  const [form, setForm] = useState({ date: minDate, timeSlot: '09:00-10:00', type: 'donation', component: 'whole_blood', location: 'Main Blood Bank Center', notes: '' });
+  const [form, setForm] = useState({ date: minDate, timeSlot: '09:00-10:00', type: 'donation', component: 'whole_blood', branchId: '', notes: '' });
+
+  useEffect(() => {
+    dispatch(fetchPublicBranches());
+    dispatch(fetchMyAppointments());
+    dispatch(fetchMyRegistrations());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (publicBranches && publicBranches.length > 0 && !form.branchId) {
+      setForm(prev => ({ ...prev, branchId: publicBranches[0]._id }));
+    }
+  }, [publicBranches, form.branchId]);
+
+  // Check rules
+  const activeAppointment = myAppointments?.find(apt => ['Pending', 'Approved', 'Ongoing'].includes(apt.status));
+  const pendingCamp = myRegistrations?.find(reg => reg.status === 'Pending Approval');
+  const isBlocked = !!activeAppointment || !!pendingCamp;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isBlocked) {
+      toast.error('You cannot book an appointment at this time.');
+      return;
+    }
     const res = await dispatch(createAppointment(form));
     if (res.meta.requestStatus === 'fulfilled') {
-      toast.success('Appointment booked!');
+      toast.success('Appointment booked successfully!');
       navigate('/donor');
-    } else toast.error(res.payload || 'Failed to book appointment');
+    } else {
+      toast.error(res.payload || 'Failed to book appointment');
+    }
   };
 
   return (
@@ -51,8 +77,51 @@ const NewAppointment = () => {
         </div>
       </div>
 
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '2rem', boxShadow: 'var(--card-shadow)' }}>
+      {/* Warning Panel */}
+      {isBlocked && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.25)',
+          borderRadius: '1rem',
+          padding: '1.25rem',
+          color: '#ef4444',
+          fontSize: '0.875rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+        }}>
+          <strong style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
+            ⚠️ Booking Restricted
+          </strong>
+          {activeAppointment && (
+            <p style={{ margin: 0 }}>
+              You currently have an active appointment (status: <strong>{activeAppointment.status}</strong>) scheduled on <strong>{new Date(activeAppointment.date).toLocaleDateString()}</strong> at <strong>{activeAppointment.timeSlot}</strong>. Please complete or cancel it before booking a new one.
+            </p>
+          )}
+          {pendingCamp && (
+            <p style={{ margin: 0 }}>
+              You have a pending donation camp registration for <strong>{pendingCamp.campId?.name || 'a camp'}</strong>. Please wait for it to be resolved or cancelled first.
+            </p>
+          )}
+        </div>
+      )}
+
+      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '2rem', boxShadow: 'var(--card-shadow)', opacity: isBlocked ? 0.65 : 1, pointerEvents: isBlocked ? 'none' : 'auto', transition: 'opacity 0.2s' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+
+          {/* Branch */}
+          <div>
+            <Lbl>Select Blood Bank Branch</Lbl>
+            <select name="branchId" value={form.branchId} onChange={e => setForm({ ...form, branchId: e.target.value })} style={iStyle} required>
+              <option value="" disabled>-- Select a Branch --</option>
+              {publicBranches && publicBranches.map(b => (
+                <option key={b._id} value={b._id}>
+                  {b.name} ({b.address?.city || 'Unknown'})
+                </option>
+              ))}
+            </select>
+          </div>
 
           {/* Date */}
           <div>
@@ -83,14 +152,6 @@ const NewAppointment = () => {
             </div>
           </div>
 
-          {/* Location */}
-          <div>
-            <Lbl>Donation Center</Lbl>
-            <select name="location" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} style={iStyle}>
-              {LOCATIONS.map(l => <option key={l} value={l}>{l}</option>)}
-            </select>
-          </div>
-
           {/* Component Type */}
           <div>
             <Lbl>Donation Component</Lbl>
@@ -108,17 +169,17 @@ const NewAppointment = () => {
           </div>
 
           {/* Preview */}
-          {form.date && form.timeSlot && (
+          {form.date && form.timeSlot && form.branchId && (
             <div style={{ background: 'var(--accent-soft)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)', borderRadius: '0.875rem', padding: '1rem 1.25rem', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
               📋 <strong style={{ color: 'var(--text-primary)' }}>Summary:</strong>{' '}
-              {new Date(form.date).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })} at {form.timeSlot}, {form.location} ({form.component.replace('_', ' ')})
+              {new Date(form.date).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })} at {form.timeSlot}, {publicBranches?.find(b => b._id === form.branchId)?.name || 'Selected Center'} ({form.component.replace('_', ' ')})
             </div>
           )}
 
           {/* Submit */}
           <div style={{ paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
-            <button type="submit" disabled={loading} className="btn-primary"
-              style={{ width: '100%', padding: '0.875rem', border: 'none', fontSize: '0.9rem', fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+            <button type="submit" disabled={loading || isBlocked} className="btn-primary"
+              style={{ width: '100%', padding: '0.875rem', border: 'none', fontSize: '0.9rem', fontWeight: 700, cursor: (loading || isBlocked) ? 'not-allowed' : 'pointer', opacity: (loading || isBlocked) ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
               {loading
                 ? <><div style={{ width: '1rem', height: '1rem', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', animation: 'spin 0.7s linear infinite' }} />Confirming…</>
                 : '✅ Confirm Appointment'}

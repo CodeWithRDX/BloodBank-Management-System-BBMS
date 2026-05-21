@@ -6,6 +6,26 @@ import ApiFeatures from '../utils/ApiFeatures.js';
 import { adjustInventory } from '../services/inventoryService.js';
 import { broadcastInventoryUpdate } from '../utils/socketManager.js';
 import Branch from '../models/Branch.js';
+import Staff from '../models/Staff.js';
+import StaffLog from '../models/StaffLog.js';
+
+// Helper to log staff actions
+const logStaffAction = async (actorUser, targetBranchId, operationType, previousData, updatedData, req, description = '') => {
+  if (!actorUser) return;
+  const staffProfile = await Staff.findOne({ userId: actorUser.id });
+  if (staffProfile) {
+    await StaffLog.create({
+      staffId: staffProfile._id,
+      branchId: targetBranchId || staffProfile.branchId,
+      operationType,
+      previousData,
+      updatedData,
+      ipAddress: req.clientIp || req.ip || '',
+      description,
+    });
+  }
+};
+
 
 export const getInventory = async (req, res, next) => {
   try {
@@ -126,6 +146,8 @@ export const addInventory = async (req, res, next) => {
       description: `Inventory added: ${quantity} units of ${bloodGroup}`,
     });
 
+    await logStaffAction(req.user, targetBranchId, 'inventory_add', null, { bloodGroup, component, quantity }, req, `Inventory added: ${quantity} units of ${bloodGroup}`);
+
     broadcastInventoryUpdate(targetBranchId?.toString(), null);
 
     res.status(201).json({ success: true, data: inventory });
@@ -155,6 +177,8 @@ export const updateInventory = async (req, res, next) => {
       description: `Inventory item updated`,
     });
 
+    await logStaffAction(req.user, item.branchId, 'inventory_update', oldData, req.body, req, `Inventory item updated`);
+
     broadcastInventoryUpdate(item.branchId?.toString(), null);
     res.status(200).json({ success: true, data: item });
   } catch (error) { next(error); }
@@ -178,6 +202,8 @@ export const deleteInventory = async (req, res, next) => {
       ipAddress: req.clientIp,
       description: `Inventory item deleted`,
     });
+
+    await logStaffAction(req.user, item.branchId, 'inventory_delete', { bloodGroup: item.bloodGroup, quantity: item.quantity }, null, req, `Inventory item deleted`);
 
     res.status(200).json({ success: true, message: 'Deleted' });
   } catch (error) { next(error); }

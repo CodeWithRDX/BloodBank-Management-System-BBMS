@@ -44,8 +44,32 @@ export default function BloodBankLocator() {
   const mapRef = useRef();
 
   useEffect(() => {
-    loadBranches();
-  }, [bloodGroup]);
+    // Automatically trigger user location request on mount
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          setUserLocation(loc);
+          setMapCenter([loc.lat, loc.lng]);
+          setSearchMode('nearby');
+        },
+        (err) => {
+          console.warn('Geolocation failed or denied on mount:', err);
+          loadBranches();
+        }
+      );
+    } else {
+      loadBranches();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (searchMode === 'nearby' && userLocation) {
+      fetchNearby(userLocation);
+    } else if (searchMode === 'all') {
+      loadBranches();
+    }
+  }, [bloodGroup, radius, searchMode, userLocation]);
 
   const loadBranches = async () => {
     setLoading(true);
@@ -66,12 +90,12 @@ export default function BloodBankLocator() {
           const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           setUserLocation(loc);
           setMapCenter([loc.lat, loc.lng]);
-          fetchNearby(loc);
+          setSearchMode('nearby');
         },
         () => alert('Location access denied. Please enable location.')
       );
     } else {
-      fetchNearby(userLocation);
+      setSearchMode('nearby');
     }
   };
 
@@ -81,7 +105,6 @@ export default function BloodBankLocator() {
       const params = { lat: loc.lat, lng: loc.lng, radius, ...(bloodGroup !== 'All' ? { bloodGroup } : {}) };
       const { data } = await API.get('/geo/nearby', { params });
       setBranches(data.data || []);
-      setSearchMode('nearby');
     } catch (err) {
       console.error(err);
     } finally { setLoading(false); }
@@ -95,9 +118,9 @@ export default function BloodBankLocator() {
   };
 
   return (
-    <div style={{ display: 'flex', height: 'calc(100vh - 64px)', background: 'var(--bg-base)', overflow: 'hidden' }}>
+    <div className="locator-container">
       {/* Sidebar */}
-      <div style={{ width: 340, flexShrink: 0, display: 'flex', flexDirection: 'column', background: 'var(--bg-elevated)', borderRight: '1px solid var(--border)', overflow: 'hidden' }}>
+      <div className="locator-sidebar">
         {/* Sidebar Header */}
         <div style={{ padding: '1.5rem 1.25rem 1rem', borderBottom: '1px solid var(--border)' }}>
           <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -191,7 +214,7 @@ export default function BloodBankLocator() {
       </div>
 
       {/* Map */}
-      <div style={{ flex: 1, position: 'relative' }}>
+      <div className="locator-map-wrapper">
         <MapContainer
           center={mapCenter}
           zoom={5}

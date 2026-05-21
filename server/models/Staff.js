@@ -31,7 +31,7 @@ const staffSchema = new mongoose.Schema(
     },
     staffRole: {
       type: String,
-      enum: ['inventory_staff', 'camp_staff', 'lab_staff', 'branch_manager'],
+      enum: ['inventory_staff', 'camp_staff', 'lab_staff', 'branch_manager', 'reception_staff'],
       required: [true, 'Staff role is required'],
     },
     branchId: {

@@ -2,7 +2,7 @@ import express from 'express';
 import {
   createCamp, getCamps, getCamp, updateCamp, cancelCamp,
   registerForCamp, getCampRegistrations, getMyRegistrations,
-  updateRegistrationStatus,
+  updateRegistrationStatus, getAllRegistrations,
 } from '../controllers/campController.js';
 import { protect, authorize } from '../middleware/auth.js';
 
@@ -17,8 +17,10 @@ router.put('/:id', protect, authorize('admin', 'staff', 'branch_admin'), updateC
 router.put('/:id/cancel', protect, authorize('admin', 'staff', 'branch_admin'), cancelCamp);
 
 // Registrations
+router.get('/registrations/all', protect, authorize('admin', 'staff', 'branch_admin'), getAllRegistrations);
 router.post('/:id/register', protect, authorize('donor'), registerForCamp);
 router.get('/:id/registrations', protect, authorize('admin', 'staff', 'branch_admin'), getCampRegistrations);
 router.put('/registrations/:id/status', protect, authorize('admin', 'staff', 'branch_admin'), updateRegistrationStatus);
+
 
 export default router;

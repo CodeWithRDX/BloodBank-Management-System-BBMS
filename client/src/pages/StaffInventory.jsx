@@ -159,7 +159,7 @@ export default function StaffInventory() {
       </div>
 
       {/* Summary Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: '0.75rem', flexWrap: 'wrap' }}>
+      <div className="responsive-grid-8">
         {BLOOD_GROUPS.map((g) => {
           const sum = summary.find(s => s.bloodGroup === g);
           return (
@@ -215,9 +215,8 @@ export default function StaffInventory() {
       {loading ? (
         <LoadingSpinner text="Querying stock registries..." />
       ) : (
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+        <div className="table-wrapper">
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
               <thead>
                 <tr style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border)' }}>
                   <th style={{ padding: '12px 16px', textAlign: 'left', color: 'var(--text-secondary)' }}>Unit Number</th>
@@ -319,14 +318,13 @@ export default function StaffInventory() {
                 )}
               </tbody>
             </table>
-          </div>
         </div>
       )}
 
       {/* ADD BLOOD UNIT MODAL */}
       <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="📦 Record / Add Inventory Blood Unit" size="md">
         <form onSubmit={handleAddSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-grid-2">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Blood Group *</label>
               <select
@@ -354,7 +352,7 @@ export default function StaffInventory() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-grid-2">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Quantity (Units) *</label>
               <input

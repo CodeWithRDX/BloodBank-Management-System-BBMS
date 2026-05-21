@@ -5,6 +5,26 @@ import NotificationService from '../services/notificationService.js';
 import ApiFeatures from '../utils/ApiFeatures.js';
 import { subtractFromInventory } from '../services/inventoryService.js';
 import { emitRequestUpdate } from '../utils/socketManager.js';
+import Staff from '../models/Staff.js';
+import StaffLog from '../models/StaffLog.js';
+
+// Helper to log staff actions
+const logStaffAction = async (actorUser, targetBranchId, operationType, previousData, updatedData, req, description = '') => {
+  if (!actorUser) return;
+  const staffProfile = await Staff.findOne({ userId: actorUser.id });
+  if (staffProfile) {
+    await StaffLog.create({
+      staffId: staffProfile._id,
+      branchId: targetBranchId || staffProfile.branchId,
+      operationType,
+      previousData,
+      updatedData,
+      ipAddress: req.clientIp || req.ip || '',
+      description,
+    });
+  }
+};
+
 
 export const getRequests = async (req, res, next) => {
   try {
@@ -140,6 +160,16 @@ export const updateRequestStatus = async (req, res, next) => {
       ipAddress: req.clientIp,
       description: `Request ${request.requestId} status: ${oldStatus} → ${request.status}`,
     });
+
+    await logStaffAction(
+      req.user,
+      request.branchId,
+      'blood_issue_operation',
+      { status: oldStatus },
+      { status: request.status },
+      req,
+      `Request ${request.requestId} status updated from ${oldStatus} to ${request.status}`
+    );
 
     res.status(200).json({ success: true, data: request });
   } catch (error) { next(error); }

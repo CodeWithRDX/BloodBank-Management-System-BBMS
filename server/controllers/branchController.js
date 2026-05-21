@@ -1,6 +1,7 @@
 import Branch from '../models/Branch.js';
 import User from '../models/User.js';
 import AuditLog from '../models/AuditLog.js';
+import BranchApproval from '../models/BranchApproval.js';
 import NotificationService from '../services/notificationService.js';
 import { emitBranchStatusChange, emitToAdmins } from '../utils/socketManager.js';
 
@@ -139,6 +140,16 @@ export const approveBranch = async (req, res, next) => {
       description: `Branch "${branch.name}" approved by admin`,
     });
 
+    // Create BranchApproval log
+    await BranchApproval.create({
+      branchId: branch._id,
+      status: 'approved',
+      action: 'approve',
+      performedBy: req.user.id,
+      reason: 'Approved by admin',
+      ipAddress: req.clientIp || req.ip || '',
+    });
+
     res.status(200).json({ success: true, data: branch, message: 'Branch approved successfully' });
   } catch (error) {
     next(error);
@@ -174,6 +185,16 @@ export const rejectBranch = async (req, res, next) => {
       newData: { status: 'rejected', rejectionReason: branch.rejectionReason },
       ipAddress: req.clientIp,
       description: `Branch "${branch.name}" rejected`,
+    });
+
+    // Create BranchApproval log
+    await BranchApproval.create({
+      branchId: branch._id,
+      status: 'rejected',
+      action: 'reject',
+      performedBy: req.user.id,
+      reason: branch.rejectionReason,
+      ipAddress: req.clientIp || req.ip || '',
     });
 
     res.status(200).json({ success: true, data: branch, message: 'Branch rejected' });
@@ -212,6 +233,16 @@ export const updateBranchStatus = async (req, res, next) => {
       newData: { status },
       ipAddress: req.clientIp,
       description: `Branch "${branch.name}" status changed to ${status}`,
+    });
+
+    // Create BranchApproval log
+    await BranchApproval.create({
+      branchId: branch._id,
+      status: status,
+      action: status,
+      performedBy: req.user.id,
+      reason: req.body.reason || `Status updated by admin to ${status}`,
+      ipAddress: req.clientIp || req.ip || '',
     });
 
     res.status(200).json({ success: true, data: branch });

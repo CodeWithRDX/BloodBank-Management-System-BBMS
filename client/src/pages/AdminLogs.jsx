@@ -341,7 +341,7 @@ export default function AdminLogs() {
         <LoadingSpinner text="Searching logs archive..." />
       ) : (
         <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
               <thead>
                 <tr style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border)' }}>

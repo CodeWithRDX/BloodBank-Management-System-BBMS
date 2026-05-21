@@ -51,7 +51,7 @@ const AdminDashboard = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="animate-fadeIn">
       {/* Header */}
       <div>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', fontFamily: "'Space Grotesk', sans-serif" }}>
+        <h1 style={{ fontSize: 'clamp(1.2rem, 4vw, 1.5rem)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', fontFamily: "'Space Grotesk', sans-serif" }}>
           Admin Dashboard
         </h1>
         <p style={{ color: 'var(--text-secondary)', marginTop: '0.25rem', fontSize: '0.85rem' }}>
@@ -60,7 +60,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: '1rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(190px, 100%), 1fr))', gap: '1rem' }}>
         <StatsCard title="Total Donors"       value={stats.totalDonors}     icon={HiOutlineHeart}        color="red"    />
         <StatsCard title="Hospitals"          value={stats.totalHospitals}  icon={HiOutlineOfficeBuilding} color="purple" />
         <StatsCard title="Blood Units"        value={stats.totalInventory}  icon={HiOutlineBeaker}       color="blue"   />
@@ -68,7 +68,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Charts row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', gap: '1.25rem' }}>
         {/* Blood Stock */}
         <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: 'var(--card-shadow)' }}>
           <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.95rem', marginBottom: '1.25rem' }}>
@@ -113,14 +113,14 @@ const AdminDashboard = () => {
       </div>
 
       {/* Tables row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '1.25rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(340px, 100%), 1fr))', gap: '1.25rem' }}>
         {/* Recent Donations */}
         <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
           <div style={{ padding: '1.125rem 1.25rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.9rem' }}>Recent Donations</h3>
             <span style={{ color: 'var(--accent)', fontSize: '0.72rem', fontWeight: 600 }}>Last 5</span>
           </div>
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'var(--bg-elevated)' }}><TH>Donor</TH><TH>Group</TH><TH>Date</TH><TH>Status</TH></tr></thead>
               <tbody>
@@ -146,7 +146,7 @@ const AdminDashboard = () => {
             <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.9rem' }}>Recent Requests</h3>
             <span style={{ color: 'var(--accent)', fontSize: '0.72rem', fontWeight: 600 }}>Last 5</span>
           </div>
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'var(--bg-elevated)' }}><TH>Patient</TH><TH>Group</TH><TH>Qty</TH><TH>Status</TH></tr></thead>
               <tbody>

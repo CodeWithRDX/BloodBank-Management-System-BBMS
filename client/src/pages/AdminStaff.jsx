@@ -9,6 +9,7 @@ const STAFF_ROLES = [
   { value: 'inventory_staff', label: 'Inventory Staff' },
   { value: 'camp_staff', label: 'Camp Staff' },
   { value: 'lab_staff', label: 'Lab Staff' },
+  { value: 'reception_staff', label: 'Reception Staff' },
   { value: 'branch_manager', label: 'Branch Manager' },
 ];
 
@@ -16,6 +17,7 @@ const ROLE_COLORS = {
   inventory_staff: '#3b82f6',
   camp_staff: '#10b981',
   lab_staff: '#f59e0b',
+  reception_staff: '#ec4899',
   branch_manager: '#8b5cf6',
 };
 
@@ -77,11 +79,11 @@ export default function AdminStaff() {
   };
 
   return (
-    <div style={{ padding: '2rem', maxWidth: 1200, margin: '0 auto' }}>
+    <div style={{ padding: 'clamp(1rem, 3vw, 2rem)', maxWidth: 1200, margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+          <h1 style={{ fontSize: 'clamp(1.2rem, 4vw, 1.6rem)', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
             👥 Staff Management
           </h1>
           <p style={{ color: 'var(--text-secondary)', margin: '4px 0 0', fontSize: '0.9rem' }}>
@@ -91,24 +93,25 @@ export default function AdminStaff() {
         <button onClick={() => { setShowModal(true); setEditMode(false); setForm(emptyForm); }} style={{
           display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px',
           borderRadius: 10, background: 'var(--accent)', color: '#fff',
-          border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem',
+          border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.9rem', flexShrink: 0,
         }}>
           <FiPlus /> Add Staff
         </button>
       </div>
 
       {/* Search */}
-      <div style={{ position: 'relative', marginBottom: '1.5rem', maxWidth: 360 }}>
+      <div style={{ position: 'relative', marginBottom: '1.5rem', maxWidth: '100%' }}>
         <FiSearch style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
         <input
           value={search} onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name or email..."
-          style={{ width: '100%', padding: '10px 12px 10px 38px', borderRadius: 10, background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
+          className="ios-safe-input"
+          style={{ width: '100%', maxWidth: 400, padding: '10px 12px 10px 38px', borderRadius: 10, background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
         />
       </div>
 
       {/* Table */}
-      <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
+      <div className="table-wrapper" style={{ borderRadius: 14 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--border)' }}>
@@ -188,8 +191,8 @@ export default function AdminStaff() {
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 16, padding: '2rem', width: '100%', maxWidth: 480 }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)', padding: '1rem' }}>
+          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 16, padding: 'clamp(1rem, 3vw, 2rem)', width: '100%', maxWidth: 480, maxHeight: '92dvh', overflowY: 'auto' }}>
             <h3 style={{ margin: '0 0 1.5rem', color: 'var(--text-primary)', fontSize: '1.1rem', fontWeight: 700 }}>
               {editMode ? '✏️ Edit Staff Member' : '➕ Add Staff Member'}
             </h3>

@@ -43,7 +43,7 @@ const DonorDashboard = () => {
 
   if ((dL || aL) && !myProfile) return <LoadingSpinner size="lg" text="Loading your dashboard…" />;
 
-  const upcoming = myAppointments?.filter(a => ['scheduled', 'confirmed'].includes(a.status)) || [];
+  const upcoming = myAppointments?.filter(a => ['Pending', 'Approved', 'Ongoing'].includes(a.status)) || [];
 
   let daysSince = null, isEligible = true, nextDate = null;
   let activeCompName = 'Whole Blood';
@@ -229,7 +229,7 @@ const DonorDashboard = () => {
             <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.95rem' }}>Recent Donations</h3>
             <Link to="/donor/donations" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '0.78rem', fontWeight: 700 }}>Full History →</Link>
           </div>
-          <div style={{ overflowX: 'auto' }}>
+          <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ background: 'var(--bg-elevated)' }}>

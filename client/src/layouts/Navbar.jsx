@@ -7,7 +7,7 @@ import { fetchNotifications } from '../redux/slices/notificationSlice';
 import ThemePicker from '../components/ThemePicker';
 import usePolling from '../hooks/usePolling';
 
-const Navbar = ({ onMenuClick }) => {
+const Navbar = ({ onMenuClick, sidebarOpen }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -40,30 +40,40 @@ const Navbar = ({ onMenuClick }) => {
       top: 0,
       zIndex: 10,
     }}>
-      {/* Mobile menu toggle */}
+      {/* Mobile menu toggle — hamburger / X icon */}
       <button
         onClick={onMenuClick}
         style={{
-          background: 'var(--bg-elevated)',
-          border: '1px solid var(--border)',
+          background: sidebarOpen ? 'var(--accent-soft)' : 'var(--bg-elevated)',
+          border: `1px solid ${sidebarOpen ? 'color-mix(in srgb, var(--accent) 50%, transparent)' : 'var(--border)'}`,
           borderRadius: '0.625rem',
           padding: '0.375rem',
           cursor: 'pointer',
-          color: 'var(--text-secondary)',
+          color: sidebarOpen ? 'var(--accent)' : 'var(--text-secondary)',
           display: 'flex',
           alignItems: 'center',
           transition: 'all 0.2s',
+          flexShrink: 0,
         }}
         className="lg-hidden"
-        aria-label="Open menu"
+        aria-label={sidebarOpen ? 'Close menu' : 'Open menu'}
+        aria-expanded={sidebarOpen}
         onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+        onMouseLeave={e => {
+          if (!sidebarOpen) {
+            e.currentTarget.style.borderColor = 'var(--border)';
+            e.currentTarget.style.color = 'var(--text-secondary)';
+          }
+        }}
       >
-        <HiMenuAlt2 style={{ width: '1.2rem', height: '1.2rem' }} />
+        {sidebarOpen
+          ? <HiX style={{ width: '1.2rem', height: '1.2rem' }} />
+          : <HiMenuAlt2 style={{ width: '1.2rem', height: '1.2rem' }} />
+        }
       </button>
 
       {/* Page title breadcrumb */}
-      <div style={{ flex: 1 }}>
+      <div style={{ flex: 1 }} className="hide-mobile">
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 500 }}>
           {user?.name && <span style={{ color: 'var(--accent)' }}>👋</span>} Welcome back, {user?.name?.split(' ')[0]}
         </p>
@@ -120,6 +130,9 @@ const Navbar = ({ onMenuClick }) => {
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => setShowProfile(!showProfile)}
+            aria-expanded={showProfile}
+            aria-haspopup="true"
+            aria-label="User profile menu"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -150,8 +163,8 @@ const Navbar = ({ onMenuClick }) => {
             }}>
               {initials}
             </div>
-            <div style={{ textAlign: 'left' }}>
-              <p style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.78rem', lineHeight: 1 }}>
+            <div style={{ textAlign: 'left', overflow: 'hidden' }} className="hide-mobile">
+              <p style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.78rem', lineHeight: 1, whiteSpace: 'nowrap' }}>
                 {user?.name?.split(' ')[0]}
               </p>
               <p style={{ color: 'var(--accent)', fontSize: '0.62rem', marginTop: '0.1rem', textTransform: 'capitalize' }}>
@@ -171,6 +184,8 @@ const Navbar = ({ onMenuClick }) => {
                   top: 'calc(100% + 0.5rem)',
                   zIndex: 50,
                   width: '14rem',
+                  maxWidth: 'calc(100vw - 2rem)',
+                  transformOrigin: 'top right',
                   background: 'var(--bg-surface)',
                   border: '1px solid var(--border)',
                   borderRadius: '1rem',

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCamps, fetchCampRegistrations, updateRegistrationStatus } from '../redux/slices/campSlice';
+import usePolling from '../hooks/usePolling';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import BloodGroupBadge from '../components/BloodGroupBadge';
+import StatusBadge from '../components/StatusBadge';
 import { 
   FiCalendar, 
   FiClock, 
@@ -26,11 +28,8 @@ export default function StaffCamps() {
   const [selectedCamp, setSelectedCamp] = useState(null);
   const [campFilter, setCampFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [regStatusFilter, setRegStatusFilter] = useState('all');
   const [loadingRegistrants, setLoadingRegistrants] = useState(false);
-
-  useEffect(() => {
-    loadCampsList();
-  }, [dispatch, user]);
 
   const loadCampsList = () => {
     const params = new URLSearchParams();
@@ -40,27 +39,34 @@ export default function StaffCamps() {
     dispatch(fetchCamps(params.toString()));
   };
 
-  const handleSelectCamp = (camp) => {
-    setSelectedCamp(camp);
-    loadRegistrations(camp._id);
-  };
-
-  const loadRegistrations = async (campId) => {
-    setLoadingRegistrants(true);
+  const loadRegistrations = async (campId, silent = false) => {
+    if (!silent) setLoadingRegistrants(true);
     try {
       await dispatch(fetchCampRegistrations(campId)).unwrap();
     } catch (err) {
-      toast.error(err || 'Failed to fetch camp registrations');
+      if (!silent) toast.error(err || 'Failed to fetch camp registrations');
     } finally {
-      setLoadingRegistrants(false);
+      if (!silent) setLoadingRegistrants(false);
     }
+  };
+
+  usePolling(() => {
+    loadCampsList();
+    if (selectedCamp) {
+      loadRegistrations(selectedCamp._id, true);
+    }
+  }, 10000, [user, selectedCamp?._id]);
+
+  const handleSelectCamp = (camp) => {
+    setSelectedCamp(camp);
+    loadRegistrations(camp._id, false);
   };
 
   const handleStatusChange = async (regId, status, donorName) => {
     try {
       const res = await dispatch(updateRegistrationStatus({ id: regId, status })).unwrap();
       if (res.success) {
-        toast.success(`Updated ${donorName}'s status to ${status.toUpperCase()}!`);
+        toast.success(`Updated ${donorName}'s status to ${status}!`);
         if (selectedCamp) {
           loadRegistrations(selectedCamp._id);
           // Reload camps list to keep registration/donation counters fresh
@@ -78,8 +84,10 @@ export default function StaffCamps() {
     return camp.status === campFilter;
   });
 
-  // Filter registrants by search query
+  // Filter registrants by search query and status filter
   const filteredRegistrations = registrations.filter((reg) => {
+    if (regStatusFilter !== 'all' && reg.status !== regStatusFilter) return false;
+
     const donorName = reg.donorId?.fullName || '';
     const donorPhone = reg.donorId?.phone || '';
     const bloodGroup = reg.donorId?.bloodGroup || '';
@@ -98,15 +106,6 @@ export default function StaffCamps() {
       case 'upcoming': return { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', label: 'UPCOMING' };
       case 'completed': return { bg: 'rgba(16,185,129,0.15)', text: '#10b981', label: 'COMPLETED' };
       case 'cancelled': return { bg: 'rgba(239,68,68,0.15)', text: '#ef4444', label: 'CANCELLED' };
-      default: return { bg: 'var(--bg-elevated)', text: 'var(--text-secondary)', label: status?.toUpperCase() };
-    }
-  };
-
-  const getRegStatusStyles = (status) => {
-    switch (status) {
-      case 'donated': return { bg: 'rgba(16,185,129,0.15)', text: '#10b981', label: 'DONATED' };
-      case 'attended': return { bg: 'rgba(99,102,241,0.15)', text: '#818cf8', label: 'ATTENDED' };
-      case 'registered': return { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', label: 'REGISTERED' };
       default: return { bg: 'var(--bg-elevated)', text: 'var(--text-secondary)', label: status?.toUpperCase() };
     }
   };
@@ -136,7 +135,7 @@ export default function StaffCamps() {
       </div>
 
       {/* Main Grid Section */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1.5rem', alignItems: 'flex-start' }}>
+      <div className="camps-grid" style={{ alignItems: 'flex-start' }}>
         
         {/* Left Column: Camp List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -309,11 +308,35 @@ export default function StaffCamps() {
                 </button>
               </div>
 
+              {/* Status Filter Tabs */}
+              <div style={{ display: 'flex', gap: '0.35rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
+                {['all', 'Pending Approval', 'Approved', 'Rejected', 'Attended', 'Missed'].map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setRegStatusFilter(status)}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '12px',
+                      border: '1px solid var(--border)',
+                      background: regStatusFilter === status ? 'var(--accent)' : 'var(--bg-elevated)',
+                      color: regStatusFilter === status ? 'white' : 'var(--text-secondary)',
+                      fontSize: '0.7rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+
               {/* Registrants Table/List */}
               {loadingRegistrants ? (
                 <LoadingSpinner text="Retrieving camp registrations..." />
               ) : (
-                <div style={{ maxHeight: '55vh', overflowY: 'auto', border: '1px solid var(--border)', borderRadius: '0.75rem', overflow: 'hidden' }}>
+                <div className="table-wrapper" style={{ maxHeight: '55dvh', overflowY: 'auto', borderRadius: '0.75rem' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
                     <thead>
                       <tr style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border)' }}>
@@ -327,7 +350,6 @@ export default function StaffCamps() {
                     <tbody>
                       {filteredRegistrations.map((reg) => {
                         const donor = reg.donorId;
-                        const statusStyle = getRegStatusStyles(reg.status);
                         return (
                           <tr
                             key={reg._id}
@@ -349,61 +371,91 @@ export default function StaffCamps() {
                               <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)' }}>{donor?.phone || 'No phone'}</div>
                             </td>
                             <td style={{ padding: '10px 14px', textAlign: 'center' }}>
-                              <span style={{
-                                padding: '2px 8px',
-                                borderRadius: 4,
-                                fontSize: '0.68rem',
-                                fontWeight: 700,
-                                background: statusStyle.bg,
-                                color: statusStyle.text,
-                                whiteSpace: 'nowrap'
-                              }}>
-                                {statusStyle.label}
-                              </span>
+                              <StatusBadge status={reg.status} />
                             </td>
                             <td style={{ padding: '10px 14px', textAlign: 'right' }}>
                               <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
-                                {reg.status === 'registered' && (
-                                  <button
-                                    onClick={() => handleStatusChange(reg._id, 'attended', donor?.fullName)}
-                                    className="btn-primary"
-                                    style={{
-                                      padding: '4px 10px',
-                                      fontSize: '0.72rem',
-                                      fontWeight: 700,
-                                      border: 'none',
-                                      cursor: 'pointer',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: 4
-                                    }}
-                                  >
-                                    <FiUserCheck /> Check In
-                                  </button>
+                                {reg.status === 'Pending Approval' && (
+                                  <>
+                                    <button
+                                      onClick={() => handleStatusChange(reg._id, 'Approved', donor?.fullName)}
+                                      className="btn-primary"
+                                      style={{
+                                        padding: '4px 10px',
+                                        fontSize: '0.72rem',
+                                        fontWeight: 700,
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 4
+                                      }}
+                                    >
+                                      <FiCheck /> Approve
+                                    </button>
+                                    <button
+                                      onClick={() => handleStatusChange(reg._id, 'Rejected', donor?.fullName)}
+                                      style={{
+                                        padding: '4px 10px',
+                                        fontSize: '0.72rem',
+                                        fontWeight: 700,
+                                        background: 'rgba(239,68,68,0.15)',
+                                        color: '#ef4444',
+                                        border: '1px solid #ef4444',
+                                        borderRadius: '0.375rem',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 4
+                                      }}
+                                    >
+                                      Reject
+                                    </button>
+                                  </>
                                 )}
                                 
-                                {reg.status === 'attended' && (
-                                  <button
-                                    onClick={() => handleStatusChange(reg._id, 'donated', donor?.fullName)}
-                                    style={{
-                                      padding: '4px 10px',
-                                      fontSize: '0.72rem',
-                                      fontWeight: 700,
-                                      background: 'rgba(16,185,129,0.15)',
-                                      color: '#10b981',
-                                      border: '1px solid #10b981',
-                                      borderRadius: '0.375rem',
-                                      cursor: 'pointer',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: 4
-                                    }}
-                                  >
-                                    <FiDroplet style={{ color: '#10b981' }} /> Log Donation
-                                  </button>
+                                {reg.status === 'Approved' && (
+                                  <>
+                                    <button
+                                      onClick={() => handleStatusChange(reg._id, 'Attended', donor?.fullName)}
+                                      className="btn-primary"
+                                      style={{
+                                        padding: '4px 10px',
+                                        fontSize: '0.72rem',
+                                        fontWeight: 700,
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 4,
+                                        background: '#10b981',
+                                        color: 'white'
+                                      }}
+                                    >
+                                      <FiUserCheck /> Check In
+                                    </button>
+                                    <button
+                                      onClick={() => handleStatusChange(reg._id, 'Missed', donor?.fullName)}
+                                      style={{
+                                        padding: '4px 10px',
+                                        fontSize: '0.72rem',
+                                        fontWeight: 700,
+                                        background: 'rgba(107,114,128,0.15)',
+                                        color: 'var(--text-secondary)',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '0.375rem',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 4
+                                      }}
+                                    >
+                                      Missed
+                                    </button>
+                                  </>
                                 )}
 
-                                {reg.status === 'donated' && (
+                                {reg.status === 'Attended' && (
                                   <span style={{
                                     fontSize: '0.75rem',
                                     color: '#10b981',

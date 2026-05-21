@@ -22,6 +22,17 @@ const STATUS_MAP = {
   urgent:    { dot: '#fbbf24', bg: 'rgba(251,191,36,0.1)',   border: 'rgba(251,191,36,0.3)',   label: 'Urgent'    },
   emergency: { dot: '#f87171', bg: 'rgba(248,113,113,0.1)',  border: 'rgba(248,113,113,0.3)',  label: 'Emergency' },
   normal:    { dot: '#60a5fa', bg: 'rgba(96,165,250,0.1)',   border: 'rgba(96,165,250,0.3)',   label: 'Normal'    },
+
+  // Upgraded Exact-Case & Spaced Statuses
+  Pending:             { dot: '#fbbf24', bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.3)', label: 'Pending' },
+  Approved:            { dot: '#4ade80', bg: 'rgba(74,222,128,0.1)', border: 'rgba(74,222,128,0.3)', label: 'Approved' },
+  Rejected:            { dot: '#f87171', bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.3)', label: 'Rejected' },
+  Ongoing:             { dot: '#a78bfa', bg: 'rgba(167,139,250,0.1)', border: 'rgba(167,139,250,0.3)', label: 'Ongoing' },
+  Completed:           { dot: '#60a5fa', bg: 'rgba(96,165,250,0.1)', border: 'rgba(96,165,250,0.3)', label: 'Completed' },
+  Cancelled:           { dot: '#94a3b8', bg: 'rgba(148,163,184,0.1)', border: 'rgba(148,163,184,0.3)', label: 'Cancelled' },
+  Missed:              { dot: '#94a3b8', bg: 'rgba(148,163,184,0.1)', border: 'rgba(148,163,184,0.3)', label: 'Missed' },
+  'Pending Approval':  { dot: '#fbbf24', bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.3)', label: 'Pending Approval' },
+  Attended:            { dot: '#10b981', bg: 'rgba(16,185,129,0.15)', border: 'rgba(16,185,129,0.3)', label: 'Attended' },
 };
 
 const StatusBadge = ({ status }) => {

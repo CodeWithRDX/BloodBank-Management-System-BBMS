@@ -39,10 +39,15 @@ const appointmentSchema = new mongoose.Schema(
       enum: ['whole_blood', 'plasma', 'platelets', 'red_cells'],
       default: 'whole_blood',
     },
+    branchId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Branch',
+      required: [true, 'Branch is required'],
+    },
     status: {
       type: String,
-      enum: ['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'],
-      default: 'scheduled',
+      enum: ['Pending', 'Approved', 'Rejected', 'Ongoing', 'Completed', 'Cancelled', 'Missed'],
+      default: 'Pending',
     },
     notes: String,
     location: {
@@ -57,6 +62,7 @@ const appointmentSchema = new mongoose.Schema(
 appointmentSchema.index({ date: 1, timeSlot: 1 });
 appointmentSchema.index({ donorId: 1 });
 appointmentSchema.index({ status: 1 });
+appointmentSchema.index({ branchId: 1 });
 
 // Auto-generate appointment ID
 appointmentSchema.pre('save', async function (next) {

@@ -43,6 +43,13 @@ export const registerForCamp = createAsyncThunk('camps/register', async (campId,
   } catch (err) { return rejectWithValue(err.response?.data?.message || 'Failed'); }
 });
 
+export const fetchNearbyCamps = createAsyncThunk('camps/fetchNearby', async (params, { rejectWithValue }) => {
+  try {
+    const { data } = await API.get('/geo/camps', { params });
+    return data;
+  } catch (err) { return rejectWithValue(err.response?.data?.message || 'Failed'); }
+});
+
 export const fetchMyRegistrations = createAsyncThunk('camps/myRegistrations', async (_, { rejectWithValue }) => {
   try {
     const { data } = await API.get('/camps/my-registrations');
@@ -57,6 +64,14 @@ export const fetchCampRegistrations = createAsyncThunk('camps/registrations', as
   } catch (err) { return rejectWithValue(err.response?.data?.message || 'Failed'); }
 });
 
+export const fetchAllRegistrations = createAsyncThunk('camps/fetchAllRegistrations', async (params, { rejectWithValue }) => {
+  try {
+    const { data } = await API.get('/camps/registrations/all', { params });
+    return data;
+  } catch (err) { return rejectWithValue(err.response?.data?.message || 'Failed'); }
+});
+
+
 export const updateRegistrationStatus = createAsyncThunk('camps/updateRegistrationStatus', async ({ id, status }, { rejectWithValue }) => {
   try {
     const { data } = await API.put(`/camps/registrations/${id}/status`, { status });
@@ -70,6 +85,7 @@ const campSlice = createSlice({
     camps: [],
     currentCamp: null,
     registrations: [],
+    allRegistrations: [],
     myRegistrations: [],
     total: 0,
     loading: false,
@@ -87,6 +103,13 @@ const campSlice = createSlice({
         state.total = action.payload.total;
       })
       .addCase(fetchCamps.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(fetchNearbyCamps.pending, (state) => { state.loading = true; })
+      .addCase(fetchNearbyCamps.fulfilled, (state, action) => {
+        state.loading = false;
+        state.camps = action.payload.data;
+        state.total = action.payload.data.length;
+      })
+      .addCase(fetchNearbyCamps.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
       .addCase(fetchCamp.fulfilled, (state, action) => { state.currentCamp = action.payload.data; })
       .addCase(createCamp.fulfilled, (state, action) => { state.camps.unshift(action.payload.data); })
       .addCase(cancelCamp.fulfilled, (state, action) => {
@@ -95,9 +118,17 @@ const campSlice = createSlice({
       })
       .addCase(fetchMyRegistrations.fulfilled, (state, action) => { state.myRegistrations = action.payload.data; })
       .addCase(fetchCampRegistrations.fulfilled, (state, action) => { state.registrations = action.payload.data; })
+      .addCase(fetchAllRegistrations.pending, (state) => { state.loading = true; })
+      .addCase(fetchAllRegistrations.fulfilled, (state, action) => {
+        state.loading = false;
+        state.allRegistrations = action.payload.data || [];
+      })
+      .addCase(fetchAllRegistrations.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
       .addCase(updateRegistrationStatus.fulfilled, (state, action) => {
         const idx = state.registrations.findIndex((r) => r._id === action.payload.data._id);
         if (idx !== -1) state.registrations[idx] = action.payload.data;
+        const allIdx = state.allRegistrations.findIndex((r) => r._id === action.payload.data._id);
+        if (allIdx !== -1) state.allRegistrations[allIdx] = action.payload.data;
       });
   },
 });

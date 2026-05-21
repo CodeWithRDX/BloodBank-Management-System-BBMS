@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchBranches, approveBranch, rejectBranch, updateBranchStatus } from '../redux/slices/branchSlice';
+import { fetchBranches, approveBranch, rejectBranch, updateBranchStatus, registerBranch } from '../redux/slices/branchSlice';
 import toast from 'react-hot-toast';
-import { FiCheckCircle, FiXCircle, FiPauseCircle, FiMapPin, FiPhone, FiMail, FiFilter, FiRefreshCw } from 'react-icons/fi';
+import { FiCheckCircle, FiXCircle, FiPauseCircle, FiMapPin, FiPhone, FiMail, FiFilter, FiRefreshCw, FiPlus } from 'react-icons/fi';
 import { MdPending, MdVerified, MdBlock } from 'react-icons/md';
+import Modal from '../components/Modal';
 
 import usePolling from '../hooks/usePolling';
 
@@ -32,6 +33,19 @@ export default function AdminBranches() {
   const [filter, setFilter] = useState('all');
   const [rejectModal, setRejectModal] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
+  
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newBranch, setNewBranch] = useState({
+    name: '',
+    registrationNumber: '',
+    email: '',
+    phone: '',
+    address: { street: '', city: '', state: '', zipCode: '' },
+    latitude: '',
+    longitude: '',
+    operatingHours: { open: '08:00', close: '20:00' },
+    description: '',
+  });
 
   const loadBranches = () => {
     dispatch(fetchBranches(filter !== 'all' ? { status: filter } : {}));
@@ -62,6 +76,37 @@ export default function AdminBranches() {
     } catch (err) { toast.error(err); }
   };
 
+  const handleAddSubmit = async (e) => {
+    e.preventDefault();
+    if (!newBranch.name || !newBranch.registrationNumber || !newBranch.email || !newBranch.phone || !newBranch.address.street || !newBranch.address.city || !newBranch.address.state) {
+      return toast.error('Please fill in all required fields.');
+    }
+    try {
+      const payload = {
+        ...newBranch,
+        latitude: parseFloat(newBranch.latitude) || 0,
+        longitude: parseFloat(newBranch.longitude) || 0,
+      };
+      await dispatch(registerBranch(payload)).unwrap();
+      toast.success('🎉 Branch registered successfully!');
+      setIsAddModalOpen(false);
+      setNewBranch({
+        name: '',
+        registrationNumber: '',
+        email: '',
+        phone: '',
+        address: { street: '', city: '', state: '', zipCode: '' },
+        latitude: '',
+        longitude: '',
+        operatingHours: { open: '08:00', close: '20:00' },
+        description: '',
+      });
+      loadBranches();
+    } catch (err) {
+      toast.error(err || 'Failed to register branch');
+    }
+  };
+
   const tabs = [
     { key: 'all', label: 'All', icon: <FiFilter /> },
     { key: 'pending', label: 'Pending', icon: <MdPending /> },
@@ -71,23 +116,31 @@ export default function AdminBranches() {
   ];
 
   return (
-    <div style={{ padding: '2rem', maxWidth: 1400, margin: '0 auto' }}>
+    <div style={{ padding: 'clamp(1rem, 3vw, 2rem)', maxWidth: 1400, margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+          <h1 style={{ fontSize: 'clamp(1.2rem, 4vw, 1.6rem)', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
             🏥 Branch Management
           </h1>
           <p style={{ color: 'var(--text-secondary)', margin: '4px 0 0', fontSize: '0.9rem' }}>
             {total} branches registered on the platform
           </p>
         </div>
-        <button
-          onClick={() => dispatch(fetchBranches({}))}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600 }}
-        >
-          <FiRefreshCw /> Refresh
-        </button>
+        <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600 }}
+          >
+            <FiPlus /> Add Branch
+          </button>
+          <button
+            onClick={() => dispatch(fetchBranches({}))}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border)', cursor: 'pointer', fontWeight: 600 }}
+          >
+            <FiRefreshCw /> Refresh
+          </button>
+        </div>
       </div>
 
       {/* Filter Tabs */}
@@ -113,7 +166,7 @@ export default function AdminBranches() {
           Loading branches...
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(340px, 100%), 1fr))', gap: '1.25rem' }}>
           {branches.map((branch) => (
             <div key={branch._id} style={{
               background: 'var(--bg-elevated)',
@@ -209,10 +262,200 @@ export default function AdminBranches() {
         </div>
       )}
 
+      {/* Add Branch Modal */}
+      <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="🏥 Add New Branch" size="lg">
+        <form onSubmit={handleAddSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div className="form-grid-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Branch Name *</label>
+              <input
+                required
+                type="text"
+                placeholder="e.g. Metro Blood Centre"
+                value={newBranch.name}
+                onChange={(e) => setNewBranch({ ...newBranch, name: e.target.value })}
+                className="input"
+                style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Registration Number *</label>
+              <input
+                required
+                type="text"
+                placeholder="e.g. REG-123456"
+                value={newBranch.registrationNumber}
+                onChange={(e) => setNewBranch({ ...newBranch, registrationNumber: e.target.value })}
+                className="input"
+                style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+              />
+            </div>
+          </div>
+
+          <div className="form-grid-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Email Address *</label>
+              <input
+                required
+                type="email"
+                placeholder="e.g. contact@metroblood.com"
+                value={newBranch.email}
+                onChange={(e) => setNewBranch({ ...newBranch, email: e.target.value })}
+                className="input"
+                style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Phone Number *</label>
+              <input
+                required
+                type="text"
+                placeholder="e.g. +91 98765 43210"
+                value={newBranch.phone}
+                onChange={(e) => setNewBranch({ ...newBranch, phone: e.target.value })}
+                className="input"
+                style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+            <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>📍 Address details</h4>
+            <div className="form-grid-2-1-1">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <input
+                  required
+                  type="text"
+                  placeholder="Street Address *"
+                  value={newBranch.address.street}
+                  onChange={(e) => setNewBranch({ ...newBranch, address: { ...newBranch.address, street: e.target.value } })}
+                  className="input"
+                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <input
+                  required
+                  type="text"
+                  placeholder="City *"
+                  value={newBranch.address.city}
+                  onChange={(e) => setNewBranch({ ...newBranch, address: { ...newBranch.address, city: e.target.value } })}
+                  className="input"
+                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <input
+                  required
+                  type="text"
+                  placeholder="State *"
+                  value={newBranch.address.state}
+                  onChange={(e) => setNewBranch({ ...newBranch, address: { ...newBranch.address, state: e.target.value } })}
+                  className="input"
+                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+                />
+              </div>
+            </div>
+            <div className="form-grid-3" style={{ marginTop: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Zip Code</label>
+                <input
+                  type="text"
+                  placeholder="e.g. 110001"
+                  value={newBranch.address.zipCode}
+                  onChange={(e) => setNewBranch({ ...newBranch, address: { ...newBranch.address, zipCode: e.target.value } })}
+                  className="input"
+                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Latitude</label>
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="e.g. 28.6139"
+                  value={newBranch.latitude}
+                  onChange={(e) => setNewBranch({ ...newBranch, latitude: e.target.value })}
+                  className="input"
+                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Longitude</label>
+                <input
+                  type="number"
+                  step="any"
+                  placeholder="e.g. 77.2090"
+                  value={newBranch.longitude}
+                  onChange={(e) => setNewBranch({ ...newBranch, longitude: e.target.value })}
+                  className="input"
+                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="form-grid-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Opening Time</label>
+              <input
+                required
+                type="time"
+                value={newBranch.operatingHours.open}
+                onChange={(e) => setNewBranch({ ...newBranch, operatingHours: { ...newBranch.operatingHours, open: e.target.value } })}
+                className="input"
+                style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+              />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Closing Time</label>
+              <input
+                required
+                type="time"
+                value={newBranch.operatingHours.close}
+                onChange={(e) => setNewBranch({ ...newBranch, operatingHours: { ...newBranch.operatingHours, close: e.target.value } })}
+                className="input"
+                style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Description</label>
+            <textarea
+              placeholder="e.g. Main city branch with automated blood separators..."
+              value={newBranch.description}
+              onChange={(e) => setNewBranch({ ...newBranch, description: e.target.value })}
+              className="input"
+              rows={3}
+              style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem', resize: 'vertical' }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={() => setIsAddModalOpen(false)}
+              className="btn-ghost"
+              style={{ flex: 1, padding: '10px 0', fontSize: '0.9rem', cursor: 'pointer' }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ flex: 1, padding: '10px 0', fontSize: '0.9rem', border: 'none', cursor: 'pointer' }}
+            >
+              Add Branch
+            </button>
+          </div>
+        </form>
+      </Modal>
+
       {/* Reject Modal */}
       {rejectModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' }}>
-          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 16, padding: '2rem', width: '100%', maxWidth: 440 }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)', padding: '1rem' }}>
+          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 16, padding: 'clamp(1rem, 3vw, 2rem)', width: '100%', maxWidth: 440, maxHeight: '92dvh', overflowY: 'auto' }}>
             <h3 style={{ margin: '0 0 0.5rem', color: 'var(--text-primary)' }}>Reject Branch</h3>
             <p style={{ margin: '0 0 1.25rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
               Provide a reason for rejecting <strong>{rejectModal.name}</strong>

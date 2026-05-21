@@ -189,8 +189,8 @@ export default function AdminTransfers() {
       {loading ? (
         <LoadingSpinner text="Loading transfers..." />
       ) : (
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
-          <div style={{ overflowX: 'auto' }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1rem', boxShadow: 'var(--card-shadow)' }}>
+          <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
               <thead>
                 <tr style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border)' }}>
@@ -340,7 +340,7 @@ export default function AdminTransfers() {
             </select>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-grid-2">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Blood Group *</label>
               <select

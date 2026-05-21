@@ -6,10 +6,10 @@ const router = express.Router();
 
 router.get('/my-appointments', protect, getMyAppointments);
 router.route('/')
-  .get(protect, authorize('admin', 'staff'), getAppointments)
+  .get(protect, authorize('admin', 'staff', 'branch_admin'), getAppointments)
   .post(protect, authorize('donor'), createAppointment);
 router.route('/:id')
-  .put(protect, updateAppointment);
-router.put('/:id/cancel', protect, cancelAppointment);
+  .put(protect, authorize('admin', 'staff', 'branch_admin', 'donor'), updateAppointment);
+router.put('/:id/cancel', protect, authorize('admin', 'staff', 'branch_admin', 'donor'), cancelAppointment);
 
 export default router;

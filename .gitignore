@@ -10,6 +10,8 @@ node_modules/
 .env.*.local
 .env.docker.local
 
+
+*req*.md
 # Build outputs
 dist/
 dist-ssr/

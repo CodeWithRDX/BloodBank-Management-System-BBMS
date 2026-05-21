@@ -76,72 +76,69 @@ const AdminDonors = () => {
         </select>
       </div>
 
-      {/* Table */}
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
+      <div className="table-wrapper">
         {loading ? <LoadingSpinner text="Loading donors…" /> : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead><tr style={{ background: 'var(--bg-elevated)' }}>
-                <TH c="Donor" /><TH c="Group" /><TH c="Age" /><TH c="Phone" /><TH c="Donations" /><TH c="Eligible" /><TH c="Status" /><TH c="Action" right />
-              </tr></thead>
-              <tbody>
-                {donors?.map(d => (
-                  <tr key={d._id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.15s' }}
-                    onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-soft)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = ''; }}
-                  >
-                    <td style={{ padding: '0.875rem 1.25rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
-                        <div style={{
-                          width: '2.1rem', height: '2.1rem', borderRadius: '50%', flexShrink: 0,
-                          background: 'var(--accent-soft)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: '0.7rem', fontWeight: 800, color: 'var(--accent)',
-                        }}>
-                          {(d.fullName || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
-                        </div>
-                        <div>
-                          <p style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.875rem' }}>{d.fullName}</p>
-                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.72rem' }}>{d.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ padding: '0.875rem 1.25rem' }}><BloodGroupBadge group={d.bloodGroup} size="sm" /></td>
-                    <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{calcAge(d.dateOfBirth)}</td>
-                    <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{d.phone || '—'}</td>
-                    <td style={{ padding: '0.875rem 1.25rem' }}>
-                      <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '1rem', fontFamily: "'Space Grotesk', sans-serif" }}>{d.totalDonations}</span>
-                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.72rem', marginLeft: '0.2rem' }}>donations</span>
-                    </td>
-                    <td style={{ padding: '0.875rem 1.25rem' }}>
-                      <span style={{
-                        display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-                        padding: '0.2rem 0.6rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 700,
-                        background: d.isEligible ? 'rgba(74,222,128,0.1)' : 'rgba(251,191,36,0.1)',
-                        border: `1px solid ${d.isEligible ? 'rgba(74,222,128,0.3)' : 'rgba(251,191,36,0.3)'}`,
-                        color: d.isEligible ? '#4ade80' : '#fbbf24',
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead><tr style={{ background: 'var(--bg-elevated)' }}>
+              <TH c="Donor" /><TH c="Group" /><TH c="Age" /><TH c="Phone" /><TH c="Donations" /><TH c="Eligible" /><TH c="Status" /><TH c="Action" right />
+            </tr></thead>
+            <tbody>
+              {donors?.map(d => (
+                <tr key={d._id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.15s' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-soft)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = ''; }}
+                >
+                  <td style={{ padding: '0.875rem 1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                      <div style={{
+                        width: '2.1rem', height: '2.1rem', borderRadius: '50%', flexShrink: 0,
+                        background: 'var(--accent-soft)', border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '0.7rem', fontWeight: 800, color: 'var(--accent)',
                       }}>
-                        {d.isEligible ? '✓ Eligible' : '⏳ Waiting'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0.875rem 1.25rem' }}><StatusBadge status={d.status} /></td>
-                    <td style={{ padding: '0.875rem 1.25rem', textAlign: 'right' }}>
-                      <button onClick={() => handleDelete(d._id, d.fullName)} title="Delete donor"
-                        style={{ padding: '0.3rem', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: '0.5rem', cursor: 'pointer', color: '#f87171', display: 'flex', transition: 'all 0.15s' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.2)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.1)'; }}
-                      >
-                        <HiOutlineTrash style={{ width: '0.9rem', height: '0.9rem' }} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {!donors?.length && (
-                  <tr><td colSpan={8} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>No donors found.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                        {(d.fullName || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <p style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.875rem' }}>{d.fullName}</p>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.72rem' }}>{d.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td style={{ padding: '0.875rem 1.25rem' }}><BloodGroupBadge group={d.bloodGroup} size="sm" /></td>
+                  <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{calcAge(d.dateOfBirth)}</td>
+                  <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{d.phone || '—'}</td>
+                  <td style={{ padding: '0.875rem 1.25rem' }}>
+                    <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '1rem', fontFamily: "'Space Grotesk', sans-serif" }}>{d.totalDonations}</span>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.72rem', marginLeft: '0.2rem' }}>donations</span>
+                  </td>
+                  <td style={{ padding: '0.875rem 1.25rem' }}>
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+                      padding: '0.2rem 0.6rem', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 700,
+                      background: d.isEligible ? 'rgba(74,222,128,0.1)' : 'rgba(251,191,36,0.1)',
+                      border: `1px solid ${d.isEligible ? 'rgba(74,222,128,0.3)' : 'rgba(251,191,36,0.3)'}`,
+                      color: d.isEligible ? '#4ade80' : '#fbbf24',
+                    }}>
+                      {d.isEligible ? '✓ Eligible' : '⏳ Waiting'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '0.875rem 1.25rem' }}><StatusBadge status={d.status} /></td>
+                  <td style={{ padding: '0.875rem 1.25rem', textAlign: 'right' }}>
+                    <button onClick={() => handleDelete(d._id, d.fullName)} title="Delete donor"
+                      style={{ padding: '0.3rem', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: '0.5rem', cursor: 'pointer', color: '#f87171', display: 'flex', transition: 'all 0.15s' }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.2)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.1)'; }}
+                    >
+                      <HiOutlineTrash style={{ width: '0.9rem', height: '0.9rem' }} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {!donors?.length && (
+                <tr><td colSpan={8} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>No donors found.</td></tr>
+              )}
+            </tbody>
+          </table>
         )}
       </div>
     </div>

@@ -28,8 +28,8 @@ const DonorAppointments = () => {
     else toast.error(res.payload || 'Failed to cancel');
   };
 
-  const upcoming = myAppointments?.filter(a => ['scheduled', 'confirmed'].includes(a.status)) || [];
-  const past     = myAppointments?.filter(a => !['scheduled', 'confirmed'].includes(a.status)) || [];
+  const upcoming = myAppointments?.filter(a => ['Pending', 'Approved', 'Ongoing'].includes(a.status)) || [];
+  const past     = myAppointments?.filter(a => !['Pending', 'Approved', 'Ongoing'].includes(a.status)) || [];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="animate-fadeIn">
@@ -92,22 +92,24 @@ const DonorAppointments = () => {
                         📅
                       </div>
                       <div>
-                        <p style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.2rem' }}>Donation Appointment</p>
+                        <p style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.2rem' }}>Donation Appointment ({apt.component?.replace('_', ' ')})</p>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
                           {new Date(apt.date).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                         </p>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.78rem', marginTop: '0.15rem' }}>🕐 {apt.timeSlot} {apt.location && `· 📍 ${apt.location}`}</p>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.78rem', marginTop: '0.15rem' }}>🕐 {apt.timeSlot} · 📍 {apt.branchId?.name || apt.location || 'Selected Center'}</p>
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '0.625rem', alignItems: 'center' }}>
                       <StatusBadge status={apt.status} />
-                      <button onClick={() => handleCancel(apt._id)} title="Cancel appointment"
-                        style={{ padding: '0.35rem', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: '0.5rem', cursor: 'pointer', color: '#f87171', display: 'flex', transition: 'all 0.15s' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.18)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.08)'; }}
-                      >
-                        <HiOutlineX style={{ width: '0.9rem', height: '0.9rem' }} />
-                      </button>
+                      {['Pending', 'Approved'].includes(apt.status) && (
+                        <button onClick={() => handleCancel(apt._id)} title="Cancel appointment"
+                          style={{ padding: '0.35rem', background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.25)', borderRadius: '0.5rem', cursor: 'pointer', color: '#f87171', display: 'flex', transition: 'all 0.15s' }}
+                          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.18)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.08)'; }}
+                        >
+                          <HiOutlineX style={{ width: '0.9rem', height: '0.9rem' }} />
+                        </button>
+                      )}
                     </div>
                   </li>
                 ))}
@@ -123,9 +125,9 @@ const DonorAppointments = () => {
                   Past Appointments <span style={{ color: 'var(--text-secondary)', fontWeight: 400, fontSize: '0.82rem' }}>({past.length})</span>
                 </h3>
               </div>
-              <div style={{ overflowX: 'auto' }}>
+              <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead><tr style={{ background: 'var(--bg-elevated)' }}><TH c="Date" /><TH c="Time" /><TH c="Location" /><TH c="Status" /></tr></thead>
+                  <thead><tr style={{ background: 'var(--bg-elevated)' }}><TH c="Date" /><TH c="Time" /><TH c="Branch / Location" /><TH c="Component" /><TH c="Status" /></tr></thead>
                   <tbody>
                     {past.map(apt => (
                       <tr key={apt._id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.15s' }}
@@ -134,7 +136,8 @@ const DonorAppointments = () => {
                       >
                         <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-primary)', fontSize: '0.85rem' }}>{new Date(apt.date).toLocaleDateString()}</td>
                         <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{apt.timeSlot}</td>
-                        <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{apt.location || '—'}</td>
+                        <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{apt.branchId?.name || apt.location || '—'}</td>
+                        <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{apt.component?.replace('_', ' ') || 'whole blood'}</td>
                         <td style={{ padding: '0.875rem 1.25rem' }}><StatusBadge status={apt.status} /></td>
                       </tr>
                     ))}

@@ -56,7 +56,7 @@ const AdminAppointments = () => {
 
       {/* Filter tabs */}
       <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap' }}>
-        {['', 'scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'].map(s => (
+        {['', 'Pending', 'Approved', 'Rejected', 'Ongoing', 'Completed', 'Cancelled', 'Missed'].map(s => (
           <button key={s || 'all'} onClick={() => setStatusFilter(s)} style={{
             padding: '0.35rem 0.875rem', borderRadius: '999px',
             border: `1px solid ${statusFilter === s ? 'var(--accent)' : 'var(--border)'}`,
@@ -65,18 +65,17 @@ const AdminAppointments = () => {
             fontSize: '0.75rem', fontWeight: 600, cursor: 'pointer',
             textTransform: 'capitalize', transition: 'all 0.15s',
           }}>
-            {s.replace('_', ' ') || 'All'}
+            {s || 'All'}
           </button>
         ))}
       </div>
 
       {/* Table */}
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
+      <div className="table-wrapper">
         {loading ? <LoadingSpinner text="Loading appointments…" /> : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <table style={{ borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'var(--bg-elevated)' }}>
-                <TH c="Donor" /><TH c="Group" /><TH c="Date" /><TH c="Time" /><TH c="Location" /><TH c="Status" /><TH c="Actions" right />
+                <TH c="Donor" /><TH c="Group" /><TH c="Date" /><TH c="Time" /><TH c="Branch" /><TH c="Status" /><TH c="Actions" right />
               </tr></thead>
               <tbody>
                 {appointments?.map(apt => (
@@ -93,30 +92,61 @@ const AdminAppointments = () => {
                     </td>
                     <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-primary)', fontSize: '0.85rem' }}>{new Date(apt.date).toLocaleDateString()}</td>
                     <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>{apt.timeSlot}</td>
-                    <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{apt.location || '—'}</td>
+                    <td style={{ padding: '0.875rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{apt.branchId?.name || apt.location || '—'}</td>
                     <td style={{ padding: '0.875rem 1.25rem' }}><StatusBadge status={apt.status} /></td>
                     <td style={{ padding: '0.875rem 1.25rem', textAlign: 'right' }}>
-                      <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'flex-end' }}>
-                        {apt.status === 'scheduled' && (
+                      <div style={{ display: 'flex', gap: '0.375rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                        {apt.status === 'Pending' && (
                           <>
-                            <button onClick={() => handleStatusChange(apt._id, 'confirmed')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(96,165,250,0.3)', borderRadius: '0.4rem', color: '#60a5fa', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
-                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(96,165,250,0.2)'; }}
-                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(96,165,250,0.1)'; }}>
-                              Confirm
+                            <button onClick={() => handleStatusChange(apt._id, 'Approved')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '0.4rem', color: '#4ade80', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.2)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.1)'; }}>
+                              Approve
                             </button>
-                            <button onClick={() => handleStatusChange(apt._id, 'cancelled')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(248,113,113,0.1)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: '0.4rem', color: '#f87171', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
-                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.2)'; }}
-                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(248,113,113,0.1)'; }}>
+                            <button onClick={() => handleStatusChange(apt._id, 'Rejected')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '0.4rem', color: '#ef4444', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; }}>
+                              Reject
+                            </button>
+                            <button onClick={() => handleStatusChange(apt._id, 'Cancelled')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(148,163,184,0.1)', border: '1px solid rgba(148,163,184,0.3)', borderRadius: '0.4rem', color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(148,163,184,0.2)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(148,163,184,0.1)'; }}>
                               Cancel
                             </button>
                           </>
                         )}
-                        {apt.status === 'confirmed' && (
-                          <button onClick={() => handleStatusChange(apt._id, 'completed')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '0.4rem', color: '#4ade80', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
-                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.2)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.1)'; }}>
-                            Complete
-                          </button>
+                        {apt.status === 'Approved' && (
+                          <>
+                            <button onClick={() => handleStatusChange(apt._id, 'Ongoing')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.3)', borderRadius: '0.4rem', color: '#a78bfa', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(167,139,250,0.2)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(167,139,250,0.1)'; }}>
+                              Ongoing
+                            </button>
+                            <button onClick={() => handleStatusChange(apt._id, 'Cancelled')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(148,163,184,0.1)', border: '1px solid rgba(148,163,184,0.3)', borderRadius: '0.4rem', color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(148,163,184,0.2)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(148,163,184,0.1)'; }}>
+                              Cancel
+                            </button>
+                            <button onClick={() => handleStatusChange(apt._id, 'Missed')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '0.4rem', color: '#ef4444', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.2)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.1)'; }}>
+                              Missed
+                            </button>
+                          </>
+                        )}
+                        {apt.status === 'Ongoing' && (
+                          <>
+                            <button onClick={() => handleStatusChange(apt._id, 'Completed')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: '0.4rem', color: '#4ade80', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.2)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(74,222,128,0.1)'; }}>
+                              Complete
+                            </button>
+                            <button onClick={() => handleStatusChange(apt._id, 'Cancelled')} style={{ padding: '0.25rem 0.625rem', background: 'rgba(148,163,184,0.1)', border: '1px solid rgba(148,163,184,0.3)', borderRadius: '0.4rem', color: '#94a3b8', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}
+                              onMouseEnter={e => { e.currentTarget.style.background = 'rgba(148,163,184,0.2)'; }}
+                              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(148,163,184,0.1)'; }}>
+                              Cancel
+                            </button>
+                          </>
                         )}
                       </div>
                     </td>
@@ -127,7 +157,6 @@ const AdminAppointments = () => {
                 )}
               </tbody>
             </table>
-          </div>
         )}
       </div>
     </div>

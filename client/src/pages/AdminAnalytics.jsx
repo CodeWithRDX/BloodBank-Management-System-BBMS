@@ -149,28 +149,30 @@ export default function AdminAnalytics() {
             <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
               <h3 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)' }}>🏥 Branch Performance</h3>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                  {['Branch', 'City', 'Donations', 'Requests', 'Staff', 'Inventory', 'Camps'].map((h) => (
-                    <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {branchPerf.slice(0, 10).map((b) => (
-                  <tr key={b.branchId} style={{ borderBottom: '1px solid var(--border)' }}>
-                    <td style={{ padding: '10px 16px', fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.88rem' }}>{b.name}</td>
-                    <td style={{ padding: '10px 16px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{b.city}</td>
-                    <td style={{ padding: '10px 16px' }}><span style={{ color: '#10b981', fontWeight: 700 }}>{b.donations}</span></td>
-                    <td style={{ padding: '10px 16px' }}><span style={{ color: '#3b82f6', fontWeight: 700 }}>{b.requests}</span></td>
-                    <td style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>{b.staff}</td>
-                    <td style={{ padding: '10px 16px' }}><span style={{ color: '#ef4444', fontWeight: 700 }}>{b.inventory}u</span></td>
-                    <td style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>{b.camps}</td>
+            <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
+              <table style={{ borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                    {['Branch', 'City', 'Donations', 'Requests', 'Staff', 'Inventory', 'Camps'].map((h) => (
+                      <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{h}</th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {branchPerf.slice(0, 10).map((b) => (
+                    <tr key={b.branchId} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '10px 16px', fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.88rem' }}>{b.name}</td>
+                      <td style={{ padding: '10px 16px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{b.city}</td>
+                      <td style={{ padding: '10px 16px' }}><span style={{ color: '#10b981', fontWeight: 700 }}>{b.donations}</span></td>
+                      <td style={{ padding: '10px 16px' }}><span style={{ color: '#3b82f6', fontWeight: 700 }}>{b.requests}</span></td>
+                      <td style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>{b.staff}</td>
+                      <td style={{ padding: '10px 16px' }}><span style={{ color: '#ef4444', fontWeight: 700 }}>{b.inventory}u</span></td>
+                      <td style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>{b.camps}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       )}

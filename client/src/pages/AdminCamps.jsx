@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCamps, createCamp, cancelCamp, fetchCampRegistrations } from '../redux/slices/campSlice';
+import { fetchCamps, createCamp, cancelCamp, fetchCampRegistrations, updateRegistrationStatus } from '../redux/slices/campSlice';
 import { fetchBranches } from '../redux/slices/branchSlice';
+import usePolling from '../hooks/usePolling';
 import toast from 'react-hot-toast';
 import Modal from '../components/Modal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
-import { FiPlus, FiCalendar, FiClock, FiMapPin, FiUsers, FiRefreshCw, FiAlertTriangle, FiPhone, FiUser, FiInfo } from 'react-icons/fi';
+import { FiPlus, FiCalendar, FiClock, FiMapPin, FiUsers, FiRefreshCw, FiAlertTriangle, FiPhone, FiUser, FiInfo, FiCheck, FiUserCheck, FiAward } from 'react-icons/fi';
 
 export default function AdminCamps() {
   const dispatch = useDispatch();
@@ -40,8 +41,7 @@ export default function AdminCamps() {
 
   useEffect(() => {
     dispatch(fetchBranches({}));
-    loadCamps();
-  }, [dispatch, statusFilter, branchFilter]);
+  }, [dispatch]);
 
   const loadCamps = () => {
     const params = {};
@@ -49,6 +49,13 @@ export default function AdminCamps() {
     if (branchFilter !== 'all') params.branchId = branchFilter;
     dispatch(fetchCamps(params));
   };
+
+  usePolling(() => {
+    loadCamps();
+    if (selectedCamp) {
+      handleViewRegistrations(selectedCamp, true);
+    }
+  }, 10000, [statusFilter, branchFilter, selectedCamp?._id]);
 
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
@@ -106,16 +113,32 @@ export default function AdminCamps() {
     }
   };
 
-  const handleViewRegistrations = async (camp) => {
+  const handleViewRegistrations = async (camp, silent = false) => {
     setSelectedCamp(camp);
-    setRegLoading(true);
+    if (!silent) setRegLoading(true);
     try {
       const res = await dispatch(fetchCampRegistrations(camp._id)).unwrap();
       setRegistrations(res.data || []);
     } catch (err) {
-      toast.error('Failed to load registrations');
+      if (!silent) toast.error('Failed to load registrations');
     } finally {
-      setRegLoading(false);
+      if (!silent) setRegLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (regId, status, donorName) => {
+    try {
+      const res = await dispatch(updateRegistrationStatus({ id: regId, status })).unwrap();
+      if (res.success) {
+        toast.success(`Updated ${donorName}'s status to ${status}!`);
+        if (selectedCamp) {
+          const regRes = await dispatch(fetchCampRegistrations(selectedCamp._id)).unwrap();
+          setRegistrations(regRes.data || []);
+          loadCamps();
+        }
+      }
+    } catch (err) {
+      toast.error(err || 'Failed to update status');
     }
   };
 
@@ -289,7 +312,7 @@ export default function AdminCamps() {
       {/* CREATE MODAL */}
       <Modal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} title="🗓️ Schedule Donation Camp" size="lg">
         <form onSubmit={handleCreateSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-grid-2">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Camp Name *</label>
               <input
@@ -316,7 +339,7 @@ export default function AdminCamps() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-grid-2">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Associated Branch *</label>
               <select
@@ -346,7 +369,7 @@ export default function AdminCamps() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+          <div className="form-grid-3">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Date *</label>
               <input
@@ -384,7 +407,7 @@ export default function AdminCamps() {
 
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
             <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>📍 Address details</h4>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem' }}>
+            <div className="form-grid-2-1-1">
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <input
                   required
@@ -421,7 +444,7 @@ export default function AdminCamps() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div className="form-grid-2">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Latitude</label>
               <input
@@ -446,7 +469,7 @@ export default function AdminCamps() {
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }} className="form-grid-2">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Contact Person Name</label>
               <input
@@ -509,7 +532,7 @@ export default function AdminCamps() {
           <LoadingSpinner text="Loading registrants..." />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{ overflowX: 'auto', maxHeight: '400px' }}>
+            <div className="table-wrapper" style={{ maxHeight: '400px', overflowY: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                 <thead>
                   <tr style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border)' }}>
@@ -517,49 +540,141 @@ export default function AdminCamps() {
                     <th style={{ padding: '8px 12px', textAlign: 'left', color: 'var(--text-secondary)' }}>Blood Group</th>
                     <th style={{ padding: '8px 12px', textAlign: 'left', color: 'var(--text-secondary)' }}>Phone</th>
                     <th style={{ padding: '8px 12px', textAlign: 'left', color: 'var(--text-secondary)' }}>Eligibility</th>
-                    <th style={{ padding: '8px 12px', textAlign: 'left', color: 'var(--text-secondary)' }}>Status</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'center', color: 'var(--text-secondary)' }}>Status</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'right', color: 'var(--text-secondary)' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {registrations.map((reg) => (
-                    <tr key={reg._id} style={{ borderBottom: '1px solid var(--border)' }}>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontWeight: 500 }}>
-                        {reg.donorId?.fullName || reg.userId?.name || 'Unknown Donor'}
-                      </td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <span style={{ padding: '2px 8px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderRadius: 4, fontWeight: 700, fontSize: '0.78rem' }}>
-                          {reg.donorId?.bloodGroup || '—'}
-                        </span>
-                      </td>
-                      <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>
-                        {reg.donorId?.phone || '—'}
-                      </td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <span style={{
-                          color: reg.isEligible ? '#10b981' : '#f59e0b',
-                          fontWeight: 600,
-                          fontSize: '0.78rem'
-                        }}>
-                          {reg.isEligible ? '✓ Eligible' : '⏳ Cooling Period'}
-                        </span>
-                      </td>
-                      <td style={{ padding: '10px 12px' }}>
-                        <span style={{
-                          padding: '2px 8px',
-                          borderRadius: 4,
-                          fontSize: '0.72rem',
-                          fontWeight: 600,
-                          background: reg.status === 'donated' ? 'rgba(16,185,129,0.15)' : reg.status === 'attended' ? 'rgba(99,102,241,0.15)' : 'rgba(245,158,11,0.15)',
-                          color: reg.status === 'donated' ? '#10b981' : reg.status === 'attended' ? '#818cf8' : '#f59e0b'
-                        }}>
-                          {reg.status?.toUpperCase()}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {registrations.map((reg) => {
+                    const donor = reg.donorId;
+                    return (
+                      <tr key={reg._id} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '10px 12px', color: 'var(--text-primary)', fontWeight: 500 }}>
+                          {donor?.fullName || reg.userId?.name || 'Unknown Donor'}
+                        </td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{ padding: '2px 8px', background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderRadius: 4, fontWeight: 700, fontSize: '0.78rem' }}>
+                            {donor?.bloodGroup || '—'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px 12px', color: 'var(--text-secondary)' }}>
+                          {donor?.phone || '—'}
+                        </td>
+                        <td style={{ padding: '10px 12px' }}>
+                          <span style={{
+                            color: reg.isEligible ? '#10b981' : '#f59e0b',
+                            fontWeight: 600,
+                            fontSize: '0.78rem'
+                          }}>
+                            {reg.isEligible ? '✓ Eligible' : '⏳ Cooling Period'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'center' }}>
+                          <StatusBadge status={reg.status} />
+                        </td>
+                        <td style={{ padding: '10px 12px', textAlign: 'right' }}>
+                          <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
+                            {reg.status === 'Pending Approval' && (
+                              <>
+                                <button
+                                  onClick={() => handleStatusChange(reg._id, 'Approved', donor?.fullName || reg.userId?.name)}
+                                  className="btn-primary"
+                                  style={{
+                                    padding: '4px 8px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 700,
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 4
+                                  }}
+                                >
+                                  <FiCheck /> Approve
+                                </button>
+                                <button
+                                  onClick={() => handleStatusChange(reg._id, 'Rejected', donor?.fullName || reg.userId?.name)}
+                                  style={{
+                                    padding: '4px 8px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 700,
+                                    background: 'rgba(239,68,68,0.15)',
+                                    color: '#ef4444',
+                                    border: '1px solid #ef4444',
+                                    borderRadius: '0.375rem',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 4
+                                  }}
+                                >
+                                  Reject
+                                </button>
+                              </>
+                            )}
+
+                            {reg.status === 'Approved' && (
+                              <>
+                                <button
+                                  onClick={() => handleStatusChange(reg._id, 'Attended', donor?.fullName || reg.userId?.name)}
+                                  className="btn-primary"
+                                  style={{
+                                    padding: '4px 8px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 700,
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 4,
+                                    background: '#10b981',
+                                    color: 'white'
+                                  }}
+                                >
+                                  <FiUserCheck /> Check In
+                                </button>
+                                <button
+                                  onClick={() => handleStatusChange(reg._id, 'Missed', donor?.fullName || reg.userId?.name)}
+                                  style={{
+                                    padding: '4px 8px',
+                                    fontSize: '0.7rem',
+                                    fontWeight: 700,
+                                    background: 'rgba(107,114,128,0.15)',
+                                    color: 'var(--text-secondary)',
+                                    border: '1px solid var(--border)',
+                                    borderRadius: '0.375rem',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 4
+                                  }}
+                                >
+                                  Missed
+                                </button>
+                              </>
+                            )}
+
+                            {reg.status === 'Attended' && (
+                              <span style={{
+                                fontSize: '0.7rem',
+                                color: '#10b981',
+                                fontWeight: 700,
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: 4,
+                                padding: '4px 8px'
+                              }}>
+                                <FiAward /> Attended
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                   {registrations.length === 0 && (
                     <tr>
-                      <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                      <td colSpan={6} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
                         No donors registered for this camp yet.
                       </td>
                     </tr>

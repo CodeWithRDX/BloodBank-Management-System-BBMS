@@ -1,58 +1,5 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import Navbar from './Navbar';
-
-const DashboardLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: 'var(--bg-base)' }}>
-      {/* ── DESKTOP SIDEBAR ─────────────────────────── */}
-      <div
-        style={{
-          width: '15rem',
-          flexShrink: 0,
-          display: 'none',
-          flexDirection: 'column',
-          background: 'var(--sidebar-bg)',
-          borderRight: '1px solid var(--sidebar-border)',
-          height: '100%',
-          overflow: 'hidden',
-        }}
-        className="desktop-sidebar"
-      >
-        <DesktopSidebarInner />
-      </div>
-
-      {/* ── MOBILE SIDEBAR (overlay) ─────────────────── */}
-      <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-
-      {/* ── MAIN CONTENT ─────────────────────────────── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-        <Navbar onMenuClick={() => setSidebarOpen(true)} />
-        <main style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '1.5rem',
-          background: 'var(--bg-base)',
-        }}>
-          <div style={{ maxWidth: '88rem', margin: '0 auto' }}>
-            <Outlet />
-          </div>
-        </main>
-      </div>
-
-      <style>{`
-        @media (min-width: 1024px) {
-          .desktop-sidebar { display: flex !important; }
-        }
-      `}</style>
-    </div>
-  );
-};
-
-// ── Inline desktop sidebar content ─────────────────────
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useTheme } from '../theme/ThemeContext';
@@ -60,51 +7,76 @@ import {
   HiOutlineHome, HiOutlineUserGroup, HiOutlineBeaker,
   HiOutlineClipboardList, HiOutlineDocumentReport,
   HiOutlineCalendar, HiOutlineBell, HiOutlineHeart,
-  HiOutlineSearch, HiOutlineChartBar,
+  HiOutlineSearch, HiOutlineChartBar, HiOutlineX,
 } from 'react-icons/hi';
+import {
+  FiMapPin, FiUsers, FiRepeat, FiBarChart2, FiFileText, FiCheckSquare, FiActivity,
+} from 'react-icons/fi';
 
+/* ── Nav config (complete for every role) ─────────────────── */
 const NAV_BY_ROLE = {
   admin: [
     { name: 'Dashboard',    path: '/admin',                icon: HiOutlineChartBar,      exact: true },
     { name: 'Users',        path: '/admin/users',          icon: HiOutlineUserGroup },
     { name: 'Donors',       path: '/admin/donors',         icon: HiOutlineHeart },
+    { name: 'Branches',     path: '/admin/branches',       icon: FiMapPin },
+    { name: 'Staff',        path: '/admin/staff',          icon: FiUsers },
     { name: 'Inventory',    path: '/admin/inventory',      icon: HiOutlineBeaker },
     { name: 'Requests',     path: '/admin/requests',       icon: HiOutlineClipboardList },
-    { name: 'Appointments', path: '/admin/appointments',   icon: HiOutlineCalendar },
+    { name: 'Camps',        path: '/admin/camps',          icon: HiOutlineCalendar },
+    { name: 'Transfers',    path: '/admin/transfers',      icon: FiRepeat },
+    { name: 'Analytics',    path: '/admin/analytics',      icon: FiBarChart2 },
+    { name: 'Logs',         path: '/admin/logs',           icon: FiFileText },
+    { name: 'Appointments', path: '/admin/appointments',   icon: FiActivity },
     { name: 'Notifications',path: '/admin/notifications',  icon: HiOutlineBell },
   ],
   donor: [
-    { name: 'Dashboard',       path: '/donor',               icon: HiOutlineHome,         exact: true },
+    { name: 'Dashboard',       path: '/donor',               icon: HiOutlineHome,          exact: true },
     { name: 'My Profile',      path: '/donor/profile',        icon: HiOutlineUserGroup },
     { name: 'Donation History',path: '/donor/donations',      icon: HiOutlineDocumentReport },
     { name: 'My Appointments', path: '/donor/appointments',   icon: HiOutlineCalendar },
+    { name: 'Donation Camps',  path: '/donor/camps',          icon: HiOutlineCalendar },
+    { name: 'My Eligibility',  path: '/donor/eligibility',    icon: FiCheckSquare },
+    { name: 'Find Blood Bank', path: '/locator',              icon: FiMapPin },
     { name: 'Notifications',   path: '/donor/notifications',  icon: HiOutlineBell },
   ],
   hospital: [
-    { name: 'Dashboard',      path: '/hospital',              icon: HiOutlineHome,         exact: true },
-    { name: 'Blood Requests', path: '/hospital/requests',     icon: HiOutlineClipboardList },
-    { name: 'Inventory Search',path: '/hospital/search',      icon: HiOutlineSearch },
-    { name: 'Notifications',  path: '/hospital/notifications',icon: HiOutlineBell },
+    { name: 'Dashboard',       path: '/hospital',              icon: HiOutlineHome,          exact: true },
+    { name: 'Blood Requests',  path: '/hospital/requests',     icon: HiOutlineClipboardList },
+    { name: 'Inventory Search',path: '/hospital/search',       icon: HiOutlineSearch },
+    { name: 'Find Blood Bank', path: '/locator',               icon: FiMapPin },
+    { name: 'Notifications',   path: '/hospital/notifications',icon: HiOutlineBell },
   ],
   staff: [
-    { name: 'Dashboard',    path: '/staff',                  icon: HiOutlineHome,         exact: true },
-    { name: 'Notifications',path: '/staff/notifications',    icon: HiOutlineBell },
+    { name: 'Dashboard',     path: '/staff',              icon: HiOutlineHome,  exact: true },
+    { name: 'Inventory',     path: '/staff/inventory',    icon: HiOutlineBeaker },
+    { name: 'Donation Camps',path: '/staff/camps',        icon: HiOutlineCalendar },
+    { name: 'Notifications', path: '/staff/notifications',icon: HiOutlineBell },
+  ],
+  branch_admin: [
+    { name: 'Dashboard',     path: '/staff',              icon: HiOutlineHome,  exact: true },
+    { name: 'Inventory',     path: '/staff/inventory',    icon: HiOutlineBeaker },
+    { name: 'Donation Camps',path: '/staff/camps',        icon: HiOutlineCalendar },
+    { name: 'Transfers',     path: '/admin/transfers',    icon: FiRepeat },
+    { name: 'Notifications', path: '/staff/notifications',icon: HiOutlineBell },
   ],
 };
 
 const ROLE_META = {
-  admin:    { label: 'Administrator', color: '#a78bfa' },
-  donor:    { label: 'Blood Donor',   color: '#f87171' },
-  hospital: { label: 'Hospital',      color: '#34d399' },
-  staff:    { label: 'Lab Staff',     color: '#60a5fa' },
+  admin:        { label: 'Administrator', color: '#a78bfa' },
+  donor:        { label: 'Blood Donor',   color: '#f87171' },
+  hospital:     { label: 'Hospital',      color: '#34d399' },
+  staff:        { label: 'Lab Staff',     color: '#60a5fa' },
+  branch_admin: { label: 'Branch Admin',  color: '#10b981' },
 };
 
-const DesktopSidebarInner = () => {
+/* ── Shared sidebar content ───────────────────────────────── */
+const SidebarContent = ({ onLinkClick }) => {
   const { user } = useSelector(s => s.auth);
   const { themeId, themes } = useTheme();
   const location = useLocation();
   const links = NAV_BY_ROLE[user?.role] || [];
-  const meta = ROLE_META[user?.role] || {};
+  const meta  = ROLE_META[user?.role] || {};
 
   const isActive = (link) =>
     link.exact ? location.pathname === link.path : location.pathname.startsWith(link.path);
@@ -116,18 +88,16 @@ const DesktopSidebarInner = () => {
         padding: '1.1rem 1rem',
         borderBottom: '1px solid var(--sidebar-border)',
         flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
       }}>
-        <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+        <Link to="/" onClick={onLinkClick} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           <div style={{
-            width: '2rem',
-            height: '2rem',
-            background: 'var(--accent)',
-            borderRadius: '0.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 0 14px var(--accent-glow)',
-            flexShrink: 0,
+            width: '2rem', height: '2rem',
+            background: 'var(--accent)', borderRadius: '0.5rem',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 0 14px var(--accent-glow)', flexShrink: 0,
           }}>
             <HiOutlineHeart style={{ width: '1.1rem', height: '1.1rem', color: 'white' }} />
           </div>
@@ -138,6 +108,30 @@ const DesktopSidebarInner = () => {
             </p>
           </div>
         </Link>
+
+        {/* Close button — only visible when used as mobile overlay */}
+        {onLinkClick && (
+          <button
+            onClick={onLinkClick}
+            aria-label="Close sidebar"
+            style={{
+              background: 'var(--bg-elevated)',
+              border: '1px solid var(--border)',
+              borderRadius: '0.5rem',
+              padding: '0.3rem',
+              cursor: 'pointer',
+              color: 'var(--text-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+          >
+            <HiOutlineX style={{ width: '1.1rem', height: '1.1rem' }} />
+          </button>
+        )}
       </div>
 
       {/* User chip */}
@@ -151,17 +145,9 @@ const DesktopSidebarInner = () => {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div style={{
-            width: '2rem',
-            height: '2rem',
-            borderRadius: '50%',
-            background: 'var(--accent)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontWeight: 800,
-            fontSize: '0.78rem',
-            color: 'white',
-            flexShrink: 0,
+            width: '2rem', height: '2rem', borderRadius: '50%',
+            background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 800, fontSize: '0.78rem', color: 'white', flexShrink: 0,
             boxShadow: '0 0 8px var(--accent-glow)',
           }}>
             {user?.name?.charAt(0)?.toUpperCase() || 'U'}
@@ -181,7 +167,7 @@ const DesktopSidebarInner = () => {
         </div>
       </div>
 
-      {/* Nav */}
+      {/* Nav links */}
       <nav style={{ flex: 1, overflow: 'auto', padding: '0 0.75rem 0.75rem' }}>
         <p style={{
           color: 'var(--text-secondary)', fontSize: '0.62rem', fontWeight: 700,
@@ -198,31 +184,20 @@ const DesktopSidebarInner = () => {
               <li key={link.path}>
                 <Link
                   to={link.path}
+                  onClick={onLinkClick}
                   className={`nav-link${active ? ' active' : ''}`}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.625rem',
-                    padding: '0.6rem 0.75rem',
-                    textDecoration: 'none',
-                    fontWeight: active ? 600 : 500,
-                    fontSize: '0.84rem',
+                    display: 'flex', alignItems: 'center', gap: '0.625rem',
+                    padding: '0.6rem 0.75rem', textDecoration: 'none',
+                    fontWeight: active ? 600 : 500, fontSize: '0.84rem',
                   }}
                 >
-                  <Icon style={{
-                    width: '1rem',
-                    height: '1rem',
-                    flexShrink: 0,
-                    color: active ? 'var(--accent)' : 'var(--text-secondary)',
-                  }} />
+                  <Icon style={{ width: '1rem', height: '1rem', flexShrink: 0, color: active ? 'var(--accent)' : 'var(--text-secondary)' }} />
                   {link.name}
                   {active && (
                     <div style={{
-                      marginLeft: 'auto',
-                      width: '0.35rem',
-                      height: '0.35rem',
-                      borderRadius: '50%',
-                      background: 'var(--accent)',
+                      marginLeft: 'auto', width: '0.35rem', height: '0.35rem',
+                      borderRadius: '50%', background: 'var(--accent)',
                       boxShadow: '0 0 6px var(--accent-glow)',
                     }} />
                   )}
@@ -234,15 +209,96 @@ const DesktopSidebarInner = () => {
       </nav>
 
       {/* Bottom */}
-      <div style={{
-        padding: '0.75rem',
-        borderTop: '1px solid var(--sidebar-border)',
-        textAlign: 'center',
-        flexShrink: 0,
-      }}>
+      <div style={{ padding: '0.75rem', borderTop: '1px solid var(--sidebar-border)', textAlign: 'center', flexShrink: 0 }}>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.62rem' }}>BBMS v2.0 · Open Source</p>
       </div>
     </>
+  );
+};
+
+/* ── Dashboard Layout ────────────────────────────────────── */
+import Navbar from './Navbar';
+
+const DashboardLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const closeSidebar = () => setSidebarOpen(false);
+
+  return (
+    <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden', background: 'var(--bg-base)' }}>
+      {/* ── DESKTOP SIDEBAR ─────────────────────── */}
+      <aside
+        className="desktop-sidebar sidebar"
+        style={{
+          width: '15rem',
+          flexShrink: 0,
+          display: 'none',        /* shown via media query */
+          flexDirection: 'column',
+          height: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Desktop: no close button (pass null) */}
+        <SidebarContent onLinkClick={null} />
+      </aside>
+
+      {/* ── MOBILE SIDEBAR (overlay) ───────────── */}
+      <>
+        {/* Backdrop */}
+        {sidebarOpen && (
+          <div
+            style={{
+              position: 'fixed', inset: 0, zIndex: 20,
+              background: 'rgba(0,0,0,0.6)',
+              backdropFilter: 'blur(4px)',
+            }}
+            onClick={closeSidebar}
+          />
+        )}
+
+        {/* Slide-in panel */}
+        <aside
+          className="sidebar"
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, bottom: 0,
+            zIndex: 30,
+            width: '16rem',
+            display: 'flex',
+            flexDirection: 'column',
+            transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+            transition: 'transform 0.28s cubic-bezier(.22,.61,.36,1)',
+            overflowY: 'auto',
+          }}
+        >
+          {/* Mobile: pass closeSidebar so X button renders */}
+          <SidebarContent onLinkClick={closeSidebar} />
+        </aside>
+      </>
+
+      {/* ── MAIN CONTENT ──────────────────────── */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+        <Navbar
+          sidebarOpen={sidebarOpen}
+          onMenuClick={() => setSidebarOpen(prev => !prev)}
+        />
+        <main style={{
+          flex: 1, overflowY: 'auto',
+          padding: 'clamp(0.75rem, 2vw, 1.5rem)',
+          background: 'var(--bg-base)',
+        }}>
+          <div style={{ maxWidth: '88rem', margin: '0 auto' }}>
+            <Outlet />
+          </div>
+        </main>
+      </div>
+
+      <style>{`
+        @media (min-width: 1024px) {
+          .desktop-sidebar { display: flex !important; }
+        }
+      `}</style>
+    </div>
   );
 };
 
