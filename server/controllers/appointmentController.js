@@ -9,6 +9,11 @@ import CampRegistration from '../models/CampRegistration.js';
 import { addToInventory } from '../services/inventoryService.js';
 import NotificationService from '../services/notificationService.js';
 import Branch from '../models/Branch.js';
+import {
+  sendAppointmentBookedEmail,
+  sendAppointmentStatusEmail,
+  sendDonationCompletionEmail
+} from '../services/emailService.js';
 
 // Helper to log staff actions
 const logStaffAction = async (actorUser, targetBranchId, operationType, previousData, updatedData, req, description = '') => {
@@ -110,6 +115,11 @@ export const createAppointment = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'This time slot is already booked at this branch' });
     }
 
+    const branch = await Branch.findById(branchId);
+    if (!branch) {
+      return res.status(404).json({ success: false, message: 'Branch not found' });
+    }
+
     req.body.donorId = donor._id;
     req.body.userId = req.user.id;
     req.body.status = 'Pending';
@@ -125,6 +135,9 @@ export const createAppointment = async (req, res, next) => {
       referenceType: 'Appointment',
       referenceId: appointment._id,
     });
+
+    // Send appointment booking email
+    sendAppointmentBookedEmail(appointment, branch, req.user.email);
 
     res.status(201).json({ success: true, data: appointment });
   } catch (error) { next(error); }
@@ -221,9 +234,15 @@ export const updateAppointment = async (req, res, next) => {
           referenceType: 'Appointment',
           referenceId: appointment._id,
         });
+
+        // Send thank you & certification email
+        sendDonationCompletionEmail(donation, donor.fullName, donor.email);
       }
     } else {
       // Send notifications for normal updates
+      const branch = await Branch.findById(appointment.branchId);
+      const donorUser = await User.findById(appointment.userId);
+      
       if (newStatus === 'Approved' && previousStatus !== 'Approved') {
         await NotificationService.create({
           userId: appointment.userId,
@@ -234,6 +253,10 @@ export const updateAppointment = async (req, res, next) => {
           referenceType: 'Appointment',
           referenceId: appointment._id,
         });
+
+        if (branch && donorUser) {
+          sendAppointmentStatusEmail(appointment, branch, 'approved', '', donorUser.email);
+        }
       } else if (newStatus === 'Rejected' && previousStatus !== 'Rejected') {
         await NotificationService.create({
           userId: appointment.userId,
@@ -244,6 +267,10 @@ export const updateAppointment = async (req, res, next) => {
           referenceType: 'Appointment',
           referenceId: appointment._id,
         });
+
+        if (branch && donorUser) {
+          sendAppointmentStatusEmail(appointment, branch, 'rejected', appointment.notes || 'Not specified', donorUser.email);
+        }
       }
     }
 
@@ -278,6 +305,16 @@ export const cancelAppointment = async (req, res, next) => {
       referenceType: 'Appointment',
       referenceId: appointment._id,
     });
+
+    try {
+      const branch = await Branch.findById(appointment.branchId);
+      const donorUser = await User.findById(appointment.userId);
+      if (branch && donorUser) {
+        sendAppointmentStatusEmail(appointment, branch, 'cancelled', '', donorUser.email);
+      }
+    } catch (e) {
+      console.error('Error sending cancel appointment email:', e);
+    }
 
     if (req.user.role === 'staff' || req.user.role === 'admin') {
       await logStaffAction(req.user, appointment.branchId, 'appointment_cancel', { status: prevStatus }, { status: 'Cancelled' }, req, `Cancelled appointment ${appointment.appointmentId}`);

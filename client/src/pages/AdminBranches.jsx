@@ -5,8 +5,48 @@ import toast from 'react-hot-toast';
 import { FiCheckCircle, FiXCircle, FiPauseCircle, FiMapPin, FiPhone, FiMail, FiFilter, FiRefreshCw, FiPlus } from 'react-icons/fi';
 import { MdPending, MdVerified, MdBlock } from 'react-icons/md';
 import Modal from '../components/Modal';
+import MapPicker from '../components/MapPicker';
 
 import usePolling from '../hooks/usePolling';
+
+const handlePincodeLookup = async (pincode, updateFormCallback) => {
+  if (!/^\d{6}$/.test(pincode)) return;
+  
+  const toastId = toast.loading('Looking up pincode...');
+  try {
+    const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+    const data = await res.json();
+    if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+      const office = data[0].PostOffice[0];
+      updateFormCallback({
+        city: office.District || office.Division || office.Circle,
+        state: office.State
+      });
+      toast.success('Pincode details fetched!', { id: toastId });
+      return;
+    }
+    
+    // Fallback: Zippopotam
+    const resFallback = await fetch(`https://api.zippopotam.us/IN/${pincode}`);
+    if (resFallback.ok) {
+      const dataFallback = await resFallback.json();
+      if (dataFallback.places && dataFallback.places.length > 0) {
+        const place = dataFallback.places[0];
+        updateFormCallback({
+          city: place['place name'] || '',
+          state: place['state'] || ''
+        });
+        toast.success('Pincode details fetched!', { id: toastId });
+        return;
+      }
+    }
+    toast.error('Pincode not found.', { id: toastId });
+  } catch (err) {
+    console.error(err);
+    toast.error('Failed to lookup pincode.', { id: toastId });
+  }
+};
+
 
 const STATUS_COLORS = {
   pending:   { bg: 'rgba(234,179,8,0.15)',   text: '#fbbf24', border: '#fbbf24' },
@@ -40,7 +80,7 @@ export default function AdminBranches() {
     registrationNumber: '',
     email: '',
     phone: '',
-    address: { street: '', city: '', state: '', zipCode: '' },
+    address: { street: '', city: '', state: '', zipCode: '', pincode: '' },
     latitude: '',
     longitude: '',
     operatingHours: { open: '08:00', close: '20:00' },
@@ -81,11 +121,29 @@ export default function AdminBranches() {
     if (!newBranch.name || !newBranch.registrationNumber || !newBranch.email || !newBranch.phone || !newBranch.address.street || !newBranch.address.city || !newBranch.address.state) {
       return toast.error('Please fill in all required fields.');
     }
+    const lat = parseFloat(newBranch.latitude);
+    const lng = parseFloat(newBranch.longitude);
+    if (isNaN(lat) || lat === 0 || isNaN(lng) || lng === 0) {
+      return toast.error('Please select a valid location on the map.');
+    }
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return toast.error('Latitude must be between -90 and 90, and longitude between -180 and 180.');
+    }
+    const pin = newBranch.address.pincode || newBranch.address.zipCode;
+    if (!/^\d{6}$/.test(pin)) {
+      return toast.error('Please enter a valid 6-digit pincode.');
+    }
+
     try {
       const payload = {
         ...newBranch,
-        latitude: parseFloat(newBranch.latitude) || 0,
-        longitude: parseFloat(newBranch.longitude) || 0,
+        address: {
+          ...newBranch.address,
+          pincode: pin,
+          zipCode: pin
+        },
+        latitude: lat,
+        longitude: lng,
       };
       await dispatch(registerBranch(payload)).unwrap();
       toast.success('🎉 Branch registered successfully!');
@@ -95,7 +153,7 @@ export default function AdminBranches() {
         registrationNumber: '',
         email: '',
         phone: '',
-        address: { street: '', city: '', state: '', zipCode: '' },
+        address: { street: '', city: '', state: '', zipCode: '', pincode: '' },
         latitude: '',
         longitude: '',
         operatingHours: { open: '08:00', close: '20:00' },
@@ -106,6 +164,7 @@ export default function AdminBranches() {
       toast.error(err || 'Failed to register branch');
     }
   };
+
 
   const tabs = [
     { key: 'all', label: 'All', icon: <FiFilter /> },
@@ -320,24 +379,61 @@ export default function AdminBranches() {
           </div>
 
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
-            <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>📍 Address details</h4>
-            <div className="form-grid-2-1-1">
+            <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>📍 Address & Location</h4>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Pincode (6-Digit) *</label>
                 <input
                   required
                   type="text"
-                  placeholder="Street Address *"
+                  maxLength={6}
+                  placeholder="e.g. 110001"
+                  value={newBranch.address.pincode || newBranch.address.zipCode || ''}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                    setNewBranch(prev => ({
+                      ...prev,
+                      address: { ...prev.address, pincode: val, zipCode: val }
+                    }));
+                    if (val.length === 6) {
+                      handlePincodeLookup(val, (info) => {
+                        setNewBranch(prev => ({
+                          ...prev,
+                          address: {
+                            ...prev.address,
+                            city: info.city,
+                            state: info.state
+                          }
+                        }));
+                      });
+                    }
+                  }}
+                  className="input"
+                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Street Address *</label>
+                <input
+                  required
+                  type="text"
+                  placeholder="e.g. 12, Park Street"
                   value={newBranch.address.street}
                   onChange={(e) => setNewBranch({ ...newBranch, address: { ...newBranch.address, street: e.target.value } })}
                   className="input"
                   style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
                 />
               </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>City *</label>
                 <input
                   required
                   type="text"
-                  placeholder="City *"
+                  placeholder="City"
                   value={newBranch.address.city}
                   onChange={(e) => setNewBranch({ ...newBranch, address: { ...newBranch.address, city: e.target.value } })}
                   className="input"
@@ -345,10 +441,11 @@ export default function AdminBranches() {
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>State *</label>
                 <input
                   required
                   type="text"
-                  placeholder="State *"
+                  placeholder="State"
                   value={newBranch.address.state}
                   onChange={(e) => setNewBranch({ ...newBranch, address: { ...newBranch.address, state: e.target.value } })}
                   className="input"
@@ -356,44 +453,61 @@ export default function AdminBranches() {
                 />
               </div>
             </div>
-            <div className="form-grid-3" style={{ marginTop: '1rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Zip Code</label>
-                <input
-                  type="text"
-                  placeholder="e.g. 110001"
-                  value={newBranch.address.zipCode}
-                  onChange={(e) => setNewBranch({ ...newBranch, address: { ...newBranch.address, zipCode: e.target.value } })}
-                  className="input"
-                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
-                />
-              </div>
+
+            {/* Map Picker Component */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                Select Coordinates on Map *
+              </label>
+              <MapPicker
+                latitude={newBranch.latitude}
+                longitude={newBranch.longitude}
+                onChange={(loc) => {
+                  setNewBranch(prev => ({
+                    ...prev,
+                    latitude: loc.latitude,
+                    longitude: loc.longitude,
+                    address: {
+                      ...prev.address,
+                      street: loc.street || prev.address.street,
+                      city: loc.city || prev.address.city,
+                      state: loc.state || prev.address.state,
+                      pincode: loc.pincode || prev.address.pincode,
+                      zipCode: loc.pincode || prev.address.zipCode
+                    }
+                  }));
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Latitude</label>
                 <input
+                  readOnly
+                  disabled
                   type="number"
-                  step="any"
-                  placeholder="e.g. 28.6139"
+                  placeholder="Latitude"
                   value={newBranch.latitude}
-                  onChange={(e) => setNewBranch({ ...newBranch, latitude: e.target.value })}
                   className="input"
-                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem', opacity: 0.7, cursor: 'not-allowed' }}
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Longitude</label>
                 <input
+                  readOnly
+                  disabled
                   type="number"
-                  step="any"
-                  placeholder="e.g. 77.2090"
+                  placeholder="Longitude"
                   value={newBranch.longitude}
-                  onChange={(e) => setNewBranch({ ...newBranch, longitude: e.target.value })}
                   className="input"
-                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem', opacity: 0.7, cursor: 'not-allowed' }}
                 />
               </div>
             </div>
           </div>
+
 
           <div className="form-grid-2">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>

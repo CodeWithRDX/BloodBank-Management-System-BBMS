@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import Branch from '../models/Branch.js';
 import AuditLog from '../models/AuditLog.js';
 import StaffLog from '../models/StaffLog.js';
+import { sendStaffWelcomeEmail } from '../services/emailService.js';
 
 // Helper to check if user has permission to manage staff for a branch
 const hasStaffManagementPermission = (actor, branchId) => {
@@ -99,6 +100,14 @@ export const addStaff = async (req, res, next) => {
 
     // Staff activity log
     await logStaffAction(req.user, targetBranchId, 'staff_add', null, { name, email, staffRole, branchId: targetBranchId }, req, `Added staff member "${name}"`);
+
+    // Send welcome email notification
+    sendStaffWelcomeEmail({
+      name,
+      email,
+      role: staffRole,
+      branchName: branch.name,
+    }, password);
 
     res.status(201).json({ success: true, data: staff, message: 'Staff member added successfully' });
   } catch (error) {

@@ -2,9 +2,9 @@ import User from '../models/User.js';
 import Donor from '../models/Donor.js';
 import Hospital from '../models/Hospital.js';
 import crypto from 'crypto';
-import sendEmail from '../utils/sendEmail.js';
 import Staff from '../models/Staff.js';
 import StaffLog from '../models/StaffLog.js';
+import { sendPasswordResetEmail } from '../services/emailService.js';
 
 // Helper: send token response
 const sendTokenResponse = (user, statusCode, res) => {
@@ -192,7 +192,7 @@ export const forgotPassword = async (req, res, next) => {
     `;
 
     try {
-      await sendEmail({ email: user.email, subject: 'BBMS - Password Reset', html });
+      await sendPasswordResetEmail(user, resetUrl);
       res.status(200).json({ success: true, message: 'Reset email sent' });
     } catch (err) {
       user.resetPasswordToken = undefined;

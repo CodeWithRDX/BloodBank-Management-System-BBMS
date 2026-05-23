@@ -5,12 +5,13 @@ import {
   updateRegistrationStatus, getAllRegistrations,
 } from '../controllers/campController.js';
 import { protect, authorize } from '../middleware/auth.js';
+import { validateCamp } from '../middleware/validate.js';
 
 const router = express.Router();
 
 // Camps
 router.get('/', getCamps);
-router.post('/', protect, authorize('admin', 'staff', 'branch_admin'), createCamp);
+router.post('/', protect, authorize('admin', 'staff', 'branch_admin'), validateCamp, createCamp);
 router.get('/my-registrations', protect, authorize('donor'), getMyRegistrations);
 router.get('/:id', getCamp);
 router.put('/:id', protect, authorize('admin', 'staff', 'branch_admin'), updateCamp);

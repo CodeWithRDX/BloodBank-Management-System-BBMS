@@ -5,12 +5,13 @@ import {
   updateBranch, getPublicBranches,
 } from '../controllers/branchController.js';
 import { protect, authorize } from '../middleware/auth.js';
+import { validateBranch } from '../middleware/validate.js';
 
 const router = express.Router();
 
 router.get('/public', getPublicBranches);
 router.get('/', protect, authorize('admin'), getBranches);
-router.post('/', protect, registerBranch);
+router.post('/', protect, validateBranch, registerBranch);
 router.get('/:id', protect, getBranch);
 router.put('/:id', protect, authorize('admin', 'branch_admin'), updateBranch);
 router.put('/:id/approve', protect, authorize('admin'), approveBranch);

@@ -38,10 +38,11 @@ const campSchema = new mongoose.Schema(
       required: [true, 'End time is required'],
     },
     address: {
-      street: String,
-      city: String,
-      state: String,
+      street: { type: String, required: [true, 'Street is required'] },
+      city: { type: String, required: [true, 'City is required'] },
+      state: { type: String, required: [true, 'State is required'] },
       country: { type: String, default: 'India' },
+      pincode: { type: String, required: [true, 'Pincode is required'] },
     },
     // GeoJSON for map display
     location: {
@@ -55,8 +56,20 @@ const campSchema = new mongoose.Schema(
         default: [0, 0],
       },
     },
-    latitude: { type: Number, default: 0 },
-    longitude: { type: Number, default: 0 },
+    latitude: {
+      type: Number,
+      required: [true, 'Latitude is required'],
+      min: [-90, 'Latitude must be between -90 and 90'],
+      max: [90, 'Latitude must be between -90 and 90'],
+      default: 0,
+    },
+    longitude: {
+      type: Number,
+      required: [true, 'Longitude is required'],
+      min: [-180, 'Longitude must be between -180 and 180'],
+      max: [180, 'Longitude must be between -180 and 180'],
+      default: 0,
+    },
 
     maxDonors: {
       type: Number,

@@ -11,6 +11,7 @@ import BloodInventory from '../models/BloodInventory.js';
 import InventoryLog from '../models/InventoryLog.js';
 import Branch from '../models/Branch.js';
 import { broadcastInventoryUpdate, emitLowStockAlert } from '../utils/socketManager.js';
+import { sendLowStockAlertEmail } from './emailService.js';
 
 const LOW_STOCK_THRESHOLD = 5;
 
@@ -198,6 +199,15 @@ export const subtractFromInventory = async ({
   // Check for low stock
   if (updatedQty <= LOW_STOCK_THRESHOLD) {
     emitLowStockAlert(branchId?.toString(), bloodGroup, updatedQty);
+    
+    // Trigger low stock email notification async
+    try {
+      Branch.findById(branchId).then(branch => {
+        if (branch) sendLowStockAlertEmail(branch, bloodGroup, updatedQty);
+      });
+    } catch (err) {
+      console.error('Error sending low stock alert email:', err);
+    }
   }
 
   return { usedItems, updatedQuantity: updatedQty };

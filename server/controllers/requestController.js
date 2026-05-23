@@ -7,6 +7,13 @@ import { subtractFromInventory } from '../services/inventoryService.js';
 import { emitRequestUpdate } from '../utils/socketManager.js';
 import Staff from '../models/Staff.js';
 import StaffLog from '../models/StaffLog.js';
+import Branch from '../models/Branch.js';
+import User from '../models/User.js';
+import {
+  sendBloodRequestCreatedEmail,
+  sendBloodRequestStatusEmail,
+  sendEmergencyBloodRequestEmail
+} from '../services/emailService.js';
 
 // Helper to log staff actions
 const logStaffAction = async (actorUser, targetBranchId, operationType, previousData, updatedData, req, description = '') => {
@@ -96,7 +103,19 @@ export const createRequest = async (req, res, next) => {
         referenceType: 'BloodRequest',
         referenceId: request._id,
       });
+
+      // Trigger emergency alerts to nearby donors async
+      try {
+        Branch.findById(request.branchId).then(branch => {
+          if (branch) sendEmergencyBloodRequestEmail(request, branch);
+        });
+      } catch (err) {
+        console.error('Error triggering emergency alerts email:', err);
+      }
     }
+
+    // Send confirmation email to requester
+    sendBloodRequestCreatedEmail({ ...request.toObject(), units: request.quantity }, req.user.email);
 
     res.status(201).json({ success: true, data: request });
   } catch (error) { next(error); }
@@ -170,6 +189,21 @@ export const updateRequestStatus = async (req, res, next) => {
       req,
       `Request ${request.requestId} status updated from ${oldStatus} to ${request.status}`
     );
+
+    // Send email notification to requester
+    try {
+      const requestedUser = await User.findById(request.requestedBy);
+      if (requestedUser && requestedUser.email) {
+        sendBloodRequestStatusEmail(
+          { ...request.toObject(), units: request.quantity },
+          request.status,
+          request.rejectionReason || '',
+          requestedUser.email
+        );
+      }
+    } catch (e) {
+      console.error('Error sending blood request status email:', e);
+    }
 
     res.status(200).json({ success: true, data: request });
   } catch (error) { next(error); }

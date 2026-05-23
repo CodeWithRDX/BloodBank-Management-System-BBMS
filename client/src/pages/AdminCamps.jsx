@@ -7,7 +7,47 @@ import toast from 'react-hot-toast';
 import Modal from '../components/Modal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import StatusBadge from '../components/StatusBadge';
+import MapPicker from '../components/MapPicker';
 import { FiPlus, FiCalendar, FiClock, FiMapPin, FiUsers, FiRefreshCw, FiAlertTriangle, FiPhone, FiUser, FiInfo, FiCheck, FiUserCheck, FiAward } from 'react-icons/fi';
+
+const handlePincodeLookup = async (pincode, updateFormCallback) => {
+  if (!/^\d{6}$/.test(pincode)) return;
+  
+  const toastId = toast.loading('Looking up pincode...');
+  try {
+    const res = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+    const data = await res.json();
+    if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+      const office = data[0].PostOffice[0];
+      updateFormCallback({
+        city: office.District || office.Division || office.Circle,
+        state: office.State
+      });
+      toast.success('Pincode details fetched!', { id: toastId });
+      return;
+    }
+    
+    // Fallback: Zippopotam
+    const resFallback = await fetch(`https://api.zippopotam.us/IN/${pincode}`);
+    if (resFallback.ok) {
+      const dataFallback = await resFallback.json();
+      if (dataFallback.places && dataFallback.places.length > 0) {
+        const place = dataFallback.places[0];
+        updateFormCallback({
+          city: place['place name'] || '',
+          state: place['state'] || ''
+        });
+        toast.success('Pincode details fetched!', { id: toastId });
+        return;
+      }
+    }
+    toast.error('Pincode not found.', { id: toastId });
+  } catch (err) {
+    console.error(err);
+    toast.error('Failed to lookup pincode.', { id: toastId });
+  }
+};
+
 
 export default function AdminCamps() {
   const dispatch = useDispatch();
@@ -26,7 +66,7 @@ export default function AdminCamps() {
     date: '',
     startTime: '',
     endTime: '',
-    address: { street: '', city: '', state: '', country: 'India' },
+    address: { street: '', city: '', state: '', country: 'India', pincode: '' },
     maxDonors: 50,
     description: '',
     latitude: 0,
@@ -76,8 +116,30 @@ export default function AdminCamps() {
       return;
     }
 
+    const lat = parseFloat(newCamp.latitude);
+    const lng = parseFloat(newCamp.longitude);
+    if (isNaN(lat) || lat === 0 || isNaN(lng) || lng === 0) {
+      toast.error('Please select a valid location on the map');
+      return;
+    }
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      toast.error('Latitude must be between -90 and 90, and longitude between -180 and 180');
+      return;
+    }
+
+    const pin = newCamp.address.pincode;
+    if (!/^\d{6}$/.test(pin)) {
+      toast.error('Please enter a valid 6-digit pincode');
+      return;
+    }
+
     try {
-      await dispatch(createCamp(newCamp)).unwrap();
+      const payload = {
+        ...newCamp,
+        latitude: lat,
+        longitude: lng,
+      };
+      await dispatch(createCamp(payload)).unwrap();
       toast.success('🎉 Donation camp scheduled successfully!');
       setIsCreateOpen(false);
       loadCamps();
@@ -88,7 +150,7 @@ export default function AdminCamps() {
         date: '',
         startTime: '',
         endTime: '',
-        address: { street: '', city: '', state: '', country: 'India' },
+        address: { street: '', city: '', state: '', country: 'India', pincode: '' },
         maxDonors: 50,
         description: '',
         latitude: 0,
@@ -99,6 +161,7 @@ export default function AdminCamps() {
       toast.error(err || 'Failed to create camp');
     }
   };
+
 
   const handleCancelCamp = async (id, name) => {
     if (!window.confirm(`Are you sure you want to cancel the camp "${name}"? Registered donors will be notified.`)) {
@@ -406,9 +469,42 @@ export default function AdminCamps() {
           </div>
 
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
-            <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>📍 Address details</h4>
-            <div className="form-grid-2-1-1">
+            <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.9rem', color: 'var(--text-primary)' }}>📍 Address & Location</h4>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Pincode (6-Digit) *</label>
+                <input
+                  required
+                  type="text"
+                  maxLength={6}
+                  placeholder="e.g. 110001"
+                  value={newCamp.address.pincode || ''}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                    setNewCamp(prev => ({
+                      ...prev,
+                      address: { ...prev.address, pincode: val }
+                    }));
+                    if (val.length === 6) {
+                      handlePincodeLookup(val, (info) => {
+                        setNewCamp(prev => ({
+                          ...prev,
+                          address: {
+                            ...prev.address,
+                            city: info.city,
+                            state: info.state
+                          }
+                        }));
+                      });
+                    }
+                  }}
+                  className="input"
+                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Street / Landmark *</label>
                 <input
                   required
                   type="text"
@@ -419,7 +515,11 @@ export default function AdminCamps() {
                   style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
                 />
               </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>City *</label>
                 <input
                   required
                   type="text"
@@ -431,6 +531,7 @@ export default function AdminCamps() {
                 />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>State *</label>
                 <input
                   required
                   type="text"
@@ -442,32 +543,60 @@ export default function AdminCamps() {
                 />
               </div>
             </div>
+
+            {/* Map Picker Component */}
+            <div style={{ marginBottom: '1.25rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
+                Select Coordinates on Map *
+              </label>
+              <MapPicker
+                latitude={newCamp.latitude}
+                longitude={newCamp.longitude}
+                onChange={(loc) => {
+                  setNewCamp(prev => ({
+                    ...prev,
+                    latitude: loc.latitude,
+                    longitude: loc.longitude,
+                    address: {
+                      ...prev.address,
+                      street: loc.street || prev.address.street,
+                      city: loc.city || prev.address.city,
+                      state: loc.state || prev.address.state,
+                      pincode: loc.pincode || prev.address.pincode
+                    }
+                  }));
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Latitude</label>
+                <input
+                  readOnly
+                  disabled
+                  type="number"
+                  placeholder="Latitude"
+                  value={newCamp.latitude}
+                  className="input"
+                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem', opacity: 0.7, cursor: 'not-allowed' }}
+                />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Longitude</label>
+                <input
+                  readOnly
+                  disabled
+                  type="number"
+                  placeholder="Longitude"
+                  value={newCamp.longitude}
+                  className="input"
+                  style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem', opacity: 0.7, cursor: 'not-allowed' }}
+                />
+              </div>
+            </div>
           </div>
 
-          <div className="form-grid-2">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Latitude</label>
-              <input
-                type="number"
-                step="any"
-                value={newCamp.latitude}
-                onChange={(e) => setNewCamp({ ...newCamp, latitude: parseFloat(e.target.value) || 0 })}
-                className="input"
-                style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
-              />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Longitude</label>
-              <input
-                type="number"
-                step="any"
-                value={newCamp.longitude}
-                onChange={(e) => setNewCamp({ ...newCamp, longitude: parseFloat(e.target.value) || 0 })}
-                className="input"
-                style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
-              />
-            </div>
-          </div>
 
           <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem' }} className="form-grid-2">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>

@@ -8,7 +8,14 @@ import Appointment from '../models/Appointment.js';
 import Staff from '../models/Staff.js';
 import StaffLog from '../models/StaffLog.js';
 import Donation from '../models/Donation.js';
+import Branch from '../models/Branch.js';
 import { addToInventory } from '../services/inventoryService.js';
+import {
+  sendCampScheduledEmail,
+  sendCampCancelledEmail,
+  sendCampRegistrationEmail,
+  sendDonationCompletionEmail
+} from '../services/emailService.js';
 
 // Helper to log staff actions
 const logStaffAction = async (actorUser, targetBranchId, operationType, previousData, updatedData, req, description = '') => {
@@ -65,6 +72,15 @@ export const createCamp = async (req, res, next) => {
     emitToAdmins('camp:created', { campId: camp._id, name: camp.name });
 
     await logStaffAction(req.user, camp.branchId, 'camp_create', null, { name: camp.name, date: camp.date }, req, `Camp "${camp.name}" created`);
+
+    // Trigger scheduled email async
+    try {
+      Branch.findById(camp.branchId).then(branch => {
+        if (branch) sendCampScheduledEmail(camp, branch);
+      });
+    } catch (e) {
+      console.error('Error triggering scheduled camp email:', e);
+    }
 
     res.status(201).json({ success: true, data: camp });
   } catch (error) {
@@ -193,15 +209,22 @@ export const cancelCamp = async (req, res, next) => {
     await logStaffAction(req.user, camp.branchId, 'camp_cancel', { status: prevStatus }, { status: 'cancelled' }, req, `Camp "${camp.name}" cancelled`);
 
     // Notify registered donors
-    const registrations = await CampRegistration.find({ campId: camp._id, status: 'registered' }).populate('userId');
+    const registrations = await CampRegistration.find({ campId: camp._id }).populate('userId');
+    const registeredEmails = registrations.map(reg => reg.userId?.email).filter(Boolean);
+    
+    // Trigger camp cancellation email async
+    sendCampCancelledEmail(camp, req.body.reason || 'Unforeseen circumstances', registeredEmails);
+
     for (const reg of registrations) {
-      await NotificationService.create({
-        userId: reg.userId?._id,
-        title: 'Camp Cancelled',
-        message: `The donation camp "${camp.name}" scheduled for ${new Date(camp.date).toLocaleDateString()} has been cancelled.`,
-        type: 'warning',
-        category: 'camp',
-      });
+      if (reg.status === 'registered' || reg.status === 'Pending Approval') {
+        await NotificationService.create({
+          userId: reg.userId?._id,
+          title: 'Camp Cancelled',
+          message: `The donation camp "${camp.name}" scheduled for ${new Date(camp.date).toLocaleDateString()} has been cancelled.`,
+          type: 'warning',
+          category: 'camp',
+        });
+      }
     }
 
     res.status(200).json({ success: true, data: camp, message: 'Camp cancelled' });
@@ -276,6 +299,9 @@ export const registerForCamp = async (req, res, next) => {
 
     // Send notifications
     await NotificationService.notifyCampRegistration(camp, donor, registration);
+
+    // Send camp registration email
+    sendCampRegistrationEmail(camp, donor.email, donor.fullName);
 
     // Real-time emit
     emitCampRegistration(camp.branchId?._id?.toString(), {
@@ -472,6 +498,9 @@ export const updateRegistrationStatus = async (req, res, next) => {
           type: 'success',
           category: 'donation',
         });
+
+        // Send thank you & certification email
+        sendDonationCompletionEmail(donation, donor.fullName, donor.email);
       }
     }
 

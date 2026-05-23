@@ -31,6 +31,7 @@ const branchSchema = new mongoose.Schema(
       state: { type: String, required: true },
       country: { type: String, default: 'India' },
       zipCode: String,
+      pincode: { type: String, required: [true, 'Pincode is required'] },
     },
     // GeoJSON for geo-queries
     location: {
@@ -45,8 +46,20 @@ const branchSchema = new mongoose.Schema(
       },
     },
     // Human-readable lat/lng
-    latitude: { type: Number, default: 0 },
-    longitude: { type: Number, default: 0 },
+    latitude: {
+      type: Number,
+      required: [true, 'Latitude is required'],
+      min: [-90, 'Latitude must be between -90 and 90'],
+      max: [90, 'Latitude must be between -90 and 90'],
+      default: 0,
+    },
+    longitude: {
+      type: Number,
+      required: [true, 'Longitude is required'],
+      min: [-180, 'Longitude must be between -180 and 180'],
+      max: [180, 'Longitude must be between -180 and 180'],
+      default: 0,
+    },
 
     status: {
       type: String,
@@ -88,6 +101,13 @@ branchSchema.index({ status: 1 });
 
 // Sync coordinates to GeoJSON location
 branchSchema.pre('save', function (next) {
+  if (this.address) {
+    if (!this.address.pincode && this.address.zipCode) {
+      this.address.pincode = this.address.zipCode;
+    } else if (this.address.pincode && !this.address.zipCode) {
+      this.address.zipCode = this.address.pincode;
+    }
+  }
   if (this.latitude !== undefined && this.longitude !== undefined) {
     this.location = {
       type: 'Point',

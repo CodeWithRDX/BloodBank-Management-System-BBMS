@@ -4,6 +4,7 @@ import AuditLog from '../models/AuditLog.js';
 import BranchApproval from '../models/BranchApproval.js';
 import NotificationService from '../services/notificationService.js';
 import { emitBranchStatusChange, emitToAdmins } from '../utils/socketManager.js';
+import { sendBranchRegistrationEmail, sendBranchStatusEmail } from '../services/emailService.js';
 
 // @desc    Register a new branch
 // @route   POST /api/branches
@@ -53,6 +54,9 @@ export const registerBranch = async (req, res, next) => {
       ipAddress: req.clientIp,
       description: `Branch "${name}" registered and awaiting approval`,
     });
+
+    // Send email notification to admins
+    sendBranchRegistrationEmail(branch);
 
     res.status(201).json({ success: true, data: branch, message: 'Branch registration submitted. Pending admin approval.' });
   } catch (error) {
@@ -123,6 +127,9 @@ export const approveBranch = async (req, res, next) => {
     // Notify the branch manager
     await NotificationService.notifyBranchApproval(branch, 'approved', branch.managerId);
 
+    // Send email notification to branch manager
+    sendBranchStatusEmail(branch, 'approved');
+
     // Emit socket event
     emitBranchStatusChange(branch._id.toString(), 'approved');
 
@@ -172,6 +179,10 @@ export const rejectBranch = async (req, res, next) => {
     await branch.save();
 
     await NotificationService.notifyBranchApproval(branch, 'rejected', branch.managerId);
+    
+    // Send email notification to branch manager
+    sendBranchStatusEmail(branch, 'rejected', branch.rejectionReason);
+
     emitBranchStatusChange(branch._id.toString(), 'rejected');
 
     await AuditLog.create({
