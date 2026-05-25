@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchStaff, addStaff, removeStaff, updateStaff } from '../redux/slices/staffSlice';
 import { fetchBranches } from '../redux/slices/branchSlice';
+import PhoneInputComponent from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+
+const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 import toast from 'react-hot-toast';
 import { FiPlus, FiTrash2, FiEdit2, FiUser, FiSearch } from 'react-icons/fi';
 
@@ -201,7 +205,6 @@ export default function AdminStaff() {
                 { label: 'Full Name', key: 'name', type: 'text', required: true },
                 { label: 'Email', key: 'email', type: 'email', required: true },
                 ...(!editMode ? [{ label: 'Password', key: 'password', type: 'password', required: true }] : []),
-                { label: 'Phone', key: 'phone', type: 'tel', required: false },
               ].map(({ label, key, type, required }) => (
                 <div key={key}>
                   <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{label}</label>
@@ -210,6 +213,35 @@ export default function AdminStaff() {
                   />
                 </div>
               ))}
+              <div>
+                <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Phone</label>
+                <PhoneInput
+                  country={'in'}
+                  value={form.phone}
+                  onChange={phone => setForm({ ...form, phone })}
+                  inputStyle={{
+                    width: '100%',
+                    height: '38px',
+                    background: 'var(--bg-base)',
+                    border: '1px solid var(--border)',
+                    borderRadius: '8px',
+                    color: 'var(--text-primary)',
+                    fontFamily: 'var(--font-body)',
+                    paddingLeft: '48px'
+                  }}
+                  buttonStyle={{
+                    background: 'var(--bg-base)',
+                    border: '1px solid var(--border)',
+                    borderTopLeftRadius: '8px',
+                    borderBottomLeftRadius: '8px',
+                  }}
+                  dropdownStyle={{
+                    background: 'var(--bg-surface)',
+                    color: 'var(--text-primary)',
+                    border: '1px solid var(--border)',
+                  }}
+                />
+              </div>
               <div>
                 <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Staff Role</label>
                 <select value={form.staffRole} onChange={(e) => setForm({ ...form, staffRole: e.target.value })}

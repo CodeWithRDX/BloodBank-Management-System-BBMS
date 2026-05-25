@@ -77,3 +77,35 @@ export const authorizeStaffRole = (...staffRoles) => {
     next();
   };
 };
+
+// Middleware to isolate query parameters based on user's registered branch (staff & branch_admin)
+export const isolateBranchAccess = (req, res, next) => {
+  // Super Admin can access all branches
+  if (req.user.role === 'admin') return next();
+
+  if (['staff', 'branch_admin'].includes(req.user.role)) {
+    if (!req.user.branchId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Forbidden: User is not associated with any branch',
+      });
+    }
+    
+    // Auto-inject branch filter for queries
+    req.branchFilter = { branchId: req.user.branchId };
+    
+    // Force branch association on created resources
+    if (req.method === 'POST') {
+      req.body.branchId = req.user.branchId.toString();
+    }
+  }
+  next();
+};
+
+// Utility function to verify branch ownership of single documents
+export const checkBranchMatch = (documentBranchId, user) => {
+  if (user.role === 'admin') return true;
+  if (!documentBranchId || !user.branchId) return false;
+  return documentBranchId.toString() === user.branchId.toString();
+};
+

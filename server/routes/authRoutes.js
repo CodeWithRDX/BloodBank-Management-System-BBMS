@@ -1,5 +1,18 @@
 import express from 'express';
-import { register, login, getMe, updateProfile, updatePassword, forgotPassword, resetPassword, logout } from '../controllers/authController.js';
+import {
+  register,
+  login,
+  getMe,
+  updateProfile,
+  updatePassword,
+  forgotPassword,
+  resetPassword,
+  logout,
+  verify2FA,
+  refresh,
+  googleLogin,
+  githubLogin,
+} from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 import { validateRegister, validateLogin } from '../middleware/validate.js';
 
@@ -7,6 +20,11 @@ const router = express.Router();
 
 router.post('/register', validateRegister, register);
 router.post('/login', validateLogin, login);
+router.post('/verify-2fa', verify2FA);
+router.post('/refresh', refresh);
+router.post('/oauth/google', googleLogin);
+router.post('/oauth/github', githubLogin);
+
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
 router.put('/password', protect, updatePassword);

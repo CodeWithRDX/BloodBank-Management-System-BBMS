@@ -47,10 +47,39 @@ const donorSchema = new mongoose.Schema(
       zipCode: String,
       country: { type: String, default: 'India' },
     },
+    governmentId: {
+      idType: {
+        type: String,
+        enum: ['Aadhaar', 'PAN', 'Passport', 'Driving License', 'Voter ID'],
+      },
+      idNumber: {
+        type: String,
+        trim: true,
+      },
+      isVerified: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    emergencyContact: {
+      name: {
+        type: String,
+        trim: true,
+      },
+      phone: {
+        type: String,
+        trim: true,
+      },
+      relation: {
+        type: String,
+        trim: true,
+      },
+    },
     medicalHistory: {
       type: String,
       default: '',
     },
+
     // Whole blood donation tracking
     lastDonationDate: { type: Date },
     // Platelet donation tracking (separate 14-day cooldown)

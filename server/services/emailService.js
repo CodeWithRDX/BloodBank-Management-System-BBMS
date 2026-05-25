@@ -32,6 +32,9 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  tls: {
+    rejectUnauthorized: false,
+  },
 });
 
 // Helper to asynchronously send email and log it
@@ -392,3 +395,26 @@ export const retryFailedEmailsJob = async () => {
     console.error('[EMAIL JOB ERROR] Failed during retry execution:', error);
   }
 };
+
+// Send OTP email helper for 2FA
+export const sendOtpEmail = async (to, otp, name) => {
+  const html = `
+    <div style="font-family: 'Space Grotesk', Arial, sans-serif; max-width: 600px; margin: auto; padding: 30px; border: 1px solid #333; border-radius: 12px; background-color: #0f0f15; color: #f1f1f7; box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);">
+      <h2 style="color: #ef4444; text-align: center; border-bottom: 2px solid #ef4444; padding-bottom: 10px; margin-top: 0; font-weight: 800;">🩸 BBMS 2FA VERIFICATION CODE 🩸</h2>
+      <p style="font-size: 16px; line-height: 1.6;">Hello ${name || 'User'},</p>
+      <p style="font-size: 15px; line-height: 1.6; color: #a1a1aa;">A login attempt was initiated for your BBMS account. Use the following One-Time Password (OTP) code to complete your verification session:</p>
+      <div style="background: #181825; padding: 20px; text-align: center; font-size: 32px; font-weight: 900; letter-spacing: 8px; color: #ef4444; margin: 30px 0; border-radius: 8px; border: 2px dashed #ef4444; font-family: monospace;">
+        ${otp}
+      </div>
+      <p style="font-size: 14px; color: #e4e4e7; text-align: center; font-weight: bold;">This code is valid for exactly 5 minutes.</p>
+      <p style="color: #71717a; font-size: 12px; text-align: center; border-top: 1px solid #27272a; padding-top: 15px; margin-top: 30px;">If you did not request this verification, please secure your account credentials immediately.</p>
+    </div>
+  `;
+  await sendEmail({
+    to,
+    subject: `Your BBMS 2FA Verification Code: ${otp}`,
+    html,
+    triggerAction: 'otp_verification',
+  });
+};
+

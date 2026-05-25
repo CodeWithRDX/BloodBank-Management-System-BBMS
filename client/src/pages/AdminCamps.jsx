@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCamps, createCamp, cancelCamp, fetchCampRegistrations, updateRegistrationStatus } from '../redux/slices/campSlice';
 import { fetchBranches } from '../redux/slices/branchSlice';
+import PhoneInputComponent from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+
+const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 import usePolling from '../hooks/usePolling';
 import toast from 'react-hot-toast';
 import Modal from '../components/Modal';
@@ -612,13 +616,31 @@ export default function AdminCamps() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Contact Phone</label>
-              <input
-                type="text"
-                placeholder="e.g. 9876543210"
+              <PhoneInput
+                country={'in'}
                 value={newCamp.contactPerson.phone}
-                onChange={(e) => setNewCamp({ ...newCamp, contactPerson: { ...newCamp.contactPerson, phone: e.target.value } })}
-                className="input"
-                style={{ padding: '0.6rem 0.875rem', fontSize: '0.85rem' }}
+                onChange={phone => setNewCamp({ ...newCamp, contactPerson: { ...newCamp.contactPerson, phone } })}
+                inputStyle={{
+                  width: '100%',
+                  height: '38px',
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--input-radius)',
+                  color: 'var(--text-primary)',
+                  fontFamily: 'var(--font-body)',
+                  paddingLeft: '48px'
+                }}
+                buttonStyle={{
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  borderTopLeftRadius: 'var(--input-radius)',
+                  borderBottomLeftRadius: 'var(--input-radius)',
+                }}
+                dropdownStyle={{
+                  background: 'var(--bg-surface)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border)',
+                }}
               />
             </div>
           </div>

@@ -19,7 +19,7 @@ const bloodRequestSchema = new mongoose.Schema(
     requestedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      required: false,
     },
     patientName: {
       type: String,
@@ -81,7 +81,20 @@ const bloodRequestSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'BloodInventory',
     },
+    medicalReportUrl: {
+      type: String,
+      default: null,
+    },
+    governmentIdUrl: {
+      type: String,
+      default: null,
+    },
+    emergencyContact: {
+      name: { type: String, default: '' },
+      phone: { type: String, default: '' },
+    },
     notes: String,
+
   },
   { timestamps: true }
 );

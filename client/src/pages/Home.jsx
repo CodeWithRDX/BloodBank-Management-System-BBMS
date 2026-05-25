@@ -1,11 +1,19 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useTheme } from '../theme/ThemeContext';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import PhoneInputComponent from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+
+const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 import {
   HiOutlineHeart, HiOutlineBeaker, HiOutlineShieldCheck,
   HiOutlineUserGroup, HiOutlineArrowRight, HiOutlineLightningBolt,
   HiOutlineGlobe, HiOutlineClipboardCheck,
 } from 'react-icons/hi';
+
 
 const STATS = [
   { value: '50K+',  label: 'Lives Saved',       icon: '❤️'  },
@@ -64,6 +72,94 @@ const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 const Home = () => {
   const { isAuthenticated, user } = useSelector(s => s.auth);
   const { themeId, themes } = useTheme();
+
+  // Emergency request states
+  const [patientName, setPatientName] = useState('');
+  const [bloodGroup, setBloodGroup] = useState('O+');
+  const [quantity, setQuantity] = useState(1);
+  const [reason, setReason] = useState('');
+  const [branchId, setBranchId] = useState('');
+  const [email, setEmail] = useState('');
+  const [contactName, setContactName] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
+  const [medicalReport, setMedicalReport] = useState(null);
+  const [governmentId, setGovernmentId] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [branches, setBranches] = useState([]);
+
+  useEffect(() => {
+    axios.get('/api/branches/public')
+      .then(res => {
+        if (res.data && res.data.data) {
+          setBranches(res.data.data);
+        }
+      })
+      .catch(err => console.error('Error fetching branches:', err));
+  }, []);
+
+  const handleMedicalReportChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Medical report size must be less than 5MB');
+        return;
+      }
+      setMedicalReport(file);
+    }
+  };
+
+  const handleGovernmentIdChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('ID proof size must be less than 5MB');
+        return;
+      }
+      setGovernmentId(file);
+    }
+  };
+
+  const handleEmergencySubmit = async (e) => {
+    e.preventDefault();
+    if (!patientName || !reason || !email || !contactName || !contactPhone || !branchId || !medicalReport || !governmentId) {
+      return toast.error('Please fill in all fields and upload required documents');
+    }
+
+    setIsSubmitting(true);
+    const formData = new FormData();
+    formData.append('patientName', patientName);
+    formData.append('bloodGroup', bloodGroup);
+    formData.append('quantity', quantity);
+    formData.append('reason', reason);
+    formData.append('branchId', branchId);
+    formData.append('email', email);
+    formData.append('emergencyContactName', contactName);
+    formData.append('emergencyContactPhone', contactPhone);
+    formData.append('medicalReport', medicalReport);
+    formData.append('governmentId', governmentId);
+
+    try {
+      const res = await axios.post('/api/requests/public-emergency', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data.success) {
+        toast.success('🚨 Emergency request submitted successfully! Staff has been alerted.');
+        setPatientName('');
+        setReason('');
+        setContactName('');
+        setContactPhone('');
+        setMedicalReport(null);
+        setGovernmentId(null);
+        setEmail('');
+      } else {
+        toast.error(res.data.message || 'Failed to submit request');
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Error submitting emergency request');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
@@ -407,6 +503,302 @@ const Home = () => {
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ EMERGENCY REQUEST SECTION ═════════════════════ */}
+      <section style={{
+        padding: '5rem 1.5rem',
+        borderTop: '1px solid var(--border)',
+        background: 'linear-gradient(180deg, var(--bg-base) 0%, var(--bg-surface) 100%)',
+        position: 'relative'
+      }}>
+        <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+              padding: '0.25rem 0.75rem', borderRadius: '999px',
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              marginBottom: '1rem', fontSize: '0.75rem', fontWeight: 600, color: '#ef4444'
+            }}>
+              🚨 CRITICAL NEED
+            </div>
+            <h2 style={{
+              fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 800,
+              letterSpacing: '-0.025em', fontFamily: "'Space Grotesk', sans-serif"
+            }}>
+              Submit Emergency Request
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', marginTop: '0.75rem', fontSize: '0.95rem' }}>
+              Submit an urgent request. Staff and nearby donors will be notified immediately.
+            </p>
+          </div>
+
+          <div style={{
+            background: 'rgba(30, 41, 59, 0.5)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid var(--border)',
+            borderRadius: '1.5rem',
+            padding: '2rem',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+          }}>
+            <form onSubmit={handleEmergencySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                {/* Patient Name */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Patient Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={patientName}
+                    onChange={e => setPatientName(e.target.value)}
+                    placeholder="Enter Patient Name"
+                    style={{
+                      width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
+                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+                      color: 'var(--text-primary)', outline: 'none', transition: 'border-color 0.2s'
+                    }}
+                  />
+                </div>
+                {/* Email */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="Enter Email Address"
+                    style={{
+                      width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
+                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+                      color: 'var(--text-primary)', outline: 'none'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem' }}>
+                {/* Blood Group */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Blood Group</label>
+                  <select
+                    value={bloodGroup}
+                    onChange={e => setBloodGroup(e.target.value)}
+                    style={{
+                      width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
+                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+                      color: 'var(--text-primary)', outline: 'none'
+                    }}
+                  >
+                    {BLOOD_GROUPS.map(bg => (
+                      <option key={bg} value={bg} style={{ background: 'var(--bg-elevated)' }}>{bg}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* Quantity */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Quantity (Units)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={quantity}
+                    onChange={e => setQuantity(parseInt(e.target.value) || 1)}
+                    style={{
+                      width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
+                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+                      color: 'var(--text-primary)', outline: 'none'
+                    }}
+                  />
+                </div>
+                {/* Branch */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Target Branch</label>
+                  <select
+                    required
+                    value={branchId}
+                    onChange={e => setBranchId(e.target.value)}
+                    style={{
+                      width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
+                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+                      color: 'var(--text-primary)', outline: 'none'
+                    }}
+                  >
+                    <option value="" style={{ background: 'var(--bg-elevated)' }}>Select Branch</option>
+                    {branches.map(b => (
+                      <option key={b._id} value={b._id} style={{ background: 'var(--bg-elevated)' }}>{b.name} ({b.city})</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                {/* Contact Person Name */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Emergency Contact Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={contactName}
+                    onChange={e => setContactName(e.target.value)}
+                    placeholder="Contact Person Name"
+                    style={{
+                      width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
+                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+                      color: 'var(--text-primary)', outline: 'none'
+                    }}
+                  />
+                </div>
+                {/* Contact Phone */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Emergency Contact Phone</label>
+                  <PhoneInput
+                    country={'in'}
+                    value={contactPhone}
+                    onChange={setContactPhone}
+                    inputStyle={{
+                      width: '100%',
+                      height: '42px',
+                      background: 'var(--bg-elevated)',
+                      border: '1px solid var(--border)',
+                      borderRadius: 'var(--input-radius)',
+                      color: 'var(--text-primary)',
+                      fontFamily: 'var(--font-body)',
+                    }}
+                    buttonStyle={{
+                      background: 'var(--bg-elevated)',
+                      border: '1px solid var(--border)',
+                      borderTopLeftRadius: 'var(--input-radius)',
+                      borderBottomLeftRadius: 'var(--input-radius)',
+                    }}
+                    dropdownStyle={{
+                      background: 'var(--bg-surface)',
+                      color: 'var(--text-primary)',
+                      border: '1px solid var(--border)',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Reason */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Reason for Urgency</label>
+                <textarea
+                  required
+                  rows="3"
+                  value={reason}
+                  onChange={e => setReason(e.target.value)}
+                  placeholder="Describe the medical emergency..."
+                  style={{
+                    width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
+                    background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+                    color: 'var(--text-primary)', outline: 'none', resize: 'none'
+                  }}
+                />
+              </div>
+
+              {/* File Upload Section */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                {/* Medical Report */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Medical Report (PDF/Image)</label>
+                  <div style={{
+                    border: '2px dashed var(--border)',
+                    borderRadius: 'var(--input-radius)',
+                    padding: '1rem',
+                    textAlign: 'center',
+                    background: 'var(--bg-elevated)',
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}>
+                    <input
+                      type="file"
+                      accept=".pdf,image/*"
+                      required
+                      onChange={handleMedicalReportChange}
+                      style={{
+                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                        opacity: 0, cursor: 'pointer'
+                      }}
+                    />
+                    {medicalReport ? (
+                      <div>
+                        <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          📄 {medicalReport.name}
+                        </p>
+                        <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                          {(medicalReport.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <span style={{ fontSize: '1.25rem' }}>📤</span>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Click to upload Report</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* ID Proof */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Government ID Proof (PDF/Image)</label>
+                  <div style={{
+                    border: '2px dashed var(--border)',
+                    borderRadius: 'var(--input-radius)',
+                    padding: '1rem',
+                    textAlign: 'center',
+                    background: 'var(--bg-elevated)',
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}>
+                    <input
+                      type="file"
+                      accept=".pdf,image/*"
+                      required
+                      onChange={handleGovernmentIdChange}
+                      style={{
+                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                        opacity: 0, cursor: 'pointer'
+                      }}
+                    />
+                    {governmentId ? (
+                      <div>
+                        <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          📄 {governmentId.name}
+                        </p>
+                        <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
+                          {(governmentId.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <span style={{ fontSize: '1.25rem' }}>💳</span>
+                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Click to upload ID Proof</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                style={{
+                  width: '100%', padding: '0.875rem', borderRadius: 'var(--btn-radius)',
+                  background: 'var(--accent)', color: 'white', fontWeight: 700,
+                  fontSize: '1rem', border: 'none', cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 0 20px var(--accent-glow)', transition: 'all 0.2s', marginTop: '0.5rem'
+                }}
+                onMouseEnter={e => { if(!isSubmitting) e.currentTarget.style.filter = 'brightness(1.15)'; }}
+                onMouseLeave={e => { e.currentTarget.style.filter = ''; }}
+              >
+                {isSubmitting ? 'Submitting Urgent Request...' : '🚨 Send Emergency Broadcast'}
+              </button>
+            </form>
           </div>
         </div>
       </section>

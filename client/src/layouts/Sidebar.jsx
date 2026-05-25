@@ -22,7 +22,6 @@ import {
 const NAV_BY_ROLE = {
   admin: [
     { name: 'Dashboard', path: '/admin', icon: HiOutlineChartBar, exact: true },
-    { name: 'Users', path: '/admin/users', icon: HiOutlineUserGroup },
     { name: 'Donors', path: '/admin/donors', icon: HiOutlineHeart },
     { name: 'Branches', path: '/admin/branches', icon: FiMapPin },
     { name: 'Staff', path: '/admin/staff', icon: FiUsers },
@@ -60,6 +59,7 @@ const NAV_BY_ROLE = {
   ],
   branch_admin: [
     { name: 'Dashboard', path: '/staff', icon: HiOutlineHome, exact: true },
+    { name: 'Donors', path: '/admin/donors', icon: HiOutlineHeart },
     { name: 'Inventory', path: '/staff/inventory', icon: HiOutlineBeaker },
     { name: 'Donation Camps', path: '/staff/camps', icon: HiOutlineCalendar },
     { name: 'Transfers', path: '/admin/transfers', icon: FiRepeat },

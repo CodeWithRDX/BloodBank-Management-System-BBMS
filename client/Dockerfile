@@ -15,9 +15,11 @@ COPY . .
 # Build arguments for environment variables baked into the bundle
 ARG VITE_API_URL=/api
 ARG VITE_SOCKET_URL=""
+ARG VITE_GOOGLE_CLIENT_ID=""
 
 ENV VITE_API_URL=$VITE_API_URL
 ENV VITE_SOCKET_URL=$VITE_SOCKET_URL
+ENV VITE_GOOGLE_CLIENT_ID=$VITE_GOOGLE_CLIENT_ID
 
 # Build the production bundle
 RUN npm run build

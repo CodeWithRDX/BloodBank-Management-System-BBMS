@@ -1,4 +1,8 @@
 import { useEffect, useState } from 'react';
+import PhoneInputComponent from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+
+const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchMyDonorProfile, updateDonor } from '../redux/slices/donorSlice';
 import { updateProfile } from '../redux/slices/authSlice';
@@ -99,7 +103,35 @@ const DonorProfile = () => {
           {/* Personal */}
           <Section title="👤 Personal Information">
             <Field><Lbl>Full Name</Lbl><input name="fullName" value={form.fullName} onChange={handleChange} required style={iStyle} /></Field>
-            <Field><Lbl>Phone Number</Lbl><input type="tel" name="phone" value={form.phone} onChange={handleChange} required style={iStyle} /></Field>
+            <Field>
+              <Lbl>Phone Number</Lbl>
+              <PhoneInput
+                country={'in'}
+                value={form.phone}
+                onChange={phone => setForm({ ...form, phone })}
+                inputStyle={{
+                  width: '100%',
+                  height: '42px',
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '0.625rem',
+                  color: 'var(--text-primary)',
+                  fontFamily: 'var(--font-body)',
+                  paddingLeft: '48px'
+                }}
+                buttonStyle={{
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  borderTopLeftRadius: '0.625rem',
+                  borderBottomLeftRadius: '0.625rem',
+                }}
+                dropdownStyle={{
+                  background: 'var(--bg-surface)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border)',
+                }}
+              />
+            </Field>
             <Field>
               <Lbl>Gender</Lbl>
               <select name="gender" value={form.gender} onChange={handleChange} style={iStyle}>

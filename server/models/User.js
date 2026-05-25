@@ -20,13 +20,18 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, 'Please provide a password'],
+      required: [
+        function () {
+          return !this.oauthProvider || this.oauthProvider === 'local';
+        },
+        'Please provide a password',
+      ],
       minlength: [6, 'Password must be at least 6 characters'],
       select: false,
     },
     role: {
       type: String,
-      enum: ['admin', 'donor', 'hospital', 'staff', 'branch_admin'],
+      enum: ['admin', 'donor', 'hospital', 'staff', 'branch_admin', 'support_agent'],
       default: 'donor',
     },
     // Staff-specific fields
@@ -53,11 +58,37 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isTwoFactorEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    twoFactorSecret: {
+      type: String,
+      select: false,
+    },
+    twoFactorExpiry: {
+      type: Date,
+      select: false,
+    },
+    refreshToken: {
+      type: String,
+      select: false,
+    },
+    oauthProvider: {
+      type: String,
+      enum: ['local', 'google', 'github'],
+      default: 'local',
+    },
+    oauthId: {
+      type: String,
+      default: null,
+    },
     resetPasswordToken: String,
     resetPasswordExpire: Date,
     // For audit logging
     lastLoginAt: Date,
     lastLoginIp: String,
+
   },
   { timestamps: true }
 );

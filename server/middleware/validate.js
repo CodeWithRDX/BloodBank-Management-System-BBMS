@@ -12,6 +12,15 @@ export const validateRegister = (req, res, next) => {
   const validRoles = ['admin', 'donor', 'hospital', 'staff'];
   if (role && !validRoles.includes(role)) errors.push('Invalid role');
 
+  if (role === 'donor' && req.body.dateOfBirth) {
+    const dobDate = new Date(req.body.dateOfBirth);
+    const age = Math.floor((Date.now() - dobDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    if (age < 18) {
+      errors.push('Mandatory donor age requirement: must be at least 18 years old');
+    }
+  }
+
+
   if (errors.length > 0) {
     return res.status(400).json({ success: false, message: errors.join(', ') });
   }
@@ -59,7 +68,15 @@ export const validateDonor = (req, res, next) => {
   if (!gender) errors.push('Gender is required');
   const validGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
   if (!bloodGroup || !validGroups.includes(bloodGroup)) errors.push('Valid blood group is required');
-  if (!dateOfBirth) errors.push('Date of birth is required');
+  if (!dateOfBirth) {
+    errors.push('Date of birth is required');
+  } else {
+    const dobDate = new Date(dateOfBirth);
+    const age = Math.floor((Date.now() - dobDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+    if (age < 18) {
+      errors.push('Mandatory donor age requirement: must be at least 18 years old');
+    }
+  }
   if (!weight || weight < 45) errors.push('Weight must be at least 45 kg');
 
   if (errors.length > 0) {

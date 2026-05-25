@@ -12,6 +12,9 @@ import connectDB from './config/db.js';
 import errorHandler from './middleware/errorHandler.js';
 import { initSocket } from './utils/socketManager.js';
 import { startScheduledJobs } from './utils/scheduleJobs.js';
+import ChatLog from './models/ChatLog.js';
+import { generateAIResponse } from './services/aiService.js';
+
 
 // Route imports — existing
 import authRoutes from './routes/authRoutes.js';
@@ -33,6 +36,8 @@ import transferRoutes from './routes/transferRoutes.js';
 import logRoutes from './routes/logRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import geoRoutes from './routes/geoRoutes.js';
+import broadcastRoutes from './routes/broadcastRoutes.js';
+
 
 // Load env vars
 dotenv.config();
@@ -41,6 +46,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
+app.set('trust proxy', 1);
 const httpServer = createServer(app);
 
 // CORS Configuration
@@ -82,6 +88,50 @@ io.on('connection', (socket) => {
     console.log(`Socket ${socket.id} joined room:branch:${branchId}`);
   });
 
+  // --- AI Real-Time Support Chat ---
+  socket.on('support:join', ({ sessionId }) => {
+    socket.join(`support:${sessionId}`);
+    console.log(`Socket ${socket.id} joined support room support:${sessionId}`);
+  });
+
+  socket.on('support:message', async ({ sessionId, userId, text }) => {
+    if (!text || !sessionId) return;
+    
+    // Save user message to ChatLog
+    let chatLog = await ChatLog.findOne({ sessionId });
+    if (!chatLog) {
+      chatLog = await ChatLog.create({ sessionId, userId: userId || null, messages: [] });
+    }
+    const userMsg = { sender: 'user', text, timestamp: new Date() };
+    chatLog.messages.push(userMsg);
+    await chatLog.save();
+
+    // Broadcast user message to room
+    io.to(`support:${sessionId}`).emit('support:message_received', userMsg);
+
+    // Generate AI response
+    try {
+      const aiResponseText = await generateAIResponse(text);
+      const aiMsg = { sender: 'ai', text: aiResponseText, timestamp: new Date() };
+      chatLog.messages.push(aiMsg);
+      await chatLog.save();
+
+      // Emit AI response back to room
+      io.to(`support:${sessionId}`).emit('support:message_received', aiMsg);
+    } catch (err) {
+      console.error('Error generating/saving AI response:', err);
+    }
+  });
+
+  socket.on('support:history', async ({ sessionId }) => {
+    try {
+      const chatLog = await ChatLog.findOne({ sessionId });
+      socket.emit('support:history_received', chatLog ? chatLog.messages : []);
+    } catch (err) {
+      console.error('Error retrieving support chat history:', err);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log(`🔌 Socket disconnected: ${socket.id}`);
   });
@@ -107,6 +157,7 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 200,
   message: { success: false, message: 'Too many requests, please try again later' },
+  validate: { xForwardedForHeader: false },
 });
 app.use('/api/', limiter);
 
@@ -138,6 +189,8 @@ app.use('/api/transfers', transferRoutes);
 app.use('/api/logs', logRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/geo', geoRoutes);
+app.use('/api/broadcasts', broadcastRoutes);
+
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (req, res) => {

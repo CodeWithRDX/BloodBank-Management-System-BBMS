@@ -208,3 +208,96 @@ export const updateRequestStatus = async (req, res, next) => {
     res.status(200).json({ success: true, data: request });
   } catch (error) { next(error); }
 };
+
+// @desc    Create public emergency blood request with document uploads
+// @route   POST /api/requests/public-emergency
+// @access  Public (Guest)
+export const createPublicEmergencyRequest = async (req, res, next) => {
+  try {
+    const { patientName, bloodGroup, quantity, reason, emergencyContactName, emergencyContactPhone, branchId, email } = req.body;
+    
+    if (!patientName || !bloodGroup || !quantity || !reason || !emergencyContactName || !emergencyContactPhone || !branchId || !email) {
+      return res.status(400).json({ success: false, message: 'Please fill in all required fields' });
+    }
+
+    const validGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+    if (!validGroups.includes(bloodGroup)) {
+      return res.status(400).json({ success: false, message: 'Invalid blood group selected' });
+    }
+
+    if (parseInt(quantity) < 1) {
+      return res.status(400).json({ success: false, message: 'Quantity must be at least 1 unit' });
+    }
+
+    // Check files
+    let medicalReportUrl = '';
+    let governmentIdUrl = '';
+
+    if (req.files) {
+      if (req.files.medicalReport && req.files.medicalReport[0]) {
+        medicalReportUrl = `/uploads/${req.files.medicalReport[0].filename}`;
+      }
+      if (req.files.governmentId && req.files.governmentId[0]) {
+        governmentIdUrl = `/uploads/${req.files.governmentId[0].filename}`;
+      }
+    }
+
+    if (!medicalReportUrl || !governmentIdUrl) {
+      return res.status(400).json({ success: false, message: 'Both medical report and government ID proof uploads are mandatory' });
+    }
+
+    const targetBranch = await Branch.findById(branchId);
+    if (!targetBranch) {
+      return res.status(404).json({ success: false, message: 'Target branch center not found' });
+    }
+
+    const newRequest = await BloodRequest.create({
+      patientName,
+      bloodGroup,
+      quantity: parseInt(quantity),
+      urgency: 'emergency',
+      reason,
+      branchId,
+      medicalReportUrl,
+      governmentIdUrl,
+      emergencyContact: {
+        name: emergencyContactName,
+        phone: emergencyContactPhone,
+      },
+      status: 'pending',
+    });
+
+    // Notify admins + branch staff for emergency requests
+    await NotificationService.notifyAdmins({
+      title: '🚨 Emergency Blood Request (Guest)',
+      message: `Emergency request for ${newRequest.quantity} units of ${newRequest.bloodGroup}. Patient: ${newRequest.patientName}. Documents uploaded.`,
+      type: 'emergency',
+      category: 'emergency',
+      referenceType: 'BloodRequest',
+      referenceId: newRequest._id,
+    });
+
+    // Trigger emergency alerts to nearby donors async
+    try {
+      sendEmergencyBloodRequestEmail(newRequest, targetBranch);
+    } catch (err) {
+      console.error('Error triggering emergency alerts email:', err);
+    }
+
+    // Send confirmation email to requester
+    try {
+      sendBloodRequestCreatedEmail({ ...newRequest.toObject(), units: newRequest.quantity }, email);
+    } catch (err) {
+      console.error('Error sending confirmation email:', err);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Emergency request submitted successfully. Our staff has been alerted.',
+      data: newRequest,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

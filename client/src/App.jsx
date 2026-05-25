@@ -168,6 +168,8 @@ function App() {
             <Route path="/staff/notifications" element={<Notifications />} />
             <Route path="/staff/inventory"     element={<StaffInventory />} />
             <Route path="/staff/camps"         element={<StaffCamps />} />
+            <Route path="/admin/donors"        element={<AdminDonors />} />
+            <Route path="/admin/transfers"     element={<AdminTransfers />} />
           </Route>
 
           {/* 404 */}

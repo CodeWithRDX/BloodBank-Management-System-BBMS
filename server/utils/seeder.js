@@ -101,13 +101,13 @@ const seedDB = async () => {
 
     const admin = await User.create({
       name: 'Admin User',
-      email: 'admin@bbms.com',
+      email: 'rdxraushan2005@gmail.com',
       password: 'Admin@123',
       role: 'admin',
-      phone: '9999999999',
+      phone: '+91 9199948940',
       isEmailVerified: true,
     });
-    log.success(`Admin  → admin@bbms.com`);
+    log.success(`Admin  → rdxraushan2005@gmail.com`);
 
     const staffUser = await User.create({
       name: 'Lab Technician',
@@ -217,7 +217,7 @@ const seedDB = async () => {
     console.log(c.bold(c.green('\n✅ Database seeded successfully!\n')));
     console.log(c.bold('  Login credentials:'));
     log.table([
-      ['admin@bbms.com',    'Admin@123'],
+      ['rdxraushan2005@gmail.com',    'Admin@123'],
       ['staff@bbms.com',    'Staff@123'],
       ['donor@bbms.com',    'Donor@123'],
       ['priya@bbms.com',    'Donor@123'],
