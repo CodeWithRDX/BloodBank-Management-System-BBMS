@@ -58,6 +58,48 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    notifications: {
+      telegram: {
+        enabled: { type: Boolean, default: false },
+        chatId: { type: String, default: '' },
+      },
+      whatsapp: {
+        enabled: { type: Boolean, default: false },
+        phone: { type: String, default: '' },
+      },
+    },
+    telegramConnectToken: {
+      type: String,
+      default: null,
+    },
+    telegramConnectTokenExpires: {
+      type: Date,
+      default: null,
+    },
+    whatsappConnectToken: {
+      type: String,
+      default: null,
+    },
+    whatsappConnectTokenExpires: {
+      type: Date,
+      default: null,
+    },
+    whatsappVerifyCode: {
+      type: String,
+      default: null,
+    },
+    whatsappVerifyExpires: {
+      type: Date,
+      default: null,
+    },
+    aiAssistantEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    floatingBotWidgetEnabled: {
+      type: Boolean,
+      default: true,
+    },
     isTwoFactorEnabled: {
       type: Boolean,
       default: false,

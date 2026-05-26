@@ -42,6 +42,8 @@ const AdminAppointments = () => {
 
   const [verifyAptId, setVerifyAptId] = useState(null);
   const [verifyForm, setVerifyForm] = useState({
+    gender: '',
+    bloodGroup: '',
     dateOfBirth: '',
     weight: '',
     idType: 'Aadhaar',
@@ -55,6 +57,8 @@ const AdminAppointments = () => {
   const handleCompleteClick = (apt) => {
     const donor = apt.donorId || {};
     setVerifyForm({
+      gender: donor.gender || '',
+      bloodGroup: donor.bloodGroup || '',
       dateOfBirth: donor.dateOfBirth ? new Date(donor.dateOfBirth).toISOString().split('T')[0] : '',
       weight: donor.weight || '',
       idType: donor.governmentId?.idType || 'Aadhaar',
@@ -69,7 +73,7 @@ const AdminAppointments = () => {
 
   const handleVerifySubmit = async (e) => {
     e.preventDefault();
-    if (!verifyForm.dateOfBirth || !verifyForm.weight || !verifyForm.idType || !verifyForm.idNumber || !verifyForm.emergencyName || !verifyForm.emergencyPhone || !verifyForm.emergencyRelation) {
+    if (!verifyForm.gender || !verifyForm.bloodGroup || !verifyForm.dateOfBirth || !verifyForm.weight || !verifyForm.idType || !verifyForm.idNumber || !verifyForm.emergencyName || !verifyForm.emergencyPhone || !verifyForm.emergencyRelation) {
       return toast.error('All verification fields are required.');
     }
     
@@ -90,6 +94,8 @@ const AdminAppointments = () => {
 
     try {
       await API.put(`/donors/${verifyAptId.donorId._id}`, {
+        gender: verifyForm.gender,
+        bloodGroup: verifyForm.bloodGroup,
         dateOfBirth: verifyForm.dateOfBirth,
         weight: parseFloat(verifyForm.weight),
         governmentId: {
@@ -251,6 +257,25 @@ const AdminAppointments = () => {
                 <input type="text" disabled value={verifyAptId.donorId?.fullName || verifyAptId.userId?.name || ''}
                   style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontSize: '0.9rem', boxSizing: 'border-box', cursor: 'not-allowed' }}
                 />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Gender *</label>
+                  <select required value={verifyForm.gender} onChange={e => setVerifyForm({ ...verifyForm, gender: e.target.value })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                    <option value="">Select Gender</option>
+                    {['male', 'female', 'other'].map(g => <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Blood Group *</label>
+                  <select required value={verifyForm.bloodGroup} onChange={e => setVerifyForm({ ...verifyForm, bloodGroup: e.target.value })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                    <option value="">Select Blood Group</option>
+                    {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => <option key={bg} value={bg}>{bg}</option>)}
+                  </select>
+                </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>

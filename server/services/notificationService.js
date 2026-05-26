@@ -2,6 +2,7 @@ import Notification from '../models/Notification.js';
 import User from '../models/User.js';
 import sendEmail from '../utils/sendEmail.js';
 import { emitNotification } from '../utils/socketManager.js';
+import { sendTelegramMessage, sendWhatsAppMessage } from './externalNotificationService.js';
 
 class NotificationService {
   // ─── Core: Create in-app notification ──────────────────────────────────────
@@ -23,11 +24,39 @@ class NotificationService {
       // Emit real-time notification via Socket.IO
       if (userId) {
         emitNotification(userId.toString(), notification);
+
+        // Dispatch external notifications asynchronously
+        this.sendExternalNotifications(userId, title, message).catch((err) =>
+          console.error('External notification dispatch failed:', err.message)
+        );
       }
 
       return notification;
     } catch (error) {
       console.error('Notification creation failed:', error.message);
+    }
+  }
+
+  // ─── Dispatch external notifications (Telegram, WhatsApp) ────────────────────
+  static async sendExternalNotifications(userId, title, message) {
+    try {
+      const user = await User.findById(userId);
+      if (!user) return;
+
+      const htmlText = `<b>${title}</b>\n\n${message}`;
+      const plainText = `*${title}*\n\n${message}`;
+
+      // Telegram
+      if (user.notifications?.telegram?.enabled && user.notifications.telegram.chatId) {
+        await sendTelegramMessage(user.notifications.telegram.chatId, htmlText);
+      }
+
+      // WhatsApp
+      if (user.notifications?.whatsapp?.enabled && user.notifications.whatsapp.phone) {
+        await sendWhatsAppMessage(user.notifications.whatsapp.phone, plainText);
+      }
+    } catch (error) {
+      console.error('External notifications dispatch failed:', error.message);
     }
   }
 

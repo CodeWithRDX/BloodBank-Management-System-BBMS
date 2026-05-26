@@ -8,6 +8,7 @@ import { loadUser } from './redux/slices/authSlice';
 import PublicLayout from './layouts/PublicLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import ProtectedRoute from './components/ProtectedRoute';
+import AISupportWidget from './components/chat/AISupportWidget';
 
 // ── Public Pages ─────────────────────────────────────────────
 const Home              = lazy(() => import('./pages/Home'));
@@ -182,6 +183,7 @@ function App() {
           } />
         </Routes>
       </Suspense>
+      <AISupportWidget />
     </>
   );
 }

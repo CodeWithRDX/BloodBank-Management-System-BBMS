@@ -76,10 +76,10 @@ export const register = async (req, res, next) => {
         fullName: name,
         email,
         phone: phone || '',
-        gender: req.body.gender || 'male',
-        bloodGroup: req.body.bloodGroup || 'O+',
-        dateOfBirth: req.body.dateOfBirth || new Date('2000-01-01'),
-        weight: req.body.weight || 50,
+        gender: req.body.gender,
+        bloodGroup: req.body.bloodGroup,
+        dateOfBirth: req.body.dateOfBirth,
+        weight: req.body.weight,
       });
     }
 
@@ -204,6 +204,14 @@ export const updateProfile = async (req, res, next) => {
       new: true,
       runValidators: true,
     });
+
+    if (user.role === 'donor') {
+      await Donor.findOneAndUpdate(
+        { userId: user._id },
+        { phone: user.phone, fullName: user.name },
+        { new: true, runValidators: true }
+      );
+    }
 
     res.status(200).json({ success: true, data: user });
   } catch (error) {
@@ -485,10 +493,6 @@ export const googleLogin = async (req, res, next) => {
         fullName: user.name,
         email: user.email,
         phone: '',
-        gender: 'male',
-        bloodGroup: 'O+',
-        dateOfBirth: new Date('2000-01-01'),
-        weight: 50,
       });
     } else {
       if (user.oauthProvider === 'local') {
@@ -575,10 +579,6 @@ export const githubLogin = async (req, res, next) => {
         fullName: user.name,
         email: user.email,
         phone: '',
-        gender: 'male',
-        bloodGroup: 'O+',
-        dateOfBirth: new Date('2000-01-01'),
-        weight: 50,
       });
     } else {
       if (user.oauthProvider === 'local') {

@@ -19,25 +19,21 @@ const donorSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: [true, 'Phone number is required'],
+      default: '',
     },
     gender: {
       type: String,
       enum: ['male', 'female', 'other'],
-      required: [true, 'Gender is required'],
     },
     bloodGroup: {
       type: String,
       enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
-      required: [true, 'Blood group is required'],
     },
     dateOfBirth: {
       type: Date,
-      required: [true, 'Date of birth is required'],
     },
     weight: {
       type: Number,
-      required: [true, 'Weight is required'],
       min: [45, 'Minimum weight for donation is 45 kg'],
     },
     address: {

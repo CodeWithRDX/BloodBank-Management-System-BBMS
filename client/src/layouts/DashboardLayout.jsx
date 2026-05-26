@@ -1,8 +1,15 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Link, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTheme } from '../theme/ThemeContext';
+import { updateProfile, loadUser } from '../redux/slices/authSlice';
+import API from '../api/axios';
+import PhoneInputComponent from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+import toast from 'react-hot-toast';
+
+const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 import {
   HiOutlineHome, HiOutlineUserGroup, HiOutlineBeaker,
   HiOutlineClipboardList, HiOutlineDocumentReport,
@@ -85,6 +92,7 @@ const ANIME_LOGOS = {
 /* ── Shared sidebar content (desktop + mobile) ──────────── */
 const SidebarContent = ({ onLinkClick }) => {
   const { user } = useSelector(s => s.auth);
+  const dispatch = useDispatch();
   const { themeId, themes, theme } = useTheme();
   const location = useLocation();
   const links = NAV_BY_ROLE[user?.role] || [];
@@ -268,6 +276,91 @@ const SidebarContent = ({ onLinkClick }) => {
         </ul>
       </nav>
 
+      {/* ── AI Settings ── */}
+      {user && (
+        <div style={{
+          padding: '0.75rem',
+          margin: '0.75rem',
+          borderTop: '1px dashed var(--border)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.5rem',
+        }}>
+          <p style={{
+            color: 'var(--text-secondary)', fontSize: '0.62rem', fontWeight: 700,
+            textTransform: 'uppercase', letterSpacing: '0.08em',
+            margin: '0 0 0.25rem 0',
+          }}>
+            🤖 AI Support Settings
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}>AI Assistant</span>
+              <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '2.1rem', height: '1.1rem' }}>
+                <input
+                  type="checkbox"
+                  checked={user.aiAssistantEnabled !== false}
+                  onChange={async (e) => {
+                    try {
+                      await API.post('/communications/ai-toggle', { aiAssistantEnabled: e.target.checked });
+                      dispatch(loadUser());
+                      toast.success(e.target.checked ? 'AI support assistant activated!' : 'AI support assistant deactivated.');
+                    } catch (err) {
+                      toast.error('Failed to update settings');
+                    }
+                  }}
+                  style={{ opacity: 0, width: 0, height: 0 }}
+                />
+                <span style={{
+                  position: 'absolute', cursor: 'pointer', inset: 0,
+                  background: (user.aiAssistantEnabled !== false) ? 'var(--accent)' : 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '999px', transition: '0.3s',
+                }}>
+                  <span style={{
+                    position: 'absolute', height: '0.8rem', width: '0.8rem',
+                    left: (user.aiAssistantEnabled !== false) ? 'calc(100% - 0.95rem)' : '0.1rem',
+                    bottom: '0.08rem', background: '#fff', borderRadius: '50%', transition: '0.3s'
+                  }} />
+                </span>
+              </label>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}>Floating Bot</span>
+              <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '2.1rem', height: '1.1rem' }}>
+                <input
+                  type="checkbox"
+                  checked={user.floatingBotWidgetEnabled !== false}
+                  onChange={async (e) => {
+                    try {
+                      await API.post('/communications/ai-toggle', { floatingBotWidgetEnabled: e.target.checked });
+                      dispatch(loadUser());
+                      toast.success(e.target.checked ? 'Floating widget activated!' : 'Floating widget deactivated.');
+                    } catch (err) {
+                      toast.error('Failed to update settings');
+                    }
+                  }}
+                  style={{ opacity: 0, width: 0, height: 0 }}
+                />
+                <span style={{
+                  position: 'absolute', cursor: 'pointer', inset: 0,
+                  background: (user.floatingBotWidgetEnabled !== false) ? 'var(--accent)' : 'var(--bg-elevated)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '999px', transition: '0.3s',
+                }}>
+                  <span style={{
+                    position: 'absolute', height: '0.8rem', width: '0.8rem',
+                    left: (user.floatingBotWidgetEnabled !== false) ? 'calc(100% - 0.95rem)' : '0.1rem',
+                    bottom: '0.08rem', background: '#fff', borderRadius: '50%', transition: '0.3s'
+                  }} />
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Footer ── */}
       <div style={{
         padding: '0.75rem',
@@ -291,6 +384,147 @@ const SidebarContent = ({ onLinkClick }) => {
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const closeSidebar = () => setSidebarOpen(false);
+
+  const dispatch = useDispatch();
+  const { user } = useSelector(s => s.auth);
+  const [phone, setPhone] = useState('');
+  const [updating, setUpdating] = useState(false);
+
+  const handlePhoneSubmit = async (e) => {
+    e.preventDefault();
+    if (!phone || phone.length < 8) {
+      return toast.error('Please enter a valid phone number');
+    }
+    setUpdating(true);
+    try {
+      await dispatch(updateProfile({ name: user.name, phone })).unwrap();
+      toast.success('🎉 Mobile number updated! Welcome to BBMS.');
+    } catch (err) {
+      toast.error(err || 'Failed to update phone number');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const isPhoneMissing = user?.role === 'donor' && (!user?.phone || user?.phone.trim() === '');
+
+  if (isPhoneMissing) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'var(--bg-base)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2rem 1rem',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Ambient blobs */}
+        <div style={{ position: 'absolute', top: '15%', left: '10%', width: '20rem', height: '20rem', borderRadius: '50%', background: 'var(--accent-glow)', filter: 'blur(70px)', opacity: 0.4, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '10%', right: '8%', width: '15rem', height: '15rem', borderRadius: '50%', background: 'var(--accent-soft)', filter: 'blur(50px)', opacity: 0.5, pointerEvents: 'none' }} />
+
+        <div className="animate-scaleIn" style={{ width: '100%', maxWidth: '28rem', position: 'relative', zIndex: 1 }}>
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <div style={{
+              width: '3.5rem', height: '3.5rem', borderRadius: '1rem',
+              background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 1rem',
+              boxShadow: '0 0 24px var(--accent-glow)',
+              fontSize: '1.5rem',
+            }}>
+              📱
+            </div>
+            <h1 style={{ fontWeight: 800, fontSize: '1.65rem', letterSpacing: '-0.025em', fontFamily: "'Space Grotesk', sans-serif" }}>
+              Action Required
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.375rem' }}>
+              Please complete your registration to activate your account
+            </p>
+          </div>
+
+          <div style={{
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border)',
+            borderRadius: '1.25rem',
+            padding: '2rem',
+            boxShadow: 'var(--card-shadow)',
+          }}>
+            <form onSubmit={handlePhoneSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{
+                padding: '0.75rem',
+                background: 'var(--accent-soft)',
+                border: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)',
+                borderRadius: '0.75rem',
+                fontSize: '0.82rem',
+                color: 'var(--text-secondary)',
+                lineHeight: 1.5,
+                marginBottom: '0.5rem'
+              }}>
+                🔒 To secure your account and receive appointment updates, a valid **mobile number** must be added.
+              </div>
+
+              <div>
+                <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 600, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Mobile Number
+                </label>
+                <PhoneInput
+                  country={'in'}
+                  value={phone}
+                  onChange={val => setPhone(val)}
+                  inputStyle={{
+                    width: '100%',
+                    height: '42px',
+                    background: 'var(--bg-elevated)',
+                    border: '1px solid var(--border)',
+                    borderRadius: 'var(--input-radius)',
+                    color: 'var(--text-primary)',
+                    fontFamily: 'var(--font-body)',
+                    paddingLeft: '48px'
+                  }}
+                  buttonStyle={{
+                    background: 'var(--bg-elevated)',
+                    border: '1px solid var(--border)',
+                    borderTopLeftRadius: 'var(--input-radius)',
+                    borderBottomLeftRadius: 'var(--input-radius)',
+                  }}
+                  dropdownStyle={{
+                    background: 'var(--bg-surface)',
+                    color: 'var(--text-primary)',
+                    border: '1px solid var(--border)',
+                  }}
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={updating}
+                className="btn-primary"
+                style={{
+                  width: '100%', padding: '0.875rem',
+                  fontSize: '0.95rem',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
+                  border: 'none', cursor: updating ? 'not-allowed' : 'pointer',
+                  opacity: updating ? 0.7 : 1,
+                  marginTop: '0.5rem',
+                }}
+              >
+                {updating ? (
+                  <>
+                    <div style={{ width: '1rem', height: '1rem', borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', animation: 'spin 0.7s linear infinite' }} />
+                    Activating...
+                  </>
+                ) : (
+                  <>Activate Account</>
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden', background: 'var(--bg-base)' }}>

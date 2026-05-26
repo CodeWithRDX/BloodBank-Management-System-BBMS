@@ -15,12 +15,20 @@ const chatLogSchema = new mongoose.Schema(
       {
         sender: {
           type: String,
-          enum: ['user', 'ai', 'system'],
+          enum: ['user', 'ai', 'system', 'agent'],
           required: true,
         },
         text: {
           type: String,
           required: true,
+        },
+        isRead: {
+          type: Boolean,
+          default: false,
+        },
+        readAt: {
+          type: Date,
+          default: null,
         },
         timestamp: {
           type: Date,
@@ -28,6 +36,16 @@ const chatLogSchema = new mongoose.Schema(
         },
       },
     ],
+    agentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+    status: {
+      type: String,
+      enum: ['ai', 'agent', 'closed'],
+      default: 'ai',
+    },
     resolved: {
       type: Boolean,
       default: false,

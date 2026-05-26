@@ -6,6 +6,12 @@ import toast from 'react-hot-toast';
 import LoadingSpinner from '../components/LoadingSpinner';
 import BloodGroupBadge from '../components/BloodGroupBadge';
 import StatusBadge from '../components/StatusBadge';
+import API from '../api/axios';
+import PhoneInputComponent from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
+
+const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
+
 import { 
   FiCalendar, 
   FiClock, 
@@ -75,6 +81,83 @@ export default function StaffCamps() {
       }
     } catch (err) {
       toast.error(err || 'Failed to update status');
+    }
+  };
+
+  const [verifyReg, setVerifyReg] = useState(null);
+  const [verifyForm, setVerifyForm] = useState({
+    gender: '',
+    bloodGroup: '',
+    dateOfBirth: '',
+    weight: '',
+    idType: 'Aadhaar',
+    idNumber: '',
+    isVerified: true,
+    emergencyName: '',
+    emergencyPhone: '',
+    emergencyRelation: ''
+  });
+
+  const handleCheckInClick = (reg) => {
+    const donor = reg.donorId || {};
+    setVerifyForm({
+      gender: donor.gender || '',
+      bloodGroup: donor.bloodGroup || '',
+      dateOfBirth: donor.dateOfBirth ? new Date(donor.dateOfBirth).toISOString().split('T')[0] : '',
+      weight: donor.weight || '',
+      idType: donor.governmentId?.idType || 'Aadhaar',
+      idNumber: donor.governmentId?.idNumber || '',
+      isVerified: donor.governmentId?.isVerified ?? true,
+      emergencyName: donor.emergencyContact?.name || '',
+      emergencyPhone: donor.emergencyContact?.phone || '',
+      emergencyRelation: donor.emergencyContact?.relation || '',
+    });
+    setVerifyReg(reg);
+  };
+
+  const handleVerifySubmit = async (e) => {
+    e.preventDefault();
+    if (!verifyForm.gender || !verifyForm.bloodGroup || !verifyForm.dateOfBirth || !verifyForm.weight || !verifyForm.idType || !verifyForm.idNumber || !verifyForm.emergencyName || !verifyForm.emergencyPhone || !verifyForm.emergencyRelation) {
+      return toast.error('All verification fields are required.');
+    }
+
+    const birthDate = new Date(verifyForm.dateOfBirth);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    if (age < 18) {
+      return toast.error('Donor must be at least 18 years old.');
+    }
+
+    if (parseFloat(verifyForm.weight) < 45) {
+      return toast.error('Donor weight must be at least 45 kg.');
+    }
+
+    try {
+      await API.put(`/donors/${verifyReg.donorId._id}`, {
+        gender: verifyForm.gender,
+        bloodGroup: verifyForm.bloodGroup,
+        dateOfBirth: verifyForm.dateOfBirth,
+        weight: parseFloat(verifyForm.weight),
+        governmentId: {
+          idType: verifyForm.idType,
+          idNumber: verifyForm.idNumber,
+          isVerified: verifyForm.isVerified
+        },
+        emergencyContact: {
+          name: verifyForm.emergencyName,
+          phone: verifyForm.emergencyPhone,
+          relation: verifyForm.emergencyRelation
+        }
+      });
+
+      await handleStatusChange(verifyReg._id, 'Attended', verifyReg.donorId?.fullName || verifyReg.userId?.name);
+      setVerifyReg(null);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update donor verification info.');
     }
   };
 
@@ -417,7 +500,7 @@ export default function StaffCamps() {
                                 {reg.status === 'Approved' && (
                                   <>
                                     <button
-                                      onClick={() => handleStatusChange(reg._id, 'Attended', donor?.fullName)}
+                                      onClick={() => handleCheckInClick(reg)}
                                       className="btn-primary"
                                       style={{
                                         padding: '4px 10px',
@@ -510,6 +593,134 @@ export default function StaffCamps() {
         </div>
 
       </div>
+
+      {/* Donor Verification / Completion Modal */}
+      {verifyReg && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)', padding: '1rem' }}>
+          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 16, padding: '1.5rem', width: '100%', maxWidth: 480, maxHeight: '92dvh', overflowY: 'auto' }}>
+            <h3 style={{ margin: '0 0 1.25rem', color: 'var(--text-primary)', fontSize: '1.1rem', fontWeight: 700 }}>
+              🛡️ Verify Donor Details
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginBottom: '1.25rem' }}>
+              Confirm and update the donor's medical eligibility details before checking in.
+            </p>
+            <form onSubmit={handleVerifySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Donor Name</label>
+                <input type="text" disabled value={verifyReg.donorId?.fullName || verifyReg.userId?.name || ''}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontSize: '0.9rem', boxSizing: 'border-box', cursor: 'not-allowed' }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Gender *</label>
+                  <select required value={verifyForm.gender} onChange={e => setVerifyForm({ ...verifyForm, gender: e.target.value })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                    <option value="">Select Gender</option>
+                    {['male', 'female', 'other'].map(g => <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Blood Group *</label>
+                  <select required value={verifyForm.bloodGroup} onChange={e => setVerifyForm({ ...verifyForm, bloodGroup: e.target.value })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                    <option value="">Select Blood Group</option>
+                    {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => <option key={bg} value={bg}>{bg}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Date of Birth *</label>
+                  <input type="date" required value={verifyForm.dateOfBirth} onChange={e => setVerifyForm({ ...verifyForm, dateOfBirth: e.target.value })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Weight (kg) *</label>
+                  <input type="number" min="45" required value={verifyForm.weight} onChange={e => setVerifyForm({ ...verifyForm, weight: e.target.value })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Govt ID Type *</label>
+                  <select value={verifyForm.idType} onChange={e => setVerifyForm({ ...verifyForm, idType: e.target.value })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                    {['Aadhaar', 'PAN', 'Passport', 'Driving License', 'Voter ID'].map(id => <option key={id} value={id}>{id}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>ID Number *</label>
+                  <input type="text" required value={verifyForm.idNumber} onChange={e => setVerifyForm({ ...verifyForm, idNumber: e.target.value })}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.75rem' }}>
+                <h4 style={{ margin: '0 0 0.75rem', fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 700 }}>📞 Emergency Contact</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 4, fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Contact Name *</label>
+                    <input type="text" required value={verifyForm.emergencyName} onChange={e => setVerifyForm({ ...verifyForm, emergencyName: e.target.value })}
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: 4, fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Relation *</label>
+                    <input type="text" required value={verifyForm.emergencyRelation} onChange={e => setVerifyForm({ ...verifyForm, emergencyRelation: e.target.value })}
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: 4, fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Contact Phone *</label>
+                  <PhoneInput
+                    country={'in'}
+                    value={verifyForm.emergencyPhone}
+                    onChange={phone => setVerifyForm({ ...verifyForm, emergencyPhone: phone })}
+                    inputStyle={{
+                      width: '100%',
+                      height: '38px',
+                      background: 'var(--bg-base)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px',
+                      color: 'var(--text-primary)',
+                      fontFamily: 'var(--font-body)',
+                      paddingLeft: '48px'
+                    }}
+                    buttonStyle={{
+                      background: 'var(--bg-base)',
+                      border: '1px solid var(--border)',
+                      borderTopLeftRadius: '8px',
+                      borderBottomLeftRadius: '8px',
+                    }}
+                    dropdownStyle={{
+                      background: 'var(--bg-surface)',
+                      color: 'var(--text-primary)',
+                      border: '1px solid var(--border)',
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: 10, marginTop: '0.75rem' }}>
+                <button type="button" onClick={() => setVerifyReg(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600 }}>
+                  Cancel
+                </button>
+                <button type="submit" style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'var(--accent)', border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
+                  Verify & Check In
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

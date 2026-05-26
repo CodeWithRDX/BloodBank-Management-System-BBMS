@@ -14,6 +14,8 @@ import { initSocket } from './utils/socketManager.js';
 import { startScheduledJobs } from './utils/scheduleJobs.js';
 import ChatLog from './models/ChatLog.js';
 import { generateAIResponse } from './services/aiService.js';
+import { startTelegramBot, registerTelegramSocketHandlers } from './services/telegramBotService.js';
+import { registerWhatsAppSocketHandlers } from './services/whatsappBotService.js';
 
 
 // Route imports — existing
@@ -37,6 +39,7 @@ import logRoutes from './routes/logRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import geoRoutes from './routes/geoRoutes.js';
 import broadcastRoutes from './routes/broadcastRoutes.js';
+import communicationRoutes from './routes/communicationRoutes.js';
 
 
 // Load env vars
@@ -70,6 +73,12 @@ initSocket(io);
 io.on('connection', (socket) => {
   console.log(`🔌 Socket connected: ${socket.id}`);
 
+  // Register Telegram simulation event handlers
+  registerTelegramSocketHandlers(socket, io);
+
+  // Register WhatsApp simulation event handlers
+  registerWhatsAppSocketHandlers(socket, io);
+
   // Join user-specific room
   socket.on('join:user', (userId) => {
     socket.join(`room:user:${userId}`);
@@ -94,32 +103,104 @@ io.on('connection', (socket) => {
     console.log(`Socket ${socket.id} joined support room support:${sessionId}`);
   });
 
-  socket.on('support:message', async ({ sessionId, userId, text }) => {
+  socket.on('support:message', async ({ sessionId, userId, text, sender }) => {
     if (!text || !sessionId) return;
+    const msgSender = sender || 'user';
     
     // Save user message to ChatLog
     let chatLog = await ChatLog.findOne({ sessionId });
     if (!chatLog) {
-      chatLog = await ChatLog.create({ sessionId, userId: userId || null, messages: [] });
+      chatLog = await ChatLog.create({ sessionId, userId: userId || null, status: 'ai', messages: [] });
     }
-    const userMsg = { sender: 'user', text, timestamp: new Date() };
-    chatLog.messages.push(userMsg);
+    const newMsg = { sender: msgSender, text, isRead: false, timestamp: new Date() };
+    chatLog.messages.push(newMsg);
     await chatLog.save();
 
-    // Broadcast user message to room
-    io.to(`support:${sessionId}`).emit('support:message_received', userMsg);
+    // Broadcast user/agent message to room
+    io.to(`support:${sessionId}`).emit('support:message_received', newMsg);
 
-    // Generate AI response
+    // Generate AI response only if status is 'ai' and sender is 'user'
+    if (chatLog.status === 'ai' && msgSender === 'user') {
+      try {
+        const aiResponseText = await generateAIResponse(text, sessionId);
+        const aiMsg = { sender: 'ai', text: aiResponseText, isRead: false, timestamp: new Date() };
+        chatLog.messages.push(aiMsg);
+        await chatLog.save();
+
+        // Emit AI response back to room
+        io.to(`support:${sessionId}`).emit('support:message_received', aiMsg);
+      } catch (err) {
+        console.error('Error generating/saving AI response:', err);
+      }
+    }
+  });
+
+  socket.on('support:typing', ({ sessionId, isTyping, sender }) => {
+    socket.to(`support:${sessionId}`).emit('support:typing', { isTyping, sender });
+  });
+
+  socket.on('support:read', async ({ sessionId, sender }) => {
     try {
-      const aiResponseText = await generateAIResponse(text);
-      const aiMsg = { sender: 'ai', text: aiResponseText, timestamp: new Date() };
-      chatLog.messages.push(aiMsg);
-      await chatLog.save();
-
-      // Emit AI response back to room
-      io.to(`support:${sessionId}`).emit('support:message_received', aiMsg);
+      const chatLog = await ChatLog.findOne({ sessionId });
+      if (chatLog) {
+        let changed = false;
+        chatLog.messages.forEach(m => {
+          if (m.sender !== sender && !m.isRead) {
+            m.isRead = true;
+            m.readAt = new Date();
+            changed = true;
+          }
+        });
+        if (changed) {
+          await chatLog.save();
+        }
+        io.to(`support:${sessionId}`).emit('support:read_receipt', { sessionId, sender });
+      }
     } catch (err) {
-      console.error('Error generating/saving AI response:', err);
+      console.error('Error updating read receipt:', err);
+    }
+  });
+
+  socket.on('support:request_human', async ({ sessionId }) => {
+    try {
+      const chatLog = await ChatLog.findOne({ sessionId });
+      if (chatLog) {
+        chatLog.status = 'agent';
+        await chatLog.save();
+        io.to(`support:${sessionId}`).emit('support:mode_changed', { status: 'agent' });
+        io.to('room:admins').emit('support:agent_requested', { sessionId, userId: chatLog.userId });
+      }
+    } catch (err) {
+      console.error('Error requesting support agent:', err);
+    }
+  });
+
+  socket.on('support:agent_join', async ({ sessionId, agentId }) => {
+    try {
+      const chatLog = await ChatLog.findOne({ sessionId });
+      if (chatLog) {
+        chatLog.agentId = agentId;
+        chatLog.status = 'agent';
+        await chatLog.save();
+        socket.join(`support:${sessionId}`);
+        io.to(`support:${sessionId}`).emit('support:agent_connected', { agentId });
+      }
+    } catch (err) {
+      console.error('Error agent joining:', err);
+    }
+  });
+
+  socket.on('support:close', async ({ sessionId }) => {
+    try {
+      const chatLog = await ChatLog.findOne({ sessionId });
+      if (chatLog) {
+        chatLog.status = 'closed';
+        chatLog.resolved = true;
+        await chatLog.save();
+        io.to(`support:${sessionId}`).emit('support:mode_changed', { status: 'closed' });
+      }
+    } catch (err) {
+      console.error('Error closing support room:', err);
     }
   });
 
@@ -190,6 +271,7 @@ app.use('/api/logs', logRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/geo', geoRoutes);
 app.use('/api/broadcasts', broadcastRoutes);
+app.use('/api/communications', communicationRoutes);
 
 
 // ─── Health check ─────────────────────────────────────────────────────────────
@@ -213,6 +295,8 @@ httpServer.listen(PORT, () => {
   console.log(`📡 Socket.IO enabled`);
   // Start cron jobs after server is live
   startScheduledJobs();
+  // Start Telegram Bot update polling
+  startTelegramBot();
 });
 
 export default app;
