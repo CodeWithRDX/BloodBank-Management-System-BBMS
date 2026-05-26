@@ -1,6 +1,7 @@
 import BloodRequest from '../models/BloodRequest.js';
 import BloodInventory from '../models/BloodInventory.js';
 import AuditLog from '../models/AuditLog.js';
+import Image from '../models/Image.js';
 import NotificationService from '../services/notificationService.js';
 import ApiFeatures from '../utils/ApiFeatures.js';
 import { subtractFromInventory } from '../services/inventoryService.js';
@@ -9,6 +10,7 @@ import Staff from '../models/Staff.js';
 import StaffLog from '../models/StaffLog.js';
 import Branch from '../models/Branch.js';
 import User from '../models/User.js';
+import { uploadFile } from '../services/imageKitService.js';
 import {
   sendBloodRequestCreatedEmail,
   sendBloodRequestStatusEmail,
@@ -235,10 +237,32 @@ export const createPublicEmergencyRequest = async (req, res, next) => {
 
     if (req.files) {
       if (req.files.medicalReport && req.files.medicalReport[0]) {
-        medicalReportUrl = `/uploads/${req.files.medicalReport[0].filename}`;
+        const medFile = req.files.medicalReport[0];
+        const medResult = await uploadFile(medFile.path, medFile.filename, '/bbms/medical-reports');
+        await Image.create({
+          url: medResult.url,
+          fileId: medResult.fileId,
+          fileName: medFile.originalname || medFile.filename,
+          fileType: 'medical_report',
+          uploadedBy: null,
+          provider: medResult.provider,
+          size: medFile.size || 0,
+        });
+        medicalReportUrl = medResult.url;
       }
       if (req.files.governmentId && req.files.governmentId[0]) {
-        governmentIdUrl = `/uploads/${req.files.governmentId[0].filename}`;
+        const govFile = req.files.governmentId[0];
+        const govResult = await uploadFile(govFile.path, govFile.filename, '/bbms/government-ids');
+        await Image.create({
+          url: govResult.url,
+          fileId: govResult.fileId,
+          fileName: govFile.originalname || govFile.filename,
+          fileType: 'government_id',
+          uploadedBy: null,
+          provider: govResult.provider,
+          size: govFile.size || 0,
+        });
+        governmentIdUrl = govResult.url;
       }
     }
 

@@ -6,74 +6,52 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import PhoneInputComponent from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
-
-const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 import {
   HiOutlineHeart, HiOutlineBeaker, HiOutlineShieldCheck,
   HiOutlineUserGroup, HiOutlineArrowRight, HiOutlineLightningBolt,
-  HiOutlineGlobe, HiOutlineClipboardCheck,
+  HiOutlineGlobe, HiOutlineClipboardCheck, HiOutlineInformationCircle,
 } from 'react-icons/hi';
+import { FiAlertTriangle, FiCheckCircle, FiClock, FiMapPin, FiAward } from 'react-icons/fi';
 
+const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 
 const STATS = [
-  { value: '50K+',  label: 'Lives Saved',       icon: '❤️'  },
-  { value: '1,200', label: 'Registered Donors',  icon: '👤'  },
-  { value: '85+',   label: 'Partner Hospitals',  icon: '🏥'  },
-  { value: '99.9%', label: 'System Uptime',       icon: '⚡'  },
+  { value: '52,480', label: 'Lives Saved', icon: '❤️' },
+  { value: '1,420', label: 'Active Donors', icon: '👤' },
+  { value: '88', label: 'Hospital Partners', icon: '🏥' },
+  { value: '99.99%', label: 'Request Fulfillment', icon: '⚡' },
 ];
 
-const FEATURES = [
-  {
-    icon: HiOutlineHeart,
-    title: 'Smart Donor Management',
-    description: 'Track donors, eligibility status, donation history and schedule appointments in one place.',
-    color: '#f87171',
-    glow: 'rgba(248,113,113,0.2)',
-  },
-  {
-    icon: HiOutlineBeaker,
-    title: 'Real-Time Inventory',
-    description: 'Monitor every blood unit by group, component and expiry with automated low-stock alerts.',
-    color: '#60a5fa',
-    glow: 'rgba(96,165,250,0.2)',
-  },
-  {
-    icon: HiOutlineShieldCheck,
-    title: 'Full Lab Screening',
-    description: 'HIV, Hepatitis B/C, Malaria & Syphilis test tracking integrated directly into the workflow.',
-    color: '#4ade80',
-    glow: 'rgba(74,222,128,0.2)',
-  },
-  {
-    icon: HiOutlineLightningBolt,
-    title: 'Emergency Requests',
-    description: 'Hospitals submit urgent blood requests that get triaged and fulfilled in minutes, not hours.',
-    color: '#fbbf24',
-    glow: 'rgba(251,191,36,0.2)',
-  },
-  {
-    icon: HiOutlineClipboardCheck,
-    title: 'Appointment Booking',
-    description: 'Donors can self-schedule donation appointments with automated confirmation notifications.',
-    color: '#a78bfa',
-    glow: 'rgba(167,139,250,0.2)',
-  },
-  {
-    icon: HiOutlineGlobe,
-    title: 'Multi-Role Dashboards',
-    description: 'Purpose-built views for Admins, Donors, Hospitals and Lab Staff — each in their lane.',
-    color: '#22d3ee',
-    glow: 'rgba(34,211,238,0.2)',
-  },
+const COMPATIBILITY_DATA = [
+  { type: 'O-', gives: 'Everyone (Universal Donor)', receives: 'O-' },
+  { type: 'O+', gives: 'O+, A+, B+, AB+', receives: 'O-, O+' },
+  { type: 'A-', gives: 'A-, A+, AB-, AB+', receives: 'O-, A-' },
+  { type: 'A+', gives: 'A+, AB+', receives: 'O-, O+, A-, A+' },
+  { type: 'B-', gives: 'B-, B+, AB-, AB+', receives: 'O-, B-' },
+  { type: 'B+', gives: 'B+, AB+', receives: 'O-, O+, B-, B+' },
+  { type: 'AB-', gives: 'AB-, AB+', receives: 'O-, A-, B-, AB-' },
+  { type: 'AB+', gives: 'AB+ (Universal Receiver)', receives: 'Everyone' },
+];
+
+const QUOTES = [
+  { text: "“Donate blood, save lives. You do not need to be a doctor to save lives.”", author: "Anonymous" },
+  { text: "“A single blood donation can save up to three lives. Every drop counts.”", author: "World Health Organization" },
+  { text: "“Heroes don't always wear capes. Sometimes they just roll up their sleeves.”", author: "BBMS Inspiration" },
+  { text: "“Your blood is precious. Share it to preserve the precious lives of others.”", author: "Solidarity Campaign" }
 ];
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 const Home = () => {
   const { isAuthenticated, user } = useSelector(s => s.auth);
-  const { themeId, themes } = useTheme();
+  const { themeId, theme, themes } = useTheme();
+  const isAnime = theme?.group === 'anime';
 
-  // Emergency request states
+  // State hooks
+  const [currentQuote, setCurrentQuote] = useState(0);
+  const [activeEduTab, setActiveEduTab] = useState('can'); // 'can' | 'cannot'
+  
+  // Emergency request form states
   const [patientName, setPatientName] = useState('');
   const [bloodGroup, setBloodGroup] = useState('O+');
   const [quantity, setQuantity] = useState(1);
@@ -87,6 +65,15 @@ const Home = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [branches, setBranches] = useState([]);
 
+  // Auto sliding quotes
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentQuote(prev => (prev + 1) % QUOTES.length);
+    }, 6000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Fetch branches for emergency selection
   useEffect(() => {
     axios.get('/api/branches/public')
       .then(res => {
@@ -162,207 +149,178 @@ const Home = () => {
   };
 
   return (
-    <div style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
-
-      {/* ═══ HERO ═══════════════════════════════════════ */}
+    <div style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }} className="animate-fadeIn">
+      
+      {/* ═══ HERO SECTION ══════════════════════════════════ */}
       <section style={{
         position: 'relative',
-        minHeight: '92vh',
+        minHeight: '88vh',
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',
         padding: '5rem 1.5rem 4rem',
       }}>
-        {/* Ambient blobs */}
+        {/* Animated background blobs */}
         <div style={{
-          position: 'absolute', top: '10%', left: '5%',
+          position: 'absolute', top: '15%', left: '8%',
           width: '28rem', height: '28rem', borderRadius: '50%',
-          background: 'var(--accent-glow)',
-          filter: 'blur(80px)',
-          animation: 'blob 8s infinite',
-          pointerEvents: 'none',
-          opacity: 0.6,
+          background: 'var(--accent-glow)', filter: 'blur(90px)',
+          animation: 'blob 8s infinite', pointerEvents: 'none', opacity: 0.65,
         }} />
         <div style={{
-          position: 'absolute', bottom: '15%', right: '8%',
+          position: 'absolute', bottom: '10%', right: '10%',
           width: '22rem', height: '22rem', borderRadius: '50%',
-          background: 'var(--accent-soft)',
-          filter: 'blur(60px)',
-          animation: 'blob 10s infinite 3s',
-          pointerEvents: 'none',
-          opacity: 0.5,
+          background: 'var(--accent-soft)', filter: 'blur(70px)',
+          animation: 'blob 10s infinite 3s', pointerEvents: 'none', opacity: 0.5,
         }} />
 
-        {/* Floating blood group pills */}
+        {/* Floating blood type elements */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
           {BLOOD_GROUPS.map((g, i) => (
             <div
               key={g}
               style={{
                 position: 'absolute',
-                top: `${10 + (i * 11) % 80}%`,
-                left: `${i % 2 === 0 ? (2 + i * 4) : (70 + i * 3)}%`,
-                padding: '0.35rem 0.75rem',
+                top: `${12 + (i * 11) % 75}%`,
+                left: `${i % 2 === 0 ? (4 + i * 4) : (75 + i * 3)}%`,
+                padding: '0.4rem 0.85rem',
                 borderRadius: '999px',
                 background: 'var(--bg-surface)',
                 border: '1px solid var(--border)',
                 color: 'var(--accent)',
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                opacity: 0.35,
-                animation: `float ${3 + i * 0.5}s ease-in-out infinite ${i * 0.4}s`,
+                fontSize: '0.75rem',
+                fontWeight: 800,
+                opacity: 0.45,
+                boxShadow: 'var(--card-shadow)',
+                animation: `float ${4 + i * 0.5}s ease-in-out infinite ${i * 0.3}s`,
               }}
             >
-              {g}
+              🩸 {g}
             </div>
           ))}
         </div>
 
-        {/* Hero content */}
-        <div style={{ maxWidth: '56rem', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-          {/* Theme badge */}
+        <div style={{ maxWidth: '58rem', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          {/* Header Badge */}
           <div
             className="animate-fadeUp"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.375rem 1rem', borderRadius: '999px',
+              padding: '0.4rem 1.1rem', borderRadius: '999px',
               background: 'var(--accent-soft)',
               border: '1px solid color-mix(in srgb, var(--accent) 35%, transparent)',
-              marginBottom: '1.75rem', fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent)',
+              marginBottom: '2rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent)',
             }}
           >
-            <span style={{ fontSize: '1rem' }}>{themes[themeId]?.emoji}</span>
-            {themes[themeId]?.label} theme active · BBMS v2.0 is live
+            <span style={{ fontSize: '1.1rem' }}>{themes[themeId]?.emoji || '🩸'}</span>
+            <span>{themes[themeId]?.label || 'Classic'} active · Real-Time Healthcare Deck</span>
           </div>
 
-          {/* Headline */}
+          {/* Core Title */}
           <h1
-            className="animate-fadeUp delay-75"
+            className="animate-fadeUp delay-75 fluid-h1"
             style={{
               fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
               fontWeight: 900,
               lineHeight: 1.08,
               letterSpacing: '-0.03em',
-              marginBottom: '1.5rem',
-              fontFamily: "'Space Grotesk', sans-serif",
+              marginBottom: '1.75rem',
             }}
           >
-            Every Drop{' '}
-            <span style={{
-              background: 'linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #fff))',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              Saves a Life
-            </span>
-            <br />
-            Manage It Smarter
+            Empower Hope.<br />
+            Every Drop <span className="energy-text">Saves Lives</span>.
           </h1>
 
           <p
             className="animate-fadeUp delay-150"
             style={{
-              fontSize: 'clamp(1rem, 2vw, 1.2rem)',
+              fontSize: 'clamp(1rem, 2vw, 1.25rem)',
               color: 'var(--text-secondary)',
-              maxWidth: '40rem',
+              maxWidth: '38rem',
               margin: '0 auto 2.5rem',
               lineHeight: 1.7,
             }}
           >
-            A modern Blood Bank Management System connecting donors, hospitals, and lab staff
-            in real-time — from donation to transfusion, every step tracked.
+            A premium next-generation blood bank gateway connecting voluntary donors, 
+            local branch clinics, and hospitals instantly during critical emergencies.
           </p>
 
-          {/* CTAs */}
+          {/* Action CTAs */}
           <div
             className="animate-fadeUp delay-300"
-            style={{ display: 'flex', gap: '0.875rem', justifyContent: 'center', flexWrap: 'wrap' }}
+            style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}
           >
             {isAuthenticated ? (
               <Link
                 to={`/${user?.role}`}
+                className="btn-primary"
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                  padding: '0.875rem 2rem',
-                  background: 'var(--accent)', color: 'white',
-                  borderRadius: '0.875rem', textDecoration: 'none',
-                  fontWeight: 700, fontSize: '1rem',
-                  boxShadow: '0 0 24px var(--accent-glow)',
-                  transition: 'all 0.2s',
+                  padding: '0.9rem 2.2rem', textDecoration: 'none',
+                  fontSize: '0.95rem',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                onMouseLeave={e => { e.currentTarget.style.filter = ''; e.currentTarget.style.transform = ''; }}
               >
-                Go to Dashboard <HiOutlineArrowRight />
+                Enter Control Panel <HiOutlineArrowRight />
               </Link>
             ) : (
               <>
                 <Link
                   to="/register"
+                  className="btn-primary animate-pulseGlow"
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                    padding: '0.875rem 2rem',
-                    background: 'var(--accent)', color: 'white',
-                    borderRadius: '0.875rem', textDecoration: 'none',
-                    fontWeight: 700, fontSize: '1rem',
-                    boxShadow: '0 0 24px var(--accent-glow)',
-                    transition: 'all 0.2s',
+                    padding: '0.9rem 2.2rem', textDecoration: 'none',
+                    fontSize: '0.95rem',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.filter = ''; e.currentTarget.style.transform = ''; }}
                 >
-                  Donate Blood <HiOutlineHeart />
+                  Register to Donate <HiOutlineHeart />
                 </Link>
-                <Link
-                  to="/inventory"
+                <a
+                  href="#emergency-request-section"
+                  className="btn-ghost"
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                    padding: '0.875rem 2rem',
-                    background: 'var(--bg-surface)', color: 'var(--text-primary)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '0.875rem', textDecoration: 'none',
-                    fontWeight: 600, fontSize: '1rem',
-                    transition: 'all 0.2s',
+                    padding: '0.9rem 2.2rem', textDecoration: 'none',
+                    fontSize: '0.95rem',
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
                 >
-                  Check Availability <HiOutlineBeaker />
-                </Link>
+                  Emergency Request 🚨
+                </a>
               </>
             )}
           </div>
         </div>
       </section>
 
-      {/* ═══ STATS TICKER ════════════════════════════════ */}
+      {/* ═══ LIVE STATS SECTION ════════════════════════════ */}
       <section style={{
-        padding: '3rem 1.5rem',
+        padding: '3.5rem 1.5rem',
         borderTop: '1px solid var(--border)',
         borderBottom: '1px solid var(--border)',
         background: 'var(--bg-surface)',
+        position: 'relative'
       }}>
         <div style={{
           maxWidth: '72rem', margin: '0 auto',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-          gap: '1.5rem',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gap: '2rem',
         }}>
           {STATS.map((s, i) => (
             <div
               key={s.label}
-              className={`animate-fadeUp delay-${[75, 150, 300, 500][i]}`}
+              className={`animate-fadeUp delay-${75 * (i + 1)}`}
               style={{ textAlign: 'center' }}
             >
-              <div style={{ fontSize: '1.75rem', marginBottom: '0.25rem' }}>{s.icon}</div>
+              <div style={{ fontSize: '2rem', marginBottom: '0.35rem' }}>{s.icon}</div>
               <p style={{
-                fontSize: '2.25rem', fontWeight: 900, color: 'var(--accent)',
-                fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1,
+                fontSize: '2.5rem', fontWeight: 900, color: 'var(--accent)',
+                fontFamily: 'var(--font-display)', lineHeight: 1.1,
+                textShadow: '0 0 15px var(--accent-glow)'
               }}>
                 {s.value}
               </p>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', marginTop: '0.375rem', fontWeight: 500 }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.5rem', fontWeight: 600 }}>
                 {s.label}
               </p>
             </div>
@@ -370,291 +328,367 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ═══ FEATURES ════════════════════════════════════ */}
-      <section style={{ padding: '6rem 1.5rem' }}>
-        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.75rem' }}>
-              Everything You Need
+      {/* ═══ COMPATIBILITY CHART & EDUCATION ═══════════════ */}
+      <section style={{ padding: '6rem 1.5rem', background: 'var(--bg-base)' }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr', gap: '3rem' }}>
+          
+          <div style={{ textAlign: 'center', maxWidth: '36rem', margin: '0 auto' }}>
+            <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Medical Guidelines</span>
+            <h2 className="fluid-h2" style={{ fontWeight: 800, marginTop: '0.5rem' }}>Compatibility & Eligibility</h2>
+            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+              Learn who can donate, how blood types match, and clinical guidelines for safety.
             </p>
-            <h2 style={{
-              fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', fontWeight: 800,
-              letterSpacing: '-0.025em', lineHeight: 1.2,
-              fontFamily: "'Space Grotesk', sans-serif",
-            }}>
-              A Complete Blood Bank Platform
-            </h2>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '1.25rem',
-          }}>
-            {FEATURES.map((f, i) => {
-              const Icon = f.icon;
-              return (
-                <div
-                  key={f.title}
-                  className={`animate-fadeUp delay-${[75, 150, 300, 500, 75, 150][i]}`}
-                  style={{
-                    background: 'var(--bg-surface)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '1.25rem',
-                    padding: '1.75rem',
-                    transition: 'all 0.25s ease',
-                    cursor: 'default',
-                    position: 'relative',
-                    overflow: 'hidden',
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = f.color;
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.boxShadow = `0 8px 32px ${f.glow}`;
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = 'var(--border)';
-                    e.currentTarget.style.transform = '';
-                    e.currentTarget.style.boxShadow = '';
-                  }}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }} className="locator-container">
+            {/* Table wrapper */}
+            <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.5rem', padding: '1.5rem', boxShadow: 'var(--card-shadow)' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', fontFamily: 'var(--font-display)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                📊 Who Can Donate Blood To Whom
+              </h3>
+              <div className="table-wrapper comp-table" style={{ borderRadius: '0.75rem', overflow: 'hidden' }}>
+                <table>
+                  <thead>
+                    <tr>
+                      <th style={{ padding: '0.85rem 1.25rem' }}>Blood Group</th>
+                      <th style={{ padding: '0.85rem 1.25rem' }}>Can Give Blood To (Recipients)</th>
+                      <th style={{ padding: '0.85rem 1.25rem' }}>Can Receive Blood From (Donors)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {COMPATIBILITY_DATA.map((row) => (
+                      <tr key={row.type} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '0.85rem 1.25rem', fontWeight: 800 }}>
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '0.2rem 0.6rem',
+                            borderRadius: '0.5rem',
+                            background: 'var(--accent-soft)',
+                            color: 'var(--accent)',
+                            fontFamily: 'var(--font-display)',
+                          }}>
+                            {row.type}
+                          </span>
+                        </td>
+                        <td style={{ padding: '0.85rem 1.25rem', color: 'var(--text-primary)', fontSize: '0.85rem' }}>{row.gives}</td>
+                        <td style={{ padding: '0.85rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{row.receives}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Educational Guidelines (Tabs) */}
+            <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.5rem', padding: '1.5rem', boxShadow: 'var(--card-shadow)', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+                <button
+                  onClick={() => setActiveEduTab('can')}
+                  className={activeEduTab === 'can' ? 'btn-primary' : 'btn-ghost'}
+                  style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
                 >
-                  {/* BG glow */}
-                  <div style={{
-                    position: 'absolute', top: '-2rem', right: '-2rem',
-                    width: '6rem', height: '6rem', borderRadius: '50%',
-                    background: f.glow, filter: 'blur(20px)', pointerEvents: 'none',
-                  }} />
-                  <div style={{
-                    width: '2.75rem', height: '2.75rem',
-                    borderRadius: '0.75rem',
-                    background: `color-mix(in srgb, ${f.color} 15%, transparent)`,
-                    border: `1px solid color-mix(in srgb, ${f.color} 35%, transparent)`,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    marginBottom: '1rem',
-                    boxShadow: `0 0 14px ${f.glow}`,
-                  }}>
-                    <Icon style={{ width: '1.3rem', height: '1.3rem', color: f.color }} />
+                  🟢 Who Can Donate
+                </button>
+                <button
+                  onClick={() => setActiveEduTab('cannot')}
+                  className={activeEduTab === 'cannot' ? 'btn-primary' : 'btn-ghost'}
+                  style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+                >
+                  🔴 Who Cannot Donate
+                </button>
+              </div>
+
+              {activeEduTab === 'can' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} className="animate-fadeIn">
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <FiCheckCircle style={{ color: '#4ade80', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Age Requirements</p>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Individuals between 18 and 65 years of age are generally eligible to donate.</p>
+                    </div>
                   </div>
-                  <h3 style={{
-                    color: 'var(--text-primary)', fontWeight: 700, fontSize: '1rem',
-                    marginBottom: '0.5rem', position: 'relative',
-                  }}>
-                    {f.title}
-                  </h3>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.65, position: 'relative' }}>
-                    {f.description}
-                  </p>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <FiCheckCircle style={{ color: '#4ade80', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Weight Thresholds</p>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Must weigh at least 50 kg (110 lbs) and be in good general health at the time of donation.</p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <FiCheckCircle style={{ color: '#4ade80', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Interval Cooldowns</p>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Minimum of 90 days between consecutive Whole Blood donations to allow iron stores to fully replenish.</p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <FiCheckCircle style={{ color: '#4ade80', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Vital Parameters</p>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Normal blood pressure (systolic 90-140, diastolic 60-90) and healthy hemoglobin levels (above 12.5 g/dl).</p>
+                    </div>
+                  </div>
                 </div>
-              );
-            })}
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} className="animate-fadeIn">
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <FiAlertTriangle style={{ color: '#f87171', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Permanent Medical Restrictions</p>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Individuals with chronic viral infections (HIV, Hepatitis B or C), major heart diseases, insulin-dependent diabetes, or active cancers.</p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <FiAlertTriangle style={{ color: '#f87171', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Temporary Deferrals (Tattoos & Piercings)</p>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Recent tattoos, body piercings, or acupuncture procedures defer donation eligibility for 6 to 12 months for blood safety.</p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <FiAlertTriangle style={{ color: '#f87171', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Acute Infections & Medications</p>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Active colds, fever, sore throat, or recent course of antibiotics defer donation until symptoms completely resolve.</p>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                    <FiAlertTriangle style={{ color: '#f87171', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                    <div>
+                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Pregnancy and Breastfeeding</p>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Deffered during pregnancy and up to 6 months post-delivery or while actively breastfeeding.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
           </div>
+
         </div>
       </section>
 
-      {/* ═══ ROLES SECTION ═══════════════════════════════ */}
-      <section style={{ padding: '5rem 1.5rem', background: 'var(--bg-surface)', borderTop: '1px solid var(--border)' }}>
+      {/* ═══ DONATION PROCESS TIMELINE ═════════════════════ */}
+      <section style={{ padding: '6rem 1.5rem', background: 'var(--bg-surface)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2 style={{
-              fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 800,
-              letterSpacing: '-0.025em', fontFamily: "'Space Grotesk', sans-serif",
-            }}>
-              Built for Every Role
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '0.75rem', fontSize: '0.95rem' }}>
-              Each user gets a purpose-built dashboard tailored to their workflow.
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Timeline</span>
+            <h2 className="fluid-h2" style={{ fontWeight: 800, marginTop: '0.5rem' }}>The Donation Journey</h2>
+            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+              Your entire donation process is completed in five simple steps taking under 45 minutes.
             </p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+
+          <div className="timeline">
             {[
-              { role: 'Admin',    emoji: '🛡️', desc: 'Full system oversight, user & inventory management',  color: '#a78bfa', link: '/register' },
-              { role: 'Donor',    emoji: '❤️', desc: 'Track donations, book appointments, view history',    color: '#f87171', link: '/register' },
-              { role: 'Hospital', emoji: '🏥', desc: 'Submit blood requests and check real-time inventory', color: '#34d399', link: '/register' },
-              { role: 'Staff',    emoji: '🧪', desc: 'Manage collections, screening tests and storage',     color: '#60a5fa', link: '/register' },
-            ].map(r => (
-              <Link
-                key={r.role}
-                to={r.link}
-                style={{ textDecoration: 'none' }}
-              >
-                <div style={{
-                  background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '1rem',
-                  padding: '1.5rem',
-                  height: '100%',
-                  transition: 'all 0.2s',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = r.color;
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = `0 6px 20px color-mix(in srgb, ${r.color} 20%, transparent)`;
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = 'var(--border)';
-                  e.currentTarget.style.transform = '';
-                  e.currentTarget.style.boxShadow = '';
-                }}
-                >
-                  <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>{r.emoji}</div>
-                  <h3 style={{ color: r.color, fontWeight: 700, fontSize: '1rem', marginBottom: '0.375rem' }}>{r.role}</h3>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', lineHeight: 1.6 }}>{r.desc}</p>
+              { step: '1', title: 'Registration', desc: 'Present photo identification, verify demographic profiles, and complete the donor health questionnaire.', alignment: 'left-timeline' },
+              { step: '2', title: 'Screening', desc: 'A quick health assessment testing blood pressure, temperature, and checking hemoglobin levels from a finger-prick.', alignment: 'right-timeline' },
+              { step: '3', title: 'Donation', desc: 'Relax in a donation chair. The actual draw takes around 8-10 minutes, collecting one unit (approx. 450ml) of whole blood.', alignment: 'left-timeline' },
+              { step: '4', title: 'Recovery', desc: 'Rest in the refreshment area for 15 minutes while enjoying snacks and fluids to quickly restore hydration levels.', alignment: 'right-timeline' },
+              { step: '5', title: 'Impact', desc: 'Your unit is safely transported, screened in our labs, componentized, and sent to hospitals to save up to 3 lives!', alignment: 'left-timeline' }
+            ].map((t, idx) => (
+              <div key={idx} className={`timeline-item ${t.alignment}`}>
+                <div className="timeline-content">
+                  <div style={{
+                    position: 'absolute', top: '-1rem', left: idx % 2 === 0 ? '-1rem' : 'auto', right: idx % 2 !== 0 ? '-1rem' : 'auto',
+                    width: '2rem', height: '2rem', borderRadius: '50%', background: 'var(--accent)', color: 'white',
+                    display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', fontWeight: 800,
+                    boxShadow: '0 0 10px var(--accent-glow)'
+                  }}>
+                    {t.step}
+                  </div>
+                  <h4 style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '0.5rem', marginTop: '0.25rem' }}>{t.title}</h4>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.6 }}>{t.desc}</p>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ EMERGENCY REQUEST SECTION ═════════════════════ */}
+      {/* ═══ MOTIVATIONAL QUOTES SLIDER ════════════════════ */}
       <section style={{
         padding: '5rem 1.5rem',
-        borderTop: '1px solid var(--border)',
         background: 'linear-gradient(180deg, var(--bg-base) 0%, var(--bg-surface) 100%)',
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Ambient background decoration */}
+        <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)', width: '20rem', height: '8rem', borderRadius: '50%', background: 'var(--accent-soft)', filter: 'blur(50px)', pointerEvents: 'none' }} />
+        
+        <div style={{ maxWidth: '42rem', margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <FiAward style={{ fontSize: '2.5rem', color: 'var(--accent)', margin: '0 auto 1.5rem', animation: 'float 3s ease-in-out infinite' }} />
+          
+          <div style={{ minHeight: '8rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="quote-card animate-fadeIn" key={currentQuote}>
+              <p style={{
+                fontSize: 'clamp(1.2rem, 3.5vw, 1.65rem)',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                fontStyle: 'italic',
+                lineHeight: 1.6,
+                fontFamily: 'var(--font-body)',
+              }}>
+                {QUOTES[currentQuote].text}
+              </p>
+              <p style={{
+                color: 'var(--accent)',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                marginTop: '1.25rem',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                fontFamily: 'var(--font-display)',
+              }}>
+                — {QUOTES[currentQuote].author}
+              </p>
+            </div>
+          </div>
+
+          {/* Dots Indicator */}
+          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '2rem' }}>
+            {QUOTES.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentQuote(idx)}
+                aria-label={`Show quote ${idx + 1}`}
+                style={{
+                  width: '0.5rem', height: '0.5rem', borderRadius: '50%',
+                  background: currentQuote === idx ? 'var(--accent)' : 'var(--border)',
+                  border: 'none', cursor: 'pointer', transition: 'background 0.3s ease',
+                  padding: 0,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ EMERGENCY REQUEST FORM SECTION ════════════════ */}
+      <section id="emergency-request-section" style={{
+        padding: '6rem 1.5rem',
+        borderTop: '1px solid var(--border)',
+        background: 'var(--bg-base)',
         position: 'relative'
       }}>
-        <div style={{ maxWidth: '48rem', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.25rem 0.75rem', borderRadius: '999px',
-              background: 'rgba(239, 68, 68, 0.1)',
+        <div style={{ maxWidth: '50rem', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+              padding: '0.25rem 0.85rem', borderRadius: '999px',
+              background: 'rgba(239, 68, 68, 0.12)',
               border: '1px solid rgba(239, 68, 68, 0.3)',
-              marginBottom: '1rem', fontSize: '0.75rem', fontWeight: 600, color: '#ef4444'
+              marginBottom: '1rem', fontSize: '0.78rem', fontWeight: 700, color: '#ef4444'
             }}>
-              🚨 CRITICAL NEED
-            </div>
-            <h2 style={{
-              fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: 800,
-              letterSpacing: '-0.025em', fontFamily: "'Space Grotesk', sans-serif"
-            }}>
-              Submit Emergency Request
-            </h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '0.75rem', fontSize: '0.95rem' }}>
-              Submit an urgent request. Staff and nearby donors will be notified immediately.
+              🚨 URGENT BROADCAST SYSTEM
+            </span>
+            <h2 className="fluid-h2" style={{ fontWeight: 800 }}>Submit Emergency Request</h2>
+            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+              In need of immediate blood units? Submit a verified emergency request to alert nearby branches and active staff.
             </p>
           </div>
 
-          <div style={{
-            background: 'rgba(30, 41, 59, 0.5)',
-            backdropFilter: 'blur(12px)',
-            border: '1px solid var(--border)',
-            borderRadius: '1.5rem',
-            padding: '2rem',
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+          {/* Form wrapper */}
+          <div className="glass-premium" style={{
+            borderRadius: '1.75rem',
+            padding: '2.5rem',
+            boxShadow: 'var(--card-shadow)',
           }}>
             <form onSubmit={handleEmergencySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
                 {/* Patient Name */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Patient Name</label>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Patient Full Name</label>
                   <input
                     type="text"
                     required
                     value={patientName}
                     onChange={e => setPatientName(e.target.value)}
-                    placeholder="Enter Patient Name"
-                    style={{
-                      width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
-                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                      color: 'var(--text-primary)', outline: 'none', transition: 'border-color 0.2s'
-                    }}
+                    placeholder="Enter patient full name"
+                    className="input"
+                    style={{ padding: '0.75rem' }}
                   />
                 </div>
                 {/* Email */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Email Address</label>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Email Address</label>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    placeholder="Enter Email Address"
-                    style={{
-                      width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
-                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                      color: 'var(--text-primary)', outline: 'none'
-                    }}
+                    placeholder="Enter notification email"
+                    className="input"
+                    style={{ padding: '0.75rem' }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1.25rem' }}>
                 {/* Blood Group */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Blood Group</label>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Required Blood Group</label>
                   <select
                     value={bloodGroup}
                     onChange={e => setBloodGroup(e.target.value)}
-                    style={{
-                      width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
-                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                      color: 'var(--text-primary)', outline: 'none'
-                    }}
+                    className="input"
+                    style={{ padding: '0.75rem', cursor: 'pointer' }}
                   >
                     {BLOOD_GROUPS.map(bg => (
-                      <option key={bg} value={bg} style={{ background: 'var(--bg-elevated)' }}>{bg}</option>
+                      <option key={bg} value={bg} style={{ background: 'var(--bg-surface)' }}>{bg}</option>
                     ))}
                   </select>
                 </div>
                 {/* Quantity */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Quantity (Units)</label>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Quantity (Units)</label>
                   <input
                     type="number"
                     min="1"
                     required
                     value={quantity}
                     onChange={e => setQuantity(parseInt(e.target.value) || 1)}
-                    style={{
-                      width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
-                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                      color: 'var(--text-primary)', outline: 'none'
-                    }}
+                    className="input"
+                    style={{ padding: '0.75rem' }}
                   />
                 </div>
-                {/* Branch */}
+                {/* Branch Selection */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Target Branch</label>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Target Branch</label>
                   <select
                     required
                     value={branchId}
                     onChange={e => setBranchId(e.target.value)}
-                    style={{
-                      width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
-                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                      color: 'var(--text-primary)', outline: 'none'
-                    }}
+                    className="input"
+                    style={{ padding: '0.75rem', cursor: 'pointer' }}
                   >
-                    <option value="" style={{ background: 'var(--bg-elevated)' }}>Select Branch</option>
+                    <option value="" style={{ background: 'var(--bg-surface)' }}>Select Nearest Branch</option>
                     {branches.map(b => (
-                      <option key={b._id} value={b._id} style={{ background: 'var(--bg-elevated)' }}>{b.name} ({b.city})</option>
+                      <option key={b._id} value={b._id} style={{ background: 'var(--bg-surface)' }}>{b.name} ({b.city})</option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                {/* Contact Person Name */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
+                {/* Contact Name */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Emergency Contact Name</label>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Emergency Contact Name</label>
                   <input
                     type="text"
                     required
                     value={contactName}
                     onChange={e => setContactName(e.target.value)}
-                    placeholder="Contact Person Name"
-                    style={{
-                      width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
-                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                      color: 'var(--text-primary)', outline: 'none'
-                    }}
+                    placeholder="Contact person name"
+                    className="input"
+                    style={{ padding: '0.75rem' }}
                   />
                 </div>
-                {/* Contact Phone */}
+                {/* Phone */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Emergency Contact Phone</label>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Contact Phone Number</label>
                   <PhoneInput
                     country={'in'}
                     value={contactPhone}
@@ -685,35 +719,35 @@ const Home = () => {
 
               {/* Reason */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Reason for Urgency</label>
+                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Reason for Urgency</label>
                 <textarea
                   required
                   rows="3"
                   value={reason}
                   onChange={e => setReason(e.target.value)}
-                  placeholder="Describe the medical emergency..."
-                  style={{
-                    width: '100%', padding: '0.75rem', borderRadius: 'var(--input-radius)',
-                    background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                    color: 'var(--text-primary)', outline: 'none', resize: 'none'
-                  }}
+                  placeholder="Describe details of the surgical / clinical emergency (e.g. bypass, trauma response, low platelets)..."
+                  className="input"
+                  style={{ padding: '0.75rem', resize: 'none' }}
                 />
               </div>
 
-              {/* File Upload Section */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              {/* Verified Uploads */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
                 {/* Medical Report */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Medical Report (PDF/Image)</label>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Medical Request Report</label>
                   <div style={{
                     border: '2px dashed var(--border)',
                     borderRadius: 'var(--input-radius)',
-                    padding: '1rem',
+                    padding: '1.25rem',
                     textAlign: 'center',
                     background: 'var(--bg-elevated)',
-                    cursor: 'pointer',
-                    position: 'relative'
-                  }}>
+                    position: 'relative',
+                    transition: 'border-color 0.2s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+                  >
                     <input
                       type="file"
                       accept=".pdf,image/*"
@@ -726,17 +760,17 @@ const Home = () => {
                     />
                     {medicalReport ? (
                       <div>
-                        <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <p style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent)' }}>
                           📄 {medicalReport.name}
                         </p>
-                        <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                          {(medicalReport.size / 1024 / 1024).toFixed(2)} MB
+                        <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+                          {(medicalReport.size / 1024 / 1024).toFixed(2)} MB (Ready)
                         </p>
                       </div>
                     ) : (
                       <div>
-                        <span style={{ fontSize: '1.25rem' }}>📤</span>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Click to upload Report</p>
+                        <span style={{ fontSize: '1.5rem' }}>📤</span>
+                        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Upload doctor requisition form</p>
                       </div>
                     )}
                   </div>
@@ -744,16 +778,19 @@ const Home = () => {
 
                 {/* ID Proof */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Government ID Proof (PDF/Image)</label>
+                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Patient ID / Proof</label>
                   <div style={{
                     border: '2px dashed var(--border)',
                     borderRadius: 'var(--input-radius)',
-                    padding: '1rem',
+                    padding: '1.25rem',
                     textAlign: 'center',
                     background: 'var(--bg-elevated)',
-                    cursor: 'pointer',
-                    position: 'relative'
-                  }}>
+                    position: 'relative',
+                    transition: 'border-color 0.2s',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+                  >
                     <input
                       type="file"
                       accept=".pdf,image/*"
@@ -766,88 +803,140 @@ const Home = () => {
                     />
                     {governmentId ? (
                       <div>
-                        <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          📄 {governmentId.name}
+                        <p style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent)' }}>
+                          💳 {governmentId.name}
                         </p>
-                        <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
-                          {(governmentId.size / 1024 / 1024).toFixed(2)} MB
+                        <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+                          {(governmentId.size / 1024 / 1024).toFixed(2)} MB (Ready)
                         </p>
                       </div>
                     ) : (
                       <div>
-                        <span style={{ fontSize: '1.25rem' }}>💳</span>
-                        <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Click to upload ID Proof</p>
+                        <span style={{ fontSize: '1.5rem' }}>💳</span>
+                        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Upload Patient ID document</p>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Submit Button */}
+              {/* Submit Action */}
               <button
                 type="submit"
                 disabled={isSubmitting}
+                className="btn-primary"
                 style={{
-                  width: '100%', padding: '0.875rem', borderRadius: 'var(--btn-radius)',
-                  background: 'var(--accent)', color: 'white', fontWeight: 700,
+                  width: '100%', padding: '0.9rem',
                   fontSize: '1rem', border: 'none', cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                  boxShadow: '0 0 20px var(--accent-glow)', transition: 'all 0.2s', marginTop: '0.5rem'
+                  marginTop: '0.5rem'
                 }}
-                onMouseEnter={e => { if(!isSubmitting) e.currentTarget.style.filter = 'brightness(1.15)'; }}
-                onMouseLeave={e => { e.currentTarget.style.filter = ''; }}
               >
-                {isSubmitting ? 'Submitting Urgent Request...' : '🚨 Send Emergency Broadcast'}
+                {isSubmitting ? 'Submitting Urgent Request...' : '🚨 Broadcast Emergency SOS Request'}
               </button>
             </form>
           </div>
         </div>
       </section>
 
-      {/* ═══ CTA BANNER ══════════════════════════════════ */}
-      <section style={{ padding: '5rem 1.5rem' }}>
+      {/* ═══ NEARBY CAMPS & CLINICS SECTION ════════════════ */}
+      <section style={{ padding: '6rem 1.5rem', background: 'var(--bg-surface)', borderTop: '1px solid var(--border)' }}>
+        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
+            <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Locations</span>
+            <h2 className="fluid-h2" style={{ fontWeight: 800, marginTop: '0.5rem' }}>Our Branches & Donation Camps</h2>
+            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+              Find active branches and blood bank camps near your city for quick voluntary donation walk-ins.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            {branches.slice(0, 3).map(b => (
+              <div
+                key={b._id}
+                className={isAnime ? 'anime-card' : 'card'}
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '1.25rem',
+                  padding: '1.75rem',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ fontSize: '1.5rem' }}>🏥</span>
+                  <h3 style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>{b.name}</h3>
+                </div>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <FiMapPin style={{ color: 'var(--accent)', flexShrink: 0 }} />
+                  {b.address?.street}, {b.address?.city || b.city}
+                </p>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem' }}>
+                  📞 {b.phone || 'N/A'} &nbsp;·&nbsp; ✉️ {b.email || 'N/A'}
+                </p>
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+                  <Link
+                    to={`/locator`}
+                    className="btn-ghost"
+                    style={{ padding: '0.45rem 1rem', fontSize: '0.78rem', textDecoration: 'none', width: '100%', textAlign: 'center' }}
+                  >
+                    View Map Details
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+            <Link
+              to="/locator"
+              className="btn-primary"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                padding: '0.8rem 2rem', textDecoration: 'none', fontSize: '0.875rem'
+              }}
+            >
+              Search All Branches On Map <HiOutlineGlobe />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ CTA SECTION ══════════════════════════════════ */}
+      <section style={{ padding: '6rem 1.5rem', background: 'var(--bg-base)', borderTop: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '56rem', margin: '0 auto', textAlign: 'center' }}>
-          <div style={{
-            background: 'var(--accent-soft)',
-            border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)',
-            borderRadius: '1.5rem',
-            padding: '3.5rem 2rem',
+          <div className="glass-premium" style={{
+            borderRadius: '1.75rem',
+            padding: '4rem 2rem',
             position: 'relative',
             overflow: 'hidden',
           }}>
-            <div style={{
-              position: 'absolute', top: '-3rem', left: '50%', transform: 'translateX(-50%)',
-              width: '16rem', height: '8rem', borderRadius: '50%',
-              background: 'var(--accent-glow)', filter: 'blur(40px)',
-              pointerEvents: 'none',
-            }} />
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🩸</div>
-            <h2 style={{
-              fontSize: 'clamp(1.5rem, 4vw, 2.25rem)', fontWeight: 800,
-              marginBottom: '1rem', position: 'relative',
-              fontFamily: "'Space Grotesk', sans-serif",
-            }}>
-              Ready to save lives?
+            <div style={{ fontSize: '3.5rem', marginBottom: '1.25rem' }}>🩸</div>
+            <h2 className="fluid-h2" style={{ fontWeight: 800, marginBottom: '1rem', fontFamily: 'var(--font-display)' }}>
+              Join the Life-Saving Network
             </h2>
-            <p style={{ color: 'var(--text-secondary)', maxWidth: '32rem', margin: '0 auto 2rem', lineHeight: 1.7, position: 'relative' }}>
-              Join thousands of donors, hospitals and staff already using BBMS to make blood donation faster, safer and smarter.
+            <p style={{ color: 'var(--text-secondary)', maxWidth: '32rem', margin: '0 auto 2.5rem', lineHeight: 1.7 }}>
+              Become a verified blood donor, schedule your screening appointments, check real-time stock levels, or manage branch inventory from a single premium control room.
             </p>
-            <Link
-              to="/register"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                padding: '0.875rem 2.5rem',
-                background: 'var(--accent)', color: 'white',
-                borderRadius: '0.875rem', textDecoration: 'none',
-                fontWeight: 700, fontSize: '1rem',
-                boxShadow: '0 0 28px var(--accent-glow)',
-                transition: 'all 0.2s',
-                position: 'relative',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-              onMouseLeave={e => { e.currentTarget.style.filter = ''; e.currentTarget.style.transform = ''; }}
-            >
-              Get Started Free <HiOutlineArrowRight />
-            </Link>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link
+                to="/register"
+                className="btn-primary"
+                style={{ padding: '0.875rem 2.5rem', textDecoration: 'none', fontWeight: 700 }}
+              >
+                Register Now
+              </Link>
+              <Link
+                to="/login"
+                className="btn-ghost"
+                style={{ padding: '0.875rem 2.5rem', textDecoration: 'none', fontWeight: 700 }}
+              >
+                Account Log In
+              </Link>
+            </div>
           </div>
         </div>
       </section>

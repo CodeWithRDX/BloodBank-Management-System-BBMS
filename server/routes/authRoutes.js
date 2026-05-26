@@ -12,9 +12,11 @@ import {
   refresh,
   googleLogin,
   githubLogin,
+  uploadAvatar,
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 import { validateRegister, validateLogin } from '../middleware/validate.js';
+import upload from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -28,6 +30,7 @@ router.post('/oauth/github', githubLogin);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, updateProfile);
 router.put('/password', protect, updatePassword);
+router.post('/upload-avatar', protect, upload.single('avatar'), uploadAvatar);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password/:resettoken', resetPassword);
 router.post('/logout', protect, logout);

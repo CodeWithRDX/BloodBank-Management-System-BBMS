@@ -18,6 +18,7 @@ const Inventory         = lazy(() => import('./pages/Inventory'));
 const ForgotPassword    = lazy(() => import('./pages/ForgotPassword'));
 const ResetPassword     = lazy(() => import('./pages/ResetPassword'));
 const Unauthorized      = lazy(() => import('./pages/Unauthorized'));
+const ChangePassword    = lazy(() => import('./pages/ChangePassword'));
 const About             = lazy(() => import('./pages/About'));
 const BloodBankLocator  = lazy(() => import('./pages/BloodBankLocator'));
 const PublicCamps       = lazy(() => import('./pages/PublicCamps'));
@@ -122,6 +123,10 @@ function App() {
 
           {/* Standalone pages (no layout) */}
           <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/change-password" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
+          <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+            <Route path="/profile" element={<DonorProfile />} />
+          </Route>
 
           {/* Admin Routes */}
           <Route element={<ProtectedRoute roles={['admin']}><DashboardLayout /></ProtectedRoute>}>
@@ -143,8 +148,6 @@ function App() {
           {/* Donor Routes */}
           <Route element={<ProtectedRoute roles={['donor']}><DashboardLayout /></ProtectedRoute>}>
             <Route path="/donor"                       element={<DonorDashboard />} />
-            <Route path="/donor/profile"               element={<DonorProfile />} />
-            <Route path="/donor/profile/edit"          element={<DonorProfile />} />
             <Route path="/donor/donations"             element={<DonationHistory />} />
             <Route path="/donor/appointments"          element={<DonorAppointments />} />
             <Route path="/donor/appointments/new"      element={<NewAppointment />} />

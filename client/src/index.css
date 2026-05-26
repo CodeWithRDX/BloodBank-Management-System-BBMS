@@ -268,6 +268,7 @@ html.theme-aurora      { background: radial-gradient(ellipse 80% 60% at 30% 50%,
 @keyframes slideInLeft  { from { opacity:0; transform:translateX(-24px); } to { opacity:1; transform:translateX(0); } }
 @keyframes slideInRight { from { opacity:0; transform:translateX( 24px); } to { opacity:1; transform:translateX(0); } }
 @keyframes scaleIn  { from { opacity:0; transform:scale(0.92); }       to { opacity:1; transform:scale(1); } }
+@keyframes scaleInCentered  { from { opacity:0; transform:translate(-50%, -50%) scale(0.92); }       to { opacity:1; transform:translate(-50%, -50%) scale(1); } }
 @keyframes shimmer  { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
 @keyframes pulseGlow {
   0%,100% { box-shadow: 0 0 6px var(--accent-glow); }
@@ -332,6 +333,7 @@ html.theme-aurora      { background: radial-gradient(ellipse 80% 60% at 30% 50%,
 .animate-slideInLeft { animation: slideInLeft 0.4s cubic-bezier(.22,.61,.36,1) both; }
 .animate-slideInRight{ animation: slideInRight 0.4s cubic-bezier(.22,.61,.36,1) both; }
 .animate-scaleIn     { animation: scaleIn 0.3s cubic-bezier(.22,.61,.36,1) both; }
+.animate-scaleInCentered     { animation: scaleInCentered 0.3s cubic-bezier(.22,.61,.36,1) both; }
 .animate-float       { animation: float 3s ease-in-out infinite; }
 .animate-blob        { animation: blob 7s infinite; }
 .animate-spin-slow   { animation: spin-slow 8s linear infinite; }
@@ -1091,3 +1093,134 @@ textarea:focus-visible {
   .stats-grid { gap:0.5rem; }
   .stats-grid > * { padding:0.75rem !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PREMIUM REDESIGN UTILITY CLASSES (vertical timelines, glass tables, glows)
+═══════════════════════════════════════════════════════════════ */
+
+/* Timeline UI */
+.timeline {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+.timeline::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  background: var(--border);
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  margin-left: -1px;
+}
+@media (max-width: 768px) {
+  .timeline::after {
+    left: 31px;
+  }
+}
+.timeline-item {
+  padding: 10px 40px;
+  position: relative;
+  background-color: transparent;
+  width: 50%;
+}
+@media (max-width: 768px) {
+  .timeline-item {
+    width: 100%;
+    padding-left: 70px;
+    padding-right: 25px;
+  }
+}
+.timeline-item::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  right: -8px;
+  background-color: var(--bg-surface);
+  border: 4px solid var(--accent);
+  top: 24px;
+  border-radius: 50%;
+  z-index: 1;
+  box-shadow: 0 0 10px var(--accent-glow);
+  transition: all 0.3s ease;
+}
+.timeline-item:hover::after {
+  transform: scale(1.3);
+  box-shadow: 0 0 20px var(--accent);
+}
+@media (max-width: 768px) {
+  .timeline-item::after {
+    left: 23px;
+    right: auto;
+  }
+}
+.left-timeline {
+  left: 0;
+}
+.right-timeline {
+  left: 50%;
+}
+@media (max-width: 768px) {
+  .right-timeline {
+    left: 0%;
+  }
+}
+.timeline-content {
+  padding: 1.5rem;
+  background: var(--bg-surface);
+  position: relative;
+  border-radius: var(--card-radius);
+  border: var(--border-width) solid var(--border);
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+.timeline-content:hover {
+  border-color: var(--accent);
+  box-shadow: var(--card-shadow), 0 0 20px var(--accent-glow);
+  transform: translateY(-2px);
+}
+
+/* Glassmorphism details */
+.glass-premium {
+  background: rgba(30, 41, 59, 0.45) !important;
+  backdrop-filter: blur(16px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(120%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.theme-light .glass-premium {
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(16px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(120%) !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Compatibility Table Styling */
+.comp-table th {
+  background: var(--bg-elevated);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.comp-table tr {
+  transition: all 0.2s ease;
+}
+.comp-table tr:hover {
+  background: var(--accent-soft) !important;
+}
+
+/* Pulse energy animations */
+.pulse-glow-red { animation: pulseGlowRed 2s infinite; }
+@keyframes pulseGlowRed {
+  0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); }
+}
+
+/* Smooth Slider transitions for Quotes */
+.quote-card {
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+

@@ -1,12 +1,15 @@
 import User from '../models/User.js';
 import Donor from '../models/Donor.js';
 import Hospital from '../models/Hospital.js';
+import Image from '../models/Image.js';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import Staff from '../models/Staff.js';
 import StaffLog from '../models/StaffLog.js';
 import { sendPasswordResetEmail, sendOtpEmail } from '../services/emailService.js';
 import { parseCookies } from '../middleware/csrf.js';
+import bcrypt from 'bcryptjs';
+import { uploadFile } from '../services/imageKitService.js';
 
 
 // Helper to sign refresh token
@@ -48,6 +51,7 @@ const sendTokenResponse = async (user, statusCode, res) => {
       email: user.email,
       role: user.role,
       avatar: user.avatar,
+      phone: user.phone || '',
       isTwoFactorEnabled: user.isTwoFactorEnabled,
     },
   });
@@ -193,6 +197,7 @@ export const updateProfile = async (req, res, next) => {
     const fieldsToUpdate = {
       name: req.body.name,
       phone: req.body.phone,
+      avatar: req.body.avatar,
     };
 
     // Remove undefined fields
@@ -230,6 +235,28 @@ export const updatePassword = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Current password is incorrect' });
     }
 
+    // Prevent matching the current password
+    if (await user.matchPassword(req.body.newPassword)) {
+      return res.status(400).json({ success: false, message: 'New password cannot be the same as your current password' });
+    }
+
+    // Prevent matching previous passwords in history
+    if (user.passwordHistory && user.passwordHistory.length > 0) {
+      for (const oldHash of user.passwordHistory) {
+        const isHistoryMatch = await bcrypt.compare(req.body.newPassword, oldHash);
+        if (isHistoryMatch) {
+          return res.status(400).json({ success: false, message: 'New password cannot be one of your last 5 passwords' });
+        }
+      }
+    }
+
+    // Add current password to history before updating it
+    if (!user.passwordHistory) user.passwordHistory = [];
+    user.passwordHistory.push(user.password);
+    if (user.passwordHistory.length > 5) {
+      user.passwordHistory.shift();
+    }
+
     user.password = req.body.newPassword;
     await user.save();
 
@@ -252,7 +279,8 @@ export const forgotPassword = async (req, res, next) => {
     const resetToken = user.getResetPasswordToken();
     await user.save({ validateBeforeSave: false });
 
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const origin = req.headers.origin || (req.headers.referer ? new URL(req.headers.referer).origin : null) || process.env.CLIENT_URL?.split(',')[0] || 'http://localhost';
+    const resetUrl = `${origin}/reset-password/${resetToken}`;
     const html = `
       <h1>Password Reset Request</h1>
       <p>You are receiving this email because you requested a password reset.</p>
@@ -289,10 +317,34 @@ export const resetPassword = async (req, res, next) => {
     const user = await User.findOne({
       resetPasswordToken,
       resetPasswordExpire: { $gt: Date.now() },
-    });
+    }).select('+password');
 
     if (!user) {
       return res.status(400).json({ success: false, message: 'Invalid or expired reset token' });
+    }
+
+    // Prevent matching the current password
+    if (await user.matchPassword(req.body.password)) {
+      return res.status(400).json({ success: false, message: 'New password cannot be the same as your current password' });
+    }
+
+    // Prevent matching previous passwords in history
+    if (user.passwordHistory && user.passwordHistory.length > 0) {
+      for (const oldHash of user.passwordHistory) {
+        const isHistoryMatch = await bcrypt.compare(req.body.password, oldHash);
+        if (isHistoryMatch) {
+          return res.status(400).json({ success: false, message: 'New password cannot be one of your last 5 passwords' });
+        }
+      }
+    }
+
+    // Add current password to history before updating it
+    if (user.password) {
+      if (!user.passwordHistory) user.passwordHistory = [];
+      user.passwordHistory.push(user.password);
+      if (user.passwordHistory.length > 5) {
+        user.passwordHistory.shift();
+      }
     }
 
     user.password = req.body.password;
@@ -593,6 +645,44 @@ export const githubLogin = async (req, res, next) => {
     }
 
     await sendTokenResponse(user, 200, res);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Upload user avatar
+// @route   POST /api/auth/upload-avatar
+// @access  Private
+export const uploadAvatar = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Please upload an image file' });
+    }
+
+    // Upload to ImageKit (or local fallback)
+    const result = await uploadFile(req.file.path, req.file.filename, '/bbms/avatars');
+
+    // Save image metadata to Image collection
+    const imageDoc = await Image.create({
+      url: result.url,
+      fileId: result.fileId,
+      fileName: req.file.originalname || req.file.filename,
+      fileType: 'avatar',
+      uploadedBy: req.user.id,
+      provider: result.provider,
+      size: req.file.size || 0,
+    });
+
+    // Update user avatar with the image URL
+    const user = await User.findById(req.user.id);
+    user.avatar = imageDoc.url;
+    await user.save({ validateBeforeSave: false });
+
+    res.status(200).json({
+      success: true,
+      message: 'Avatar uploaded successfully',
+      avatar: imageDoc.url,
+    });
   } catch (error) {
     next(error);
   }

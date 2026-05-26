@@ -34,6 +34,28 @@ export const protect = async (req, res, next) => {
       });
     }
 
+    // Check password expiry (90 days)
+    // Only check local users who have a password set
+    if (req.user.oauthProvider === 'local' || !req.user.oauthProvider) {
+      const passwordChangedAt = req.user.passwordChangedAt || req.user.createdAt || new Date();
+      const ninetyDaysInMs = 90 * 24 * 60 * 60 * 1000;
+      
+      if (Date.now() - passwordChangedAt.getTime() > ninetyDaysInMs) {
+        // Allow logout and password update endpoints even if expired
+        const isExcludedRoute = 
+          req.originalUrl.includes('/api/auth/password') || 
+          req.originalUrl.includes('/api/auth/logout');
+          
+        if (!isExcludedRoute) {
+          return res.status(403).json({
+            success: false,
+            passwordExpired: true,
+            message: 'Your password has expired (passwords must be updated every 90 days). Please update your password to continue.',
+          });
+        }
+      }
+    }
+
     // Capture IP for audit logging
     req.clientIp =
       req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||

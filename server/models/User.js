@@ -130,6 +130,15 @@ const userSchema = new mongoose.Schema(
     // For audit logging
     lastLoginAt: Date,
     lastLoginIp: String,
+    // Password policy tracking
+    passwordChangedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    passwordHistory: {
+      type: [String],
+      default: [],
+    },
 
   },
   { timestamps: true }
@@ -142,8 +151,10 @@ userSchema.index({ branchId: 1 });
 // Hash password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
+
   const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);
+  this.passwordChangedAt = Date.now();
   next();
 });
 

@@ -12,7 +12,7 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle 401 globally
+// Handle 401 & 403 globally
 API.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -28,6 +28,13 @@ API.interceptors.response.use(
         window.location.href = '/login';
       }
     }
+
+    if (error.response?.status === 403 && error.response?.data?.passwordExpired === true) {
+      if (window.location.pathname !== '/change-password') {
+        window.location.href = '/change-password?expired=true';
+      }
+    }
+
     return Promise.reject(error);
   }
 );

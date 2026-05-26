@@ -96,6 +96,17 @@ export const resetPassword = createAsyncThunk('auth/resetPassword', async ({ tok
   }
 });
 
+export const updatePassword = createAsyncThunk('auth/updatePassword', async ({ currentPassword, newPassword }, { rejectWithValue }) => {
+  try {
+    const { data } = await API.put('/auth/password', { currentPassword, newPassword });
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    return data;
+  } catch (err) {
+    return rejectWithValue(err.response?.data?.message || 'Failed to update password');
+  }
+});
+
 const getUserFromStorage = () => {
   try {
     const val = localStorage.getItem('user');
@@ -167,7 +178,11 @@ const authSlice = createSlice({
         state.user = action.payload.user; state.token = action.payload.token;
       })
       .addCase(registerUser.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
-      .addCase(loadUser.fulfilled, (state, action) => { state.user = action.payload.data; state.isAuthenticated = true; })
+      .addCase(loadUser.fulfilled, (state, action) => {
+        state.user = action.payload.data;
+        state.isAuthenticated = true;
+        localStorage.setItem('user', JSON.stringify(action.payload.data));
+      })
       .addCase(loadUser.rejected, (state) => { state.isAuthenticated = false; state.user = null; })
       .addCase(updateProfile.fulfilled, (state, action) => { state.user = action.payload.data; })
       .addCase(forgotPassword.pending, (state) => { state.loading = true; state.error = null; })
@@ -175,7 +190,15 @@ const authSlice = createSlice({
       .addCase(forgotPassword.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
       .addCase(resetPassword.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(resetPassword.fulfilled, (state) => { state.loading = false; })
-      .addCase(resetPassword.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
+      .addCase(resetPassword.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(updatePassword.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(updatePassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+        state.isAuthenticated = true;
+      })
+      .addCase(updatePassword.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
   },
 });
 

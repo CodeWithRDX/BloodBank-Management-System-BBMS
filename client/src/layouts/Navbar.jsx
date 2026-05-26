@@ -209,8 +209,13 @@ const Navbar = ({ onMenuClick, sidebarOpen }) => {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontWeight: 800, fontSize: '0.7rem', color: 'white', flexShrink: 0,
               boxShadow: `0 0 10px var(--accent-glow)`,
+              overflow: 'hidden',
             }}>
-              {initials}
+              {user?.avatar ? (
+                <img src={user.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                initials
+              )}
             </div>
             {/* Name + role — hidden on very small screens */}
             <div style={{ textAlign: 'left', overflow: 'hidden' }} className="hide-mobile">
@@ -276,9 +281,8 @@ const Navbar = ({ onMenuClick, sidebarOpen }) => {
 
                 {/* Menu items */}
                 <div style={{ padding: '0.375rem' }}>
-                  {user?.role === 'donor' && (
                     <button
-                      onClick={() => { setShowProfile(false); navigate('/donor/profile'); }}
+                      onClick={() => { setShowProfile(false); navigate('/profile'); }}
                       style={{
                         display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%',
                         padding: '0.6rem 0.75rem', background: 'transparent', border: 'none',
@@ -289,6 +293,20 @@ const Navbar = ({ onMenuClick, sidebarOpen }) => {
                       onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-primary)'; }}
                     >
                       Profile Settings
+                    </button>
+                  {(user?.oauthProvider === 'local' || !user?.oauthProvider) && (
+                    <button
+                      onClick={() => { setShowProfile(false); navigate('/change-password'); }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%',
+                        padding: '0.6rem 0.75rem', background: 'transparent', border: 'none',
+                        borderRadius: '0.625rem', cursor: 'pointer', color: 'var(--text-primary)',
+                        fontSize: '0.82rem', fontWeight: 500, textAlign: 'left', transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = 'var(--accent-soft)'; e.currentTarget.style.color = 'var(--accent)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                    >
+                      Change Password
                     </button>
                   )}
                   <button

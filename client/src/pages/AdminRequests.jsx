@@ -105,7 +105,7 @@ const AdminRequests = () => {
       {selected && (
         <>
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 40 }} onClick={() => setSelected(null)} />
-          <div className="animate-scaleIn" style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 50, width: '90%', maxWidth: '26rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', boxShadow: 'var(--card-shadow)', padding: '1.5rem' }}>
+          <div className="animate-scaleInCentered" style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 50, width: '90%', maxWidth: '26rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', boxShadow: 'var(--card-shadow)', padding: '1.5rem' }}>
             <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1rem', marginBottom: '0.25rem' }}>❌ Reject Request</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginBottom: '1.25rem' }}>
               Rejecting request <strong style={{ color: 'var(--accent)' }}>{selected.requestId}</strong> for {selected.patientName}

@@ -37,9 +37,10 @@ const PublicLayout = () => {
                 borderRadius: '0.625rem',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 0 16px var(--accent-glow)',
-                fontSize: '1.1rem',
               }}>
-                🩸
+                <svg viewBox="0 0 100 120" style={{ width: '1.15rem', height: '1.15rem', fill: 'white' }}>
+                  <path d="M50,10 C50,10 90,65 90,85 C90,105 72,120 50,120 C28,120 10,105 10,85 C10,65 50,10 50,10 Z" />
+                </svg>
               </div>
               <span style={{ fontWeight: 900, fontSize: '1.15rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
                 BB<span style={{ color: 'var(--accent)' }}>MS</span>

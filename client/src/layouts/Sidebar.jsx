@@ -13,6 +13,7 @@ import {
   HiOutlineSearch,
   HiOutlineX,
   HiOutlineChartBar,
+  HiOutlineLockClosed,
 } from 'react-icons/hi';
 import {
   FiMapPin, FiUsers, FiActivity, FiRepeat,
@@ -33,16 +34,17 @@ const NAV_BY_ROLE = {
     { name: 'Logs', path: '/admin/logs', icon: FiFileText },
     { name: 'Appointments', path: '/admin/appointments', icon: HiOutlineCalendar },
     { name: 'Notifications', path: '/admin/notifications', icon: HiOutlineBell },
+    { name: 'Change Password', path: '/change-password', icon: HiOutlineLockClosed },
   ],
   donor: [
     { name: 'Dashboard', path: '/donor', icon: HiOutlineHome, exact: true },
-    { name: 'My Profile', path: '/donor/profile', icon: HiOutlineUserGroup },
     { name: 'Donation History', path: '/donor/donations', icon: HiOutlineDocumentReport },
     { name: 'My Appointments', path: '/donor/appointments', icon: HiOutlineCalendar },
     { name: 'Donation Camps', path: '/donor/camps', icon: HiOutlineCalendar },
     { name: 'My Eligibility', path: '/donor/eligibility', icon: FiCheckSquare },
     { name: 'Find Blood Bank', path: '/locator', icon: FiMapPin },
     { name: 'Notifications', path: '/donor/notifications', icon: HiOutlineBell },
+    { name: 'Change Password', path: '/change-password', icon: HiOutlineLockClosed },
   ],
   hospital: [
     { name: 'Dashboard', path: '/hospital', icon: HiOutlineHome, exact: true },
@@ -50,12 +52,14 @@ const NAV_BY_ROLE = {
     { name: 'Inventory Search', path: '/hospital/search', icon: HiOutlineSearch },
     { name: 'Find Blood Bank', path: '/locator', icon: FiMapPin },
     { name: 'Notifications', path: '/hospital/notifications', icon: HiOutlineBell },
+    { name: 'Change Password', path: '/change-password', icon: HiOutlineLockClosed },
   ],
   staff: [
     { name: 'Dashboard', path: '/staff', icon: HiOutlineHome, exact: true },
     { name: 'Inventory', path: '/staff/inventory', icon: HiOutlineBeaker },
     { name: 'Donation Camps', path: '/staff/camps', icon: HiOutlineCalendar },
     { name: 'Notifications', path: '/staff/notifications', icon: HiOutlineBell },
+    { name: 'Change Password', path: '/change-password', icon: HiOutlineLockClosed },
   ],
   branch_admin: [
     { name: 'Dashboard', path: '/staff', icon: HiOutlineHome, exact: true },
@@ -64,6 +68,7 @@ const NAV_BY_ROLE = {
     { name: 'Donation Camps', path: '/staff/camps', icon: HiOutlineCalendar },
     { name: 'Transfers', path: '/admin/transfers', icon: FiRepeat },
     { name: 'Notifications', path: '/staff/notifications', icon: HiOutlineBell },
+    { name: 'Change Password', path: '/change-password', icon: HiOutlineLockClosed },
   ],
 };
 
@@ -139,7 +144,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               boxShadow: '0 0 12px var(--accent-glow)',
               flexShrink: 0,
             }}>
-              <HiOutlineHeart style={{ width: '1.1rem', height: '1.1rem', color: 'white' }} />
+              <svg viewBox="0 0 100 120" style={{ width: '1.1rem', height: '1.1rem', fill: 'white' }}>
+                <path d="M50,10 C50,10 90,65 90,85 C90,105 72,120 50,120 C28,120 10,105 10,85 C10,65 50,10 50,10 Z" />
+              </svg>
             </div>
             <div>
               <p style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '1rem', lineHeight: 1 }}>
@@ -190,8 +197,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               fontSize: '0.8rem',
               color: 'white',
               flexShrink: 0,
+              overflow: 'hidden',
             }}>
-              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              {user?.avatar ? (
+                <img src={user.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                user?.name?.charAt(0)?.toUpperCase() || 'U'
+              )}
             </div>
             <div style={{ minWidth: 0 }}>
               <p style={{
