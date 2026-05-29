@@ -3,7 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUser, verify2FAUser, loginWithGoogle, loginWithGithub, clearError } from '../redux/slices/authSlice';
 import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
 import { HiOutlineMail, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeOff, HiOutlineArrowRight } from 'react-icons/hi';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 const Login = () => {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -77,18 +79,21 @@ const Login = () => {
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Ambient blobs */}
-      <div style={{ position: 'absolute', top: '15%', left: '10%', width: '20rem', height: '20rem', borderRadius: '50%', background: 'var(--accent-glow)', filter: 'blur(70px)', opacity: 0.4, pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '10%', right: '8%', width: '15rem', height: '15rem', borderRadius: '50%', background: 'var(--accent-soft)', filter: 'blur(50px)', opacity: 0.5, animation: 'blob 8s infinite 2s', pointerEvents: 'none' }} />
+      <AnimatedBackground variant="minimal" />
 
-      <div className="animate-scaleIn" style={{ width: '100%', maxWidth: '26rem', position: 'relative', zIndex: 1 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+        style={{ width: '100%', maxWidth: '26rem', position: 'relative', zIndex: 1 }}
+      >
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{
             width: '3.5rem', height: '3.5rem', borderRadius: '1rem',
-            background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'var(--gradient-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 1rem',
-            boxShadow: '0 0 24px var(--accent-glow)',
+            boxShadow: '0 0 30px rgba(239, 68, 68, 0.3)',
             fontSize: '1.5rem',
           }}>
             🩸
@@ -103,11 +108,13 @@ const Login = () => {
 
         {/* Card */}
         <div style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
-          borderRadius: '1.25rem',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          border: '1px solid var(--glass-border)',
+          borderRadius: '1.5rem',
           padding: '2rem',
-          boxShadow: 'var(--card-shadow)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
         }}>
           {showOtp ? (
             <form onSubmit={handleOtpSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
@@ -263,9 +270,9 @@ const Login = () => {
 
           {/* Divider */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: '1.5rem 0' }}>
-            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+            <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, transparent, var(--glass-border))' }} />
             <span style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>or</span>
-            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+            <div style={{ flex: 1, height: '1px', background: 'linear-gradient(90deg, var(--glass-border), transparent)' }} />
           </div>
 
           {/* OAuth Buttons */}
@@ -281,12 +288,12 @@ const Login = () => {
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.625rem',
                   width: '100%', padding: '0.75rem', borderRadius: 'var(--btn-radius)',
-                  background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+                  background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)',
                   color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.3s', backdropFilter: 'blur(8px)',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)'; e.currentTarget.style.boxShadow = '0 0 16px var(--accent-glow)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--glass-border)'; e.currentTarget.style.boxShadow = 'none'; }}
               >
                 <svg style={{ width: '1.1rem', height: '1.1rem' }} viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -310,7 +317,7 @@ const Login = () => {
         <p style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.72rem', marginTop: '1.5rem' }}>
           🔒 Protected by JWT authentication & rate limiting
         </p>
-      </div>
+      </motion.div>
 
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>

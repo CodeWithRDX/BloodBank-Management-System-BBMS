@@ -53,7 +53,6 @@ const StaffDashboard = () => {
   const { staff } = useSelector(s => s.staff);
   const { allRegistrations } = useSelector(s => s.camps);
   const { theme } = useTheme();
-  const isAnime = theme?.group === 'anime';
 
   usePolling(() => {
     dispatch(fetchRequests());
@@ -91,7 +90,7 @@ const StaffDashboard = () => {
             color: 'var(--text-primary)',
             letterSpacing: '-0.025em',
             fontFamily: 'var(--font-display)',
-            textTransform: (theme?.id === 'titan' || theme?.id === 'dragonball') ? 'uppercase' : 'none'
+            textTransform: 'none'
           }}>
             Lab & Staff Dashboard
           </h1>
@@ -126,13 +125,13 @@ const StaffDashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', gap: '1.5rem' }}>
         {/* Today's Appointments Checklist */}
         <div
-          className={isAnime ? 'anime-card' : 'card'}
+          className={'glass-card'}
           style={{
-            background: 'var(--bg-surface)',
-            border: '1px solid var(--border)',
+            background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--glass-border)',
             borderRadius: '1.5rem',
             overflow: 'hidden',
-            boxShadow: 'var(--card-shadow)',
+            boxShadow: 'var(--glass-shadow)',
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -194,13 +193,13 @@ const StaffDashboard = () => {
 
         {/* Cold chain inventory status bars */}
         <div
-          className={isAnime ? 'anime-card' : 'card'}
+          className={'glass-card'}
           style={{
-            background: 'var(--bg-surface)',
-            border: '1px solid var(--border)',
+            background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--glass-border)',
             borderRadius: '1.5rem',
             padding: '1.75rem',
-            boxShadow: 'var(--card-shadow)',
+            boxShadow: 'var(--glass-shadow)',
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -234,7 +233,7 @@ const StaffDashboard = () => {
                         {s.totalUnits < 10 && <span style={{ color: '#fbbf24', marginLeft: '0.35rem', fontSize: '0.75rem' }}>⚠️ Critical Low</span>}
                       </span>
                     </div>
-                    <div style={{ height: '0.45rem', borderRadius: '999px', background: 'var(--bg-elevated)', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                    <div style={{ height: '0.45rem', borderRadius: '999px', background: 'var(--bg-elevated)', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
                       <div style={{
                         height: '100%',
                         width: `${pct}%`,
@@ -253,11 +252,11 @@ const StaffDashboard = () => {
 
       {/* Emergency Requests Queue */}
       <div style={{
-        background: 'var(--bg-surface)',
-        border: '1px solid var(--border)',
+        background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid var(--glass-border)',
         borderRadius: '1.5rem',
         overflow: 'hidden',
-        boxShadow: 'var(--card-shadow)'
+        boxShadow: 'var(--glass-shadow)'
       }}>
         <div style={{
           padding: '1.25rem 1.5rem',
@@ -273,7 +272,7 @@ const StaffDashboard = () => {
         <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ background: 'var(--bg-surface)' }}>
+              <tr style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
                 <TH c="SOS ID" />
                 <TH c="Patient" />
                 <TH c="Blood Type" />

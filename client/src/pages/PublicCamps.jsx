@@ -183,7 +183,7 @@ export default function PublicCamps() {
                 padding: '8px 10px',
                 borderRadius: 8,
                 background: 'var(--bg-base)',
-                border: '1px solid var(--border)',
+                border: '1px solid var(--glass-border)',
                 color: 'var(--text-primary)',
                 fontSize: '0.82rem',
                 opacity: searchMode !== 'nearby' ? 0.5 : 1
@@ -254,7 +254,7 @@ export default function PublicCamps() {
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                style={{ width: '100%', padding: '6px', background: 'var(--bg-base)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.78rem' }}
+                style={{ width: '100%', padding: '6px', background: 'var(--bg-base)', border: '1px solid var(--glass-border)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.78rem' }}
               />
             </div>
             <div>
@@ -262,7 +262,7 @@ export default function PublicCamps() {
               <select
                 value={branchFilter}
                 onChange={(e) => setBranchFilter(e.target.value)}
-                style={{ width: '100%', padding: '6px', background: 'var(--bg-base)', border: '1px solid var(--border)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.78rem' }}
+                style={{ width: '100%', padding: '6px', background: 'var(--bg-base)', border: '1px solid var(--glass-border)', borderRadius: '6px', color: 'var(--text-primary)', fontSize: '0.78rem' }}
               >
                 <option value="">All Branches</option>
                 {publicBranches?.map((b) => (
@@ -512,7 +512,7 @@ export default function PublicCamps() {
           right: 12,
           zIndex: 1000,
           background: 'var(--bg-elevated)',
-          border: '1px solid var(--border)',
+          border: '1px solid var(--glass-border)',
           borderRadius: 10,
           padding: '10px 14px',
           fontSize: '0.78rem',

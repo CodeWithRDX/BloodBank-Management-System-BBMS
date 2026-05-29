@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useTheme } from '../theme/ThemeContext';
@@ -6,12 +6,16 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import PhoneInputComponent from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import { motion, useInView } from 'framer-motion';
 import {
   HiOutlineHeart, HiOutlineBeaker, HiOutlineShieldCheck,
   HiOutlineUserGroup, HiOutlineArrowRight, HiOutlineLightningBolt,
   HiOutlineGlobe, HiOutlineClipboardCheck, HiOutlineInformationCircle,
 } from 'react-icons/hi';
 import { FiAlertTriangle, FiCheckCircle, FiClock, FiMapPin, FiAward } from 'react-icons/fi';
+import AnimatedBackground from '../components/AnimatedBackground';
+import ScrollReveal from '../components/ScrollReveal';
+import BloodParticles from '../components/BloodParticles';
 
 const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 
@@ -42,10 +46,98 @@ const QUOTES = [
 
 const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
+// Helper to render compatibility groups as badges/subtitles
+const renderCompatibilityBadges = (text) => {
+  if (!text) return null;
+  // If it's a list like "O+, A+, B+, AB+"
+  if (text.includes(',')) {
+    return (
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+        {text.split(',').map((group) => {
+          const trimmed = group.trim();
+          return (
+            <span
+              key={trimmed}
+              className="blood-badge-cell"
+              style={{
+                display: 'inline-block',
+                padding: '0.15rem 0.4rem',
+                borderRadius: '0.25rem',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--glass-border)',
+                color: 'var(--text-primary)',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                fontFamily: 'var(--font-display)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {trimmed}
+            </span>
+          );
+        })}
+      </div>
+    );
+  }
+  
+  // If it has description like "AB+ (Universal Receiver)" or "Everyone (Universal Donor)"
+  if (text.includes('(')) {
+    const parts = text.split('(');
+    const main = parts[0].trim();
+    const sub = parts[1].replace(')', '').trim();
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+        <span
+          className="blood-badge-cell"
+          style={{
+            display: 'inline-block',
+            padding: '0.15rem 0.4rem',
+            borderRadius: '0.25rem',
+            background: 'var(--accent-soft)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            color: 'var(--accent)',
+            fontSize: '0.72rem',
+            fontWeight: 800,
+            fontFamily: 'var(--font-display)',
+            width: 'fit-content',
+          }}
+        >
+          {main}
+        </span>
+        <span style={{ fontSize: '0.625rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+          ({sub})
+        </span>
+      </div>
+    );
+  }
+
+  // Single value (e.g. "O-", "Everyone")
+  return (
+    <span
+      className="blood-badge-cell"
+      style={{
+        display: 'inline-block',
+        padding: '0.15rem 0.4rem',
+        borderRadius: '0.25rem',
+        background: text.toLowerCase() === 'everyone' ? 'var(--accent-soft)' : 'var(--bg-surface)',
+        border: text.toLowerCase() === 'everyone' ? '1px solid rgba(239, 68, 68, 0.2)' : '1px solid var(--glass-border)',
+        color: text.toLowerCase() === 'everyone' ? 'var(--accent)' : 'var(--text-primary)',
+        fontSize: '0.72rem',
+        fontWeight: text.toLowerCase() === 'everyone' ? 800 : 600,
+        fontFamily: 'var(--font-display)',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {text}
+    </span>
+  );
+};
+
 const Home = () => {
   const { isAuthenticated, user } = useSelector(s => s.auth);
   const { themeId, theme, themes } = useTheme();
-  const isAnime = theme?.group === 'anime';
+  const statsRef = useRef(null);
+  const statsInView = useInView(statsRef, { once: true, margin: '-100px' });
 
   // State hooks
   const [currentQuote, setCurrentQuote] = useState(0);
@@ -149,92 +241,102 @@ const Home = () => {
   };
 
   return (
-    <div style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }} className="animate-fadeIn">
+    <div style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
       
-      {/* ═══ HERO SECTION ══════════════════════════════════ */}
-      <section style={{
-        position: 'relative',
-        minHeight: '88vh',
-        display: 'flex',
-        alignItems: 'center',
-        overflow: 'hidden',
-        padding: '5rem 1.5rem 4rem',
-      }}>
-        {/* Animated background blobs */}
+      {/* ═══ HERO SECTION — Sui.io-inspired cinematic ══════════════ */}
+      <section className="hero-section">
+        {/* Premium animated background */}
+        <AnimatedBackground variant="hero" />
+        <BloodParticles />
+
+        {/* Grid pattern overlay */}
         <div style={{
-          position: 'absolute', top: '15%', left: '8%',
-          width: '28rem', height: '28rem', borderRadius: '50%',
-          background: 'var(--accent-glow)', filter: 'blur(90px)',
-          animation: 'blob 8s infinite', pointerEvents: 'none', opacity: 0.65,
-        }} />
-        <div style={{
-          position: 'absolute', bottom: '10%', right: '10%',
-          width: '22rem', height: '22rem', borderRadius: '50%',
-          background: 'var(--accent-soft)', filter: 'blur(70px)',
-          animation: 'blob 10s infinite 3s', pointerEvents: 'none', opacity: 0.5,
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: `radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)`,
+          backgroundSize: '30px 30px',
+          maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
+          WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
         }} />
 
         {/* Floating blood type elements */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
           {BLOOD_GROUPS.map((g, i) => (
-            <div
+            <motion.div
               key={g}
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 0.35, scale: 1 }}
+              transition={{ delay: 0.8 + i * 0.12, duration: 0.6, ease: 'easeOut' }}
               style={{
                 position: 'absolute',
                 top: `${12 + (i * 11) % 75}%`,
                 left: `${i % 2 === 0 ? (4 + i * 4) : (75 + i * 3)}%`,
                 padding: '0.4rem 0.85rem',
                 borderRadius: '999px',
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border)',
+                background: 'var(--glass-bg)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid var(--glass-border)',
                 color: 'var(--accent)',
                 fontSize: '0.75rem',
                 fontWeight: 800,
-                opacity: 0.45,
-                boxShadow: 'var(--card-shadow)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
                 animation: `float ${4 + i * 0.5}s ease-in-out infinite ${i * 0.3}s`,
               }}
             >
               🩸 {g}
-            </div>
+            </motion.div>
           ))}
         </div>
 
         <div style={{ maxWidth: '58rem', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
           {/* Header Badge */}
-          <div
-            className="animate-fadeUp"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.4rem 1.1rem', borderRadius: '999px',
-              background: 'var(--accent-soft)',
-              border: '1px solid color-mix(in srgb, var(--accent) 35%, transparent)',
+              padding: '0.45rem 1.25rem', borderRadius: '999px',
+              background: 'var(--glass-bg)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
               marginBottom: '2rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent)',
             }}
           >
-            <span style={{ fontSize: '1.1rem' }}>{themes[themeId]?.emoji || '🩸'}</span>
-            <span>{themes[themeId]?.label || 'Classic'} active · Real-Time Healthcare Deck</span>
-          </div>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22C55E', animation: 'glow-breathe 2s ease-in-out infinite' }} />
+            <span>Live Platform · Real-Time Healthcare Network</span>
+          </motion.div>
 
-          {/* Core Title */}
-          <h1
-            className="animate-fadeUp delay-75 fluid-h1"
+          {/* Core Title with staggered reveal */}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            className="fluid-h1"
             style={{
               fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
               fontWeight: 900,
               lineHeight: 1.08,
               letterSpacing: '-0.03em',
               marginBottom: '1.75rem',
+              fontFamily: "'Space Grotesk', sans-serif",
             }}
           >
             Empower Hope.<br />
-            Every Drop <span className="energy-text">Saves Lives</span>.
-          </h1>
+            Every Drop{' '}
+            <span style={{
+              background: 'var(--gradient-text)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>Saves Lives</span>.
+          </motion.h1>
 
-          <p
-            className="animate-fadeUp delay-150"
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
             style={{
-              fontSize: 'clamp(1rem, 2vw, 1.25rem)',
+              fontSize: 'clamp(1rem, 2vw, 1.2rem)',
               color: 'var(--text-secondary)',
               maxWidth: '38rem',
               margin: '0 auto 2.5rem',
@@ -243,11 +345,13 @@ const Home = () => {
           >
             A premium next-generation blood bank gateway connecting voluntary donors, 
             local branch clinics, and hospitals instantly during critical emergencies.
-          </p>
+          </motion.p>
 
           {/* Action CTAs */}
-          <div
-            className="animate-fadeUp delay-300"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.6 }}
             style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}
           >
             {isAuthenticated ? (
@@ -266,7 +370,7 @@ const Home = () => {
               <>
                 <Link
                   to="/register"
-                  className="btn-primary animate-pulseGlow"
+                  className="btn-primary"
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
                     padding: '0.9rem 2.2rem', textDecoration: 'none',
@@ -288,61 +392,104 @@ const Home = () => {
                 </a>
               </>
             )}
-          </div>
+          </motion.div>
+
+          {/* Scroll indicator */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.6 }}
+            style={{
+              position: 'absolute', bottom: '-3rem', left: '50%', transform: 'translateX(-50%)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem',
+            }}
+          >
+            <span style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Scroll</span>
+            <div style={{
+              width: '1px', height: '2rem',
+              background: 'linear-gradient(180deg, var(--accent), transparent)',
+              animation: 'slide-up-fade 1.5s ease-in-out infinite',
+            }} />
+          </motion.div>
         </div>
       </section>
 
-      {/* ═══ LIVE STATS SECTION ════════════════════════════ */}
-      <section style={{
-        padding: '3.5rem 1.5rem',
-        borderTop: '1px solid var(--border)',
-        borderBottom: '1px solid var(--border)',
-        background: 'var(--bg-surface)',
-        position: 'relative'
+      {/* ═══ LIVE STATS SECTION — Glassmorphism counter cards ════ */}
+      <section ref={statsRef} style={{
+        padding: '4rem 1.5rem',
+        borderTop: '1px solid var(--glass-border)',
+        borderBottom: '1px solid var(--glass-border)',
+        background: 'var(--glass-bg)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        position: 'relative',
       }}>
         <div style={{
           maxWidth: '72rem', margin: '0 auto',
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: '2rem',
+          gap: '1.5rem',
         }}>
           {STATS.map((s, i) => (
-            <div
+            <motion.div
               key={s.label}
-              className={`animate-fadeUp delay-${75 * (i + 1)}`}
-              style={{ textAlign: 'center' }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={statsInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * 0.1, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+              style={{
+                textAlign: 'center',
+                padding: '1.5rem 1rem',
+                borderRadius: 'var(--card-radius)',
+                background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid var(--glass-border)',
+                transition: 'all 0.3s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(239,68,68,0.2)';
+                e.currentTarget.style.boxShadow = '0 0 24px var(--accent-glow)';
+                e.currentTarget.style.transform = 'translateY(-4px)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'var(--glass-border)';
+                e.currentTarget.style.boxShadow = 'none';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
             >
               <div style={{ fontSize: '2rem', marginBottom: '0.35rem' }}>{s.icon}</div>
               <p style={{
-                fontSize: '2.5rem', fontWeight: 900, color: 'var(--accent)',
-                fontFamily: 'var(--font-display)', lineHeight: 1.1,
-                textShadow: '0 0 15px var(--accent-glow)'
+                fontSize: '2.5rem', fontWeight: 900,
+                fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1.1,
+                background: 'var(--gradient-primary)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
               }}>
                 {s.value}
               </p>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.5rem', fontWeight: 600 }}>
                 {s.label}
               </p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </section>
 
       {/* ═══ COMPATIBILITY CHART & EDUCATION ═══════════════ */}
-      <section style={{ padding: '6rem 1.5rem', background: 'var(--bg-base)' }}>
+      <section style={{ padding: '6rem 1.5rem', background: 'var(--bg-base)', position: 'relative' }}>
         <div style={{ maxWidth: '72rem', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr', gap: '3rem' }}>
           
-          <div style={{ textAlign: 'center', maxWidth: '36rem', margin: '0 auto' }}>
-            <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Medical Guidelines</span>
-            <h2 className="fluid-h2" style={{ fontWeight: 800, marginTop: '0.5rem' }}>Compatibility & Eligibility</h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', fontSize: '0.9rem' }}>
-              Learn who can donate, how blood types match, and clinical guidelines for safety.
-            </p>
-          </div>
+          <ScrollReveal direction="up">
+            <div style={{ textAlign: 'center', maxWidth: '36rem', margin: '0 auto' }}>
+              <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: "'Space Grotesk', sans-serif" }}>Medical Guidelines</span>
+              <h2 className="fluid-h2" style={{ fontWeight: 800, marginTop: '0.5rem' }}>Compatibility & Eligibility</h2>
+              <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+                Learn who can donate, how blood types match, and clinical guidelines for safety.
+              </p>
+            </div>
+          </ScrollReveal>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }} className="locator-container">
-            {/* Table wrapper */}
-            <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.5rem', padding: '1.5rem', boxShadow: 'var(--card-shadow)' }}>
+            {/* Table wrapper — glass */}
+            <ScrollReveal direction="up" delay={0.1}>
+            <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.5rem', padding: '1.5rem', boxShadow: 'var(--glass-shadow)' }}>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', fontFamily: 'var(--font-display)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 📊 Who Can Donate Blood To Whom
               </h3>
@@ -370,17 +517,23 @@ const Home = () => {
                             {row.type}
                           </span>
                         </td>
-                        <td style={{ padding: '0.85rem 1.25rem', color: 'var(--text-primary)', fontSize: '0.85rem' }}>{row.gives}</td>
-                        <td style={{ padding: '0.85rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{row.receives}</td>
+                        <td style={{ padding: '0.85rem 1.25rem', color: 'var(--text-primary)', fontSize: '0.85rem' }}>
+                          {renderCompatibilityBadges(row.gives)}
+                        </td>
+                        <td style={{ padding: '0.85rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                          {renderCompatibilityBadges(row.receives)}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             </div>
+            </ScrollReveal>
 
-            {/* Educational Guidelines (Tabs) */}
-            <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.5rem', padding: '1.5rem', boxShadow: 'var(--card-shadow)', display: 'flex', flexDirection: 'column' }}>
+            {/* Educational Guidelines (Tabs) — glass */}
+            <ScrollReveal direction="up" delay={0.2}>
+            <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.5rem', padding: '1.5rem', boxShadow: 'var(--glass-shadow)', display: 'flex', flexDirection: 'column' }}>
               <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
                 <button
                   onClick={() => setActiveEduTab('can')}
@@ -462,6 +615,7 @@ const Home = () => {
                 </div>
               )}
             </div>
+            </ScrollReveal>
 
           </div>
 
@@ -853,7 +1007,7 @@ const Home = () => {
             {branches.slice(0, 3).map(b => (
               <div
                 key={b._id}
-                className={isAnime ? 'anime-card' : 'card'}
+                className="glass-card"
                 style={{
                   background: 'var(--bg-surface)',
                   border: '1px solid var(--border)',

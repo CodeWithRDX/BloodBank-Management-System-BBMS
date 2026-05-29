@@ -9,6 +9,7 @@ import PublicLayout from './layouts/PublicLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import ProtectedRoute from './components/ProtectedRoute';
 import AISupportWidget from './components/chat/AISupportWidget';
+import CustomCursor from './components/CustomCursor';
 
 // ── Public Pages ─────────────────────────────────────────────
 const Home              = lazy(() => import('./pages/Home'));
@@ -187,6 +188,7 @@ function App() {
         </Routes>
       </Suspense>
       <AISupportWidget />
+      <CustomCursor />
     </>
   );
 }

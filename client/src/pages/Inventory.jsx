@@ -33,7 +33,7 @@ const Inventory = () => {
     <div style={{ background: 'var(--bg-base)', minHeight: '100vh' }}>
       {/* Hero */}
       <div style={{
-        background: 'var(--bg-surface)',
+        background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
         borderBottom: '1px solid var(--border)',
         padding: '3.5rem 1.5rem 3rem',
         textAlign: 'center',
@@ -70,11 +70,11 @@ const Inventory = () => {
                     key={item.bloodGroup}
                     className={`animate-fadeUp delay-${['75','150','300','500','75','150','300','500'][i]}`}
                     style={{
-                      background: 'var(--bg-surface)',
+                      background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
                       border: `1px solid var(--border)`,
                       borderRadius: '1.25rem',
                       padding: '1.5rem',
-                      boxShadow: 'var(--card-shadow)',
+                      boxShadow: 'var(--glass-shadow)',
                       transition: 'all 0.25s ease',
                     }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = level.color; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `var(--card-shadow), 0 0 20px color-mix(in srgb, ${level.color} 20%, transparent)`; }}
@@ -106,7 +106,7 @@ const Inventory = () => {
                       </p>
                       <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
                         {compat.map(g => (
-                          <span key={g} style={{ padding: '0.15rem 0.4rem', borderRadius: '0.375rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontSize: '0.65rem', fontWeight: 600 }}>
+                          <span key={g} style={{ padding: '0.15rem 0.4rem', borderRadius: '0.375rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', color: 'var(--text-secondary)', fontSize: '0.65rem', fontWeight: 600 }}>
                             {g}
                           </span>
                         ))}
@@ -118,7 +118,7 @@ const Inventory = () => {
             </div>
 
             {/* CTA */}
-            <div style={{ textAlign: 'center', padding: '2.5rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem' }}>
+            <div style={{ textAlign: 'center', padding: '2.5rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.25rem' }}>
               <div style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>🩸</div>
               <h2 style={{ fontWeight: 800, fontSize: '1.4rem', marginBottom: '0.5rem', fontFamily: "'Space Grotesk', sans-serif" }}>
                 Ready to donate?
@@ -128,8 +128,8 @@ const Inventory = () => {
               </p>
               <Link to="/register" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                padding: '0.75rem 2rem', background: 'var(--accent)', color: 'white',
-                borderRadius: '0.875rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem',
+                padding: '0.75rem 2rem', background: 'var(--gradient-primary)', color: 'white',
+                borderRadius: 'var(--btn-radius)', textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem',
                 boxShadow: '0 0 20px var(--accent-glow)', transition: 'all 0.2s',
               }}
               onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}

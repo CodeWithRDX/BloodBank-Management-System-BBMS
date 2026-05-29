@@ -34,6 +34,13 @@ export const deleteNotification = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
+export const clearAllNotifications = async (req, res, next) => {
+  try {
+    await Notification.deleteMany({ userId: req.user.id });
+    res.status(200).json({ success: true, message: 'All notifications cleared' });
+  } catch (error) { next(error); }
+};
+
 // ─── Get user notification settings ───────────────────────────────────────────
 export const getNotificationSettings = async (req, res, next) => {
   try {

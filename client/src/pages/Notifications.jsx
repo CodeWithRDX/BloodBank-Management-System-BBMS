@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchNotifications, markAsRead, markAllRead } from '../redux/slices/notificationSlice';
+import { fetchNotifications, markAsRead, markAllRead, clearNotifications } from '../redux/slices/notificationSlice';
 import { loadUser } from '../redux/slices/authSlice';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { HiOutlineBell, HiOutlineCheck, HiOutlineCheckCircle } from 'react-icons/hi';
@@ -134,6 +134,11 @@ const Notifications = () => {
   const handleMarkAll = async () => {
     const res = await dispatch(markAllRead());
     if (res.meta.requestStatus === 'fulfilled') toast.success('All notifications marked as read');
+  };
+  const handleClearAll = async () => {
+    if (!window.confirm('Are you sure you want to clear all notifications? This cannot be undone.')) return;
+    const res = await dispatch(clearNotifications());
+    if (res.meta.requestStatus === 'fulfilled') toast.success('All notifications cleared successfully');
   };
 
   // Telegram setup link request
@@ -334,24 +339,43 @@ const Notifications = () => {
       {/* Inbox Tab Content */}
       {activeTab === 'inbox' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {unreadCount > 0 && (
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          {items.length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', flexWrap: 'wrap' }}>
+              {unreadCount > 0 && (
+                <button
+                  onClick={handleMarkAll}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '0.4rem',
+                    padding: '0.5rem 1rem',
+                    background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                    border: '1px solid var(--glass-border)',
+                    borderRadius: '0.75rem',
+                    color: 'var(--text-primary)', fontSize: '0.82rem', fontWeight: 600,
+                    cursor: 'pointer', transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--glass-border)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                >
+                  <HiOutlineCheckCircle style={{ width: '1rem', height: '1rem' }} />
+                  Mark All Read
+                </button>
+              )}
+
               <button
-                onClick={handleMarkAll}
+                onClick={handleClearAll}
                 style={{
                   display: 'flex', alignItems: 'center', gap: '0.4rem',
                   padding: '0.5rem 1rem',
-                  background: 'var(--bg-surface)',
-                  border: '1px solid var(--border)',
+                  background: 'rgba(239, 68, 68, 0.08)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
                   borderRadius: '0.75rem',
-                  color: 'var(--text-primary)', fontSize: '0.82rem', fontWeight: 600,
+                  color: '#f87171', fontSize: '0.82rem', fontWeight: 600,
                   cursor: 'pointer', transition: 'all 0.2s',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-primary)'; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)'; }}
               >
-                <HiOutlineCheckCircle style={{ width: '1rem', height: '1rem' }} />
-                Mark All Read
+                🗑️ Clear All
               </button>
             </div>
           )}
@@ -361,8 +385,8 @@ const Notifications = () => {
           ) : items.length === 0 ? (
             <div style={{
               textAlign: 'center', padding: '4rem 2rem',
-              background: 'var(--bg-surface)', border: '1px solid var(--border)',
-              borderRadius: '1.25rem', boxShadow: 'var(--card-shadow)',
+              background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)',
+              borderRadius: '1.25rem', boxShadow: 'var(--glass-shadow)',
             }}>
               <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔔</div>
               <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1.1rem', marginBottom: '0.5rem' }}>
@@ -424,7 +448,7 @@ const Notifications = () => {
                         <span style={{
                           display: 'inline-block', marginTop: '0.5rem',
                           padding: '0.15rem 0.5rem', borderRadius: '0.375rem',
-                          background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+                          background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)',
                           color: 'var(--text-secondary)', fontSize: '0.68rem', fontWeight: 600,
                           textTransform: 'capitalize',
                         }}>
@@ -440,7 +464,7 @@ const Notifications = () => {
                         title="Mark as read"
                         style={{
                           padding: '0.35rem', background: 'var(--bg-elevated)',
-                          border: '1px solid var(--border)', borderRadius: '0.5rem',
+                          border: '1px solid var(--glass-border)', borderRadius: '0.5rem',
                           cursor: 'pointer', color: 'var(--text-secondary)',
                           display: 'flex', flexShrink: 0,
                           transition: 'all 0.15s',
@@ -468,11 +492,11 @@ const Notifications = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               {/* Telegram Settings Card */}
               <div style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border)',
+                background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid var(--glass-border)',
                 borderRadius: '1.25rem',
                 padding: '1.5rem',
-                boxShadow: 'var(--card-shadow)',
+                boxShadow: 'var(--glass-shadow)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '1.25rem'
@@ -504,7 +528,7 @@ const Notifications = () => {
                       <div style={{
                         padding: '0.75rem',
                         background: 'var(--bg-elevated)',
-                        border: '1px solid var(--border)',
+                        border: '1px solid var(--glass-border)',
                         borderRadius: '0.625rem',
                         fontSize: '0.82rem',
                         color: 'var(--text-secondary)',
@@ -565,7 +589,7 @@ const Notifications = () => {
                                 onChange={e => setSimChatId(e.target.value)}
                                 style={{
                                   padding: '0.4rem 0.6rem', fontSize: '0.75rem',
-                                  background: 'var(--bg-base)', border: '1px solid var(--border)',
+                                  background: 'var(--bg-base)', border: '1px solid var(--glass-border)',
                                   borderRadius: '0.5rem', color: 'var(--text-primary)', width: '12rem'
                                 }}
                               />
@@ -574,7 +598,7 @@ const Notifications = () => {
                                 disabled={simulating}
                                 onClick={handleSimulatePairing}
                                 style={{
-                                  background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                                  background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)',
                                   color: 'var(--text-primary)', padding: '0.4rem 0.75rem',
                                   fontSize: '0.72rem', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 600
                                 }}
@@ -592,11 +616,11 @@ const Notifications = () => {
 
               {/* WhatsApp Settings Card */}
               <div style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border)',
+                background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid var(--glass-border)',
                 borderRadius: '1.25rem',
                 padding: '1.5rem',
-                boxShadow: 'var(--card-shadow)',
+                boxShadow: 'var(--glass-shadow)',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '1.25rem'
@@ -628,7 +652,7 @@ const Notifications = () => {
                       <div style={{
                         padding: '0.75rem',
                         background: 'var(--bg-elevated)',
-                        border: '1px solid var(--border)',
+                        border: '1px solid var(--glass-border)',
                         borderRadius: '0.625rem',
                         fontSize: '0.82rem',
                         color: 'var(--text-secondary)',
@@ -689,7 +713,7 @@ const Notifications = () => {
                                 onChange={e => setSimPhone(e.target.value)}
                                 style={{
                                   padding: '0.4rem 0.6rem', fontSize: '0.75rem',
-                                  background: 'var(--bg-base)', border: '1px solid var(--border)',
+                                  background: 'var(--bg-base)', border: '1px solid var(--glass-border)',
                                   borderRadius: '0.5rem', color: 'var(--text-primary)', width: '12rem'
                                 }}
                               />
@@ -698,7 +722,7 @@ const Notifications = () => {
                                 disabled={simulatingWhatsApp}
                                 onClick={handleSimulateWhatsAppPairing}
                                 style={{
-                                  background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                                  background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)',
                                   color: 'var(--text-primary)', padding: '0.4rem 0.75rem',
                                   fontSize: '0.72rem', borderRadius: '0.5rem', cursor: 'pointer', fontWeight: 600
                                 }}

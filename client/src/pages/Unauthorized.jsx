@@ -51,8 +51,8 @@ const Unauthorized = () => {
               to={`/${user.role}`}
               style={{
                 padding: '0.75rem 1.75rem',
-                background: 'var(--accent)', color: 'white',
-                borderRadius: '0.75rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem',
+                background: 'var(--gradient-primary)', color: 'white',
+                borderRadius: 'var(--btn-radius)', textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem',
                 boxShadow: '0 0 18px var(--accent-glow)', transition: 'all 0.2s',
               }}
               onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
@@ -65,8 +65,8 @@ const Unauthorized = () => {
               to="/login"
               style={{
                 padding: '0.75rem 1.75rem',
-                background: 'var(--accent)', color: 'white',
-                borderRadius: '0.75rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem',
+                background: 'var(--gradient-primary)', color: 'white',
+                borderRadius: 'var(--btn-radius)', textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem',
                 boxShadow: '0 0 18px var(--accent-glow)', transition: 'all 0.2s',
               }}
             >
@@ -77,8 +77,8 @@ const Unauthorized = () => {
             to="/"
             style={{
               padding: '0.75rem 1.75rem',
-              background: 'var(--bg-surface)', color: 'var(--text-primary)',
-              border: '1px solid var(--border)',
+              background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', color: 'var(--text-primary)',
+              border: '1px solid var(--glass-border)',
               borderRadius: '0.75rem', textDecoration: 'none', fontWeight: 600, fontSize: '0.9rem',
               transition: 'all 0.2s',
             }}

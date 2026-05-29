@@ -58,7 +58,6 @@ const DonorDashboard = () => {
   const { myProfile, myDonations, loading: dL } = useSelector(s => s.donors);
   const { myAppointments, loading: aL } = useSelector(s => s.appointments);
   const { theme } = useTheme();
-  const isAnime = theme?.group === 'anime';
 
   usePolling(() => {
     dispatch(fetchMyDonorProfile());
@@ -121,7 +120,7 @@ const DonorDashboard = () => {
             color: 'var(--text-primary)',
             letterSpacing: '-0.025em',
             fontFamily: 'var(--font-display)',
-            textTransform: (theme?.id === 'titan' || theme?.id === 'dragonball') ? 'uppercase' : 'none'
+            textTransform: 'none'
           }}>
             Welcome back, {user?.name?.split(' ')[0]} 👋
           </h1>
@@ -134,7 +133,7 @@ const DonorDashboard = () => {
           {isEligible ? (
             <Link
               to="/donor/appointments/new"
-              className="btn-primary animate-pulseGlow"
+              className="btn-primary"
               style={{
                 padding: '0.625rem 1.5rem',
                 textDecoration: 'none',
@@ -179,10 +178,12 @@ const DonorDashboard = () => {
           
           {/* Profile details */}
           <div
-            className={isAnime ? 'anime-card' : 'card'}
+            className={'glass-card'}
             style={{
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border)',
+              background: 'var(--glass-bg)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid var(--glass-border)',
               borderRadius: '1.5rem',
               padding: '1.75rem',
               boxShadow: 'var(--card-shadow)',
@@ -293,8 +294,10 @@ const DonorDashboard = () => {
 
         {/* Upcoming appointments list */}
         <div style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid var(--glass-border)',
           borderRadius: '1.5rem',
           overflow: 'hidden',
           boxShadow: 'var(--card-shadow)'
@@ -350,8 +353,10 @@ const DonorDashboard = () => {
 
         {/* Donation history table */}
         <div style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid var(--glass-border)',
           borderRadius: '1.5rem',
           overflow: 'hidden',
           boxShadow: 'var(--card-shadow)'

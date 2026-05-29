@@ -238,14 +238,14 @@ export default function AdminLogs() {
       )}
 
       {/* Filter Toolbar */}
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1rem', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             <label style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-secondary)' }}>BRANCH</label>
             <select
               value={branchFilter}
               onChange={(e) => setBranchFilter(e.target.value)}
-              style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
+              style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
             >
               <option value="">All Branches</option>
               {branches.map((b) => (
@@ -260,7 +260,7 @@ export default function AdminLogs() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
+              style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
             />
           </div>
 
@@ -270,7 +270,7 @@ export default function AdminLogs() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
+              style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
             />
           </div>
 
@@ -281,7 +281,7 @@ export default function AdminLogs() {
                 <select
                   value={opTypeFilter}
                   onChange={(e) => setOpTypeFilter(e.target.value)}
-                  style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
+                  style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
                 >
                   <option value="">All Operations</option>
                   {INVENTORY_OPERATIONS.map((op) => (
@@ -295,7 +295,7 @@ export default function AdminLogs() {
                 <select
                   value={bloodGroupFilter}
                   onChange={(e) => setBloodGroupFilter(e.target.value)}
-                  style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
+                  style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
                 >
                   <option value="">All Groups</option>
                   {BLOOD_GROUPS.map((bg) => (
@@ -310,7 +310,7 @@ export default function AdminLogs() {
               <select
                 value={actionTypeFilter}
                 onChange={(e) => setActionTypeFilter(e.target.value)}
-                style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
+                style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
               >
                 <option value="">All Actions</option>
                 <option value="user_login">User Login</option>
@@ -340,7 +340,7 @@ export default function AdminLogs() {
       {loading ? (
         <LoadingSpinner text="Searching logs archive..." />
       ) : (
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
+        <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1rem', overflow: 'hidden', boxShadow: 'var(--glass-shadow)' }}>
           <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
               <thead>

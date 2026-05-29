@@ -9,7 +9,7 @@ const BG = ['A+','A-','B+','B-','AB+','AB-','O+','O-'];
 
 const iStyle = {
   width: '100%', padding: '0.7rem 0.875rem', fontSize: '0.875rem',
-  background: 'var(--bg-elevated)', border: '1px solid var(--border)',
+  background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)',
   borderRadius: '0.625rem', color: 'var(--text-primary)', boxSizing: 'border-box',
 };
 const Lbl = ({ children }) => (
@@ -43,7 +43,7 @@ const NewBloodRequest = () => {
     <div style={{ maxWidth: '44rem', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="animate-fadeIn">
       {/* Back + title */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-        <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', transition: 'all 0.15s' }}
+        <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', transition: 'all 0.15s' }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
         >
@@ -60,7 +60,7 @@ const NewBloodRequest = () => {
       </div>
 
       {/* Form card */}
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '2rem', boxShadow: 'var(--card-shadow)' }}>
+      <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.25rem', padding: '2rem', boxShadow: 'var(--glass-shadow)' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
           {/* Patient info row */}

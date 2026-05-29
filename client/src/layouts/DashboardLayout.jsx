@@ -8,6 +8,8 @@ import API from '../api/axios';
 import PhoneInputComponent from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import toast from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 import {
@@ -82,27 +84,14 @@ const ROLE_META = {
   branch_admin: { label: 'Branch Admin',  color: '#10b981' },
 };
 
-/* Anime logos per theme */
-const ANIME_LOGOS = {
-  dragonball:  '🔥',
-  onepiece:    '☠️',
-  naruto:      '🍃',
-  deathnote:   '📓',
-  jujutsu:     '👁️',
-  titan:       '⚔️',
-  demonslayer: '🌊',
-};
-
 /* ── Shared sidebar content (desktop + mobile) ──────────── */
 const SidebarContent = ({ onLinkClick }) => {
   const { user } = useSelector(s => s.auth);
   const dispatch = useDispatch();
-  const { themeId, themes, theme } = useTheme();
+  const { themeId, themes } = useTheme();
   const location = useLocation();
   const links = NAV_BY_ROLE[user?.role] || [];
   const meta = ROLE_META[user?.role] || {};
-  const isAnime = theme?.group === 'anime';
-  const animeLogo = ANIME_LOGOS[themeId];
 
   const isActive = (link) =>
     link.exact ? location.pathname === link.path : location.pathname.startsWith(link.path);
@@ -112,52 +101,42 @@ const SidebarContent = ({ onLinkClick }) => {
       {/* ── Logo / Brand ── */}
       <div style={{
         padding: '1.1rem 1rem',
-        borderBottom: `1px solid ${isAnime ? 'color-mix(in srgb, var(--accent) 40%, transparent)' : 'var(--sidebar-border)'}`,
+        borderBottom: '1px solid var(--glass-border)',
         flexShrink: 0,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        background: isAnime ? 'color-mix(in srgb, var(--accent-soft) 50%, transparent)' : 'transparent',
       }}>
         <Link to="/" onClick={onLinkClick} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
           {/* Logo icon */}
           <div style={{
             width: '2.2rem', height: '2.2rem',
-            background: isAnime
-              ? `linear-gradient(135deg, var(--accent), var(--energy-color))`
-              : 'var(--accent)',
-            borderRadius: isAnime ? '0.5rem' : '0.625rem',
+            background: 'var(--gradient-primary)',
+            borderRadius: '0.625rem',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: `0 0 16px var(--accent-glow)`,
+            boxShadow: '0 0 16px rgba(239, 68, 68, 0.3)',
             flexShrink: 0,
-            animation: isAnime ? 'energyPulse 3s ease-in-out infinite' : 'none',
-            fontSize: isAnime ? '1rem' : undefined,
           }}>
-            {isAnime
-              ? <span style={{ lineHeight: 1 }}>{animeLogo}</span>
-              : (
-                <svg viewBox="0 0 100 120" style={{ width: '1.1rem', height: '1.1rem', fill: 'white' }}>
-                  <path d="M50,10 C50,10 90,65 90,85 C90,105 72,120 50,120 C28,120 10,105 10,85 C10,65 50,10 50,10 Z" />
-                </svg>
-              )
-            }
+            <svg viewBox="0 0 100 120" style={{ width: '1.1rem', height: '1.1rem', fill: 'white' }}>
+              <path d="M50,10 C50,10 90,65 90,85 C90,105 72,120 50,120 C28,120 10,105 10,85 C10,65 50,10 50,10 Z" />
+            </svg>
           </div>
 
           {/* Brand name */}
           <div>
             <p style={{
               color: 'var(--text-primary)', fontWeight: 800, fontSize: '1rem', lineHeight: 1,
-              fontFamily: 'var(--font-display)',
-              letterSpacing: isAnime ? '0.05em' : 'normal',
-              textTransform: (themeId === 'titan' || themeId === 'dragonball') ? 'uppercase' : 'none',
+              fontFamily: "'Space Grotesk', sans-serif",
             }}>
               BBMS
             </p>
             <p style={{
-              color: 'var(--accent)',
               fontSize: '0.6rem', marginTop: '0.15rem', fontWeight: 600,
-              fontFamily: 'var(--font-display)',
-              letterSpacing: isAnime ? '0.08em' : 'normal',
+              fontFamily: "'Space Grotesk', sans-serif",
+              background: 'var(--gradient-primary)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
             }}>
               {themes[themeId]?.emoji} {themes[themeId]?.label}
             </p>
@@ -170,8 +149,8 @@ const SidebarContent = ({ onLinkClick }) => {
             onClick={onLinkClick}
             aria-label="Close sidebar"
             style={{
-              background: 'var(--bg-elevated)',
-              border: `1px solid var(--border)`,
+              background: 'var(--glass-bg)',
+              border: '1px solid var(--glass-border)',
               borderRadius: '0.5rem',
               padding: '0.3rem',
               cursor: 'pointer',
@@ -179,38 +158,34 @@ const SidebarContent = ({ onLinkClick }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'all 0.15s',
+              transition: 'all 0.2s',
             }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--glass-border)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
           >
             <HiOutlineX style={{ width: '1.1rem', height: '1.1rem' }} />
           </button>
         )}
       </div>
 
-      {/* ── User chip ── */}
+      {/* ── User chip — glass card ── */}
       <div style={{
         margin: '0.75rem',
         padding: '0.75rem',
-        background: isAnime
-          ? `color-mix(in srgb, var(--accent) 8%, var(--bg-elevated))`
-          : 'var(--accent-soft)',
-        border: `1px solid ${isAnime ? 'color-mix(in srgb, var(--accent) 35%, transparent)' : 'color-mix(in srgb, var(--accent) 25%, transparent)'}`,
+        background: 'var(--glass-bg)',
+        border: '1px solid var(--glass-border)',
         borderRadius: 'var(--card-radius)',
         flexShrink: 0,
-        boxShadow: isAnime ? `0 0 12px var(--anime-glow)` : 'none',
+        backdropFilter: 'blur(8px)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          {/* Avatar */}
+          {/* Avatar with gradient */}
           <div style={{
             width: '2rem', height: '2rem', borderRadius: '50%',
-            background: isAnime
-              ? `linear-gradient(135deg, var(--accent), var(--energy-color))`
-              : 'var(--accent)',
+            background: 'var(--gradient-primary)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontWeight: 800, fontSize: '0.78rem', color: 'white', flexShrink: 0,
-            boxShadow: `0 0 10px var(--accent-glow)`,
+            boxShadow: '0 0 10px rgba(239, 68, 68, 0.25)',
             overflow: 'hidden',
           }}>
             {user?.avatar ? (
@@ -231,7 +206,6 @@ const SidebarContent = ({ onLinkClick }) => {
                 width: '0.45rem', height: '0.45rem', borderRadius: '50%',
                 background: meta.color, flexShrink: 0,
                 boxShadow: `0 0 6px ${meta.color}`,
-                animation: isAnime ? 'navDotPulse 2s ease-in-out infinite' : 'none',
               }} />
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.65rem' }}>{meta.label}</p>
             </div>
@@ -246,14 +220,14 @@ const SidebarContent = ({ onLinkClick }) => {
           textTransform: 'uppercase', letterSpacing: '0.1em',
           margin: '0.625rem 0.5rem 0.375rem',
         }}>
-          {isAnime ? '▸ Navigation' : 'Navigation'}
+          Navigation
         </p>
-        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+        <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
           {links.map((link, i) => {
             const Icon = link.icon;
             const active = isActive(link);
             return (
-              <li key={link.path} style={{ animationDelay: `${i * 30}ms` }}>
+              <li key={link.path}>
                 <Link
                   to={link.path}
                   onClick={onLinkClick}
@@ -262,23 +236,36 @@ const SidebarContent = ({ onLinkClick }) => {
                     display: 'flex', alignItems: 'center', gap: '0.625rem',
                     padding: '0.6rem 0.75rem', textDecoration: 'none',
                     fontWeight: active ? 700 : 500, fontSize: '0.84rem',
+                    position: 'relative',
                   }}
                 >
+                  {/* Active gradient indicator */}
+                  {active && (
+                    <div style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: '20%',
+                      bottom: '20%',
+                      width: '3px',
+                      borderRadius: '0 4px 4px 0',
+                      background: 'linear-gradient(180deg, var(--accent), var(--accent-secondary))',
+                      boxShadow: '0 0 8px rgba(239, 68, 68, 0.4)',
+                    }} />
+                  )}
                   <Icon style={{
                     width: '1rem', height: '1rem', flexShrink: 0,
                     color: active ? 'var(--accent)' : 'var(--text-secondary)',
-                    filter: active && isAnime ? `drop-shadow(0 0 4px var(--accent-glow))` : 'none',
+                    transition: 'color 0.2s',
                   }} />
                   {link.name}
                   {active && (
                     <div
-                      className="nav-dot"
                       style={{
                         marginLeft: 'auto',
                         width: '0.4rem', height: '0.4rem',
                         borderRadius: '50%',
-                        background: 'var(--accent)',
-                        boxShadow: `0 0 8px var(--accent-glow)`,
+                        background: 'var(--gradient-primary)',
+                        boxShadow: '0 0 8px rgba(239, 68, 68, 0.4)',
                       }}
                     />
                   )}
@@ -293,8 +280,8 @@ const SidebarContent = ({ onLinkClick }) => {
       {user && (
         <div style={{
           padding: '0.75rem',
-          margin: '0.75rem',
-          borderTop: '1px dashed var(--border)',
+          margin: '0 0.75rem 0.75rem',
+          borderTop: '1px solid var(--glass-border)',
           display: 'flex',
           flexDirection: 'column',
           gap: '0.5rem',
@@ -304,72 +291,45 @@ const SidebarContent = ({ onLinkClick }) => {
             textTransform: 'uppercase', letterSpacing: '0.08em',
             margin: '0 0 0.25rem 0',
           }}>
-            🤖 AI Support Settings
+            🤖 AI Support
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}>AI Assistant</span>
-              <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '2.1rem', height: '1.1rem' }}>
-                <input
-                  type="checkbox"
-                  checked={user.aiAssistantEnabled !== false}
-                  onChange={async (e) => {
-                    try {
-                      await API.post('/communications/ai-toggle', { aiAssistantEnabled: e.target.checked });
-                      dispatch(loadUser());
-                      toast.success(e.target.checked ? 'AI support assistant activated!' : 'AI support assistant deactivated.');
-                    } catch (err) {
-                      toast.error('Failed to update settings');
-                    }
-                  }}
-                  style={{ opacity: 0, width: 0, height: 0 }}
-                />
-                <span style={{
-                  position: 'absolute', cursor: 'pointer', inset: 0,
-                  background: (user.aiAssistantEnabled !== false) ? 'var(--accent)' : 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '999px', transition: '0.3s',
-                }}>
+            {[
+              { label: 'AI Assistant', key: 'aiAssistantEnabled', field: 'aiAssistantEnabled' },
+              { label: 'Floating Bot', key: 'floatingBotWidgetEnabled', field: 'floatingBotWidgetEnabled' },
+            ].map(toggle => (
+              <div key={toggle.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}>{toggle.label}</span>
+                <label style={{ position: 'relative', display: 'inline-block', width: '2.1rem', height: '1.1rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={user[toggle.key] !== false}
+                    onChange={async (e) => {
+                      try {
+                        await API.post('/communications/ai-toggle', { [toggle.field]: e.target.checked });
+                        dispatch(loadUser());
+                        toast.success(e.target.checked ? `${toggle.label} activated!` : `${toggle.label} deactivated.`);
+                      } catch (err) {
+                        toast.error('Failed to update settings');
+                      }
+                    }}
+                    style={{ opacity: 0, width: 0, height: 0 }}
+                  />
                   <span style={{
-                    position: 'absolute', height: '0.8rem', width: '0.8rem',
-                    left: (user.aiAssistantEnabled !== false) ? 'calc(100% - 0.95rem)' : '0.1rem',
-                    bottom: '0.08rem', background: '#fff', borderRadius: '50%', transition: '0.3s'
-                  }} />
-                </span>
-              </label>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-primary)' }}>Floating Bot</span>
-              <label className="switch" style={{ position: 'relative', display: 'inline-block', width: '2.1rem', height: '1.1rem' }}>
-                <input
-                  type="checkbox"
-                  checked={user.floatingBotWidgetEnabled !== false}
-                  onChange={async (e) => {
-                    try {
-                      await API.post('/communications/ai-toggle', { floatingBotWidgetEnabled: e.target.checked });
-                      dispatch(loadUser());
-                      toast.success(e.target.checked ? 'Floating widget activated!' : 'Floating widget deactivated.');
-                    } catch (err) {
-                      toast.error('Failed to update settings');
-                    }
-                  }}
-                  style={{ opacity: 0, width: 0, height: 0 }}
-                />
-                <span style={{
-                  position: 'absolute', cursor: 'pointer', inset: 0,
-                  background: (user.floatingBotWidgetEnabled !== false) ? 'var(--accent)' : 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '999px', transition: '0.3s',
-                }}>
-                  <span style={{
-                    position: 'absolute', height: '0.8rem', width: '0.8rem',
-                    left: (user.floatingBotWidgetEnabled !== false) ? 'calc(100% - 0.95rem)' : '0.1rem',
-                    bottom: '0.08rem', background: '#fff', borderRadius: '50%', transition: '0.3s'
-                  }} />
-                </span>
-              </label>
-            </div>
+                    position: 'absolute', cursor: 'pointer', inset: 0,
+                    background: (user[toggle.key] !== false) ? 'var(--gradient-primary)' : 'var(--glass-bg)',
+                    border: '1px solid var(--glass-border)',
+                    borderRadius: '999px', transition: '0.3s',
+                  }}>
+                    <span style={{
+                      position: 'absolute', height: '0.8rem', width: '0.8rem',
+                      left: (user[toggle.key] !== false) ? 'calc(100% - 0.95rem)' : '0.1rem',
+                      bottom: '0.08rem', background: '#fff', borderRadius: '50%', transition: '0.3s'
+                    }} />
+                  </span>
+                </label>
+              </div>
+            ))}
           </div>
         </div>
       )}
@@ -377,16 +337,15 @@ const SidebarContent = ({ onLinkClick }) => {
       {/* ── Footer ── */}
       <div style={{
         padding: '0.75rem',
-        borderTop: `1px solid ${isAnime ? 'color-mix(in srgb, var(--accent) 25%, transparent)' : 'var(--sidebar-border)'}`,
+        borderTop: '1px solid var(--glass-border)',
         textAlign: 'center',
         flexShrink: 0,
       }}>
         <p style={{
           color: 'var(--text-secondary)', fontSize: '0.62rem',
-          fontFamily: 'var(--font-display)',
-          letterSpacing: isAnime ? '0.05em' : 'normal',
+          fontFamily: "'Space Grotesk', sans-serif",
         }}>
-          {isAnime ? `[ BBMS v2.0 ]` : 'BBMS v2.0 · Open Source'}
+          BBMS v2.0 · Open Source
         </p>
       </div>
     </>
@@ -433,22 +392,31 @@ const DashboardLayout = () => {
         position: 'relative',
         overflow: 'hidden',
       }}>
-        {/* Ambient blobs */}
-        <div style={{ position: 'absolute', top: '15%', left: '10%', width: '20rem', height: '20rem', borderRadius: '50%', background: 'var(--accent-glow)', filter: 'blur(70px)', opacity: 0.4, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: '10%', right: '8%', width: '15rem', height: '15rem', borderRadius: '50%', background: 'var(--accent-soft)', filter: 'blur(50px)', opacity: 0.5, pointerEvents: 'none' }} />
+        <AnimatedBackground variant="minimal" />
 
-        <div className="animate-scaleIn" style={{ width: '100%', maxWidth: '28rem', position: 'relative', zIndex: 1 }}>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+          style={{ width: '100%', maxWidth: '28rem', position: 'relative', zIndex: 1 }}
+        >
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <div style={{
               width: '3.5rem', height: '3.5rem', borderRadius: '1rem',
-              background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--gradient-primary)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               margin: '0 auto 1rem',
-              boxShadow: '0 0 24px var(--accent-glow)',
+              boxShadow: '0 0 30px rgba(239, 68, 68, 0.3)',
               fontSize: '1.5rem',
             }}>
               📱
             </div>
-            <h1 style={{ fontWeight: 800, fontSize: '1.65rem', letterSpacing: '-0.025em', fontFamily: "'Space Grotesk', sans-serif" }}>
+            <h1 style={{
+              fontWeight: 800, fontSize: '1.65rem', letterSpacing: '-0.025em',
+              fontFamily: "'Space Grotesk', sans-serif",
+              background: 'linear-gradient(135deg, var(--text-primary), var(--text-secondary))',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+            }}>
               Action Required
             </h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.375rem' }}>
@@ -457,24 +425,26 @@ const DashboardLayout = () => {
           </div>
 
           <div style={{
-            background: 'var(--bg-surface)',
-            border: '1px solid var(--border)',
+            background: 'var(--glass-bg)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid var(--glass-border)',
             borderRadius: '1.25rem',
             padding: '2rem',
-            boxShadow: 'var(--card-shadow)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
           }}>
             <form onSubmit={handlePhoneSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <div style={{
                 padding: '0.75rem',
                 background: 'var(--accent-soft)',
-                border: '1px solid color-mix(in srgb, var(--accent) 25%, transparent)',
+                border: '1px solid rgba(239, 68, 68, 0.15)',
                 borderRadius: '0.75rem',
                 fontSize: '0.82rem',
                 color: 'var(--text-secondary)',
                 lineHeight: 1.5,
                 marginBottom: '0.5rem'
               }}>
-                🔒 To secure your account and receive appointment updates, a valid **mobile number** must be added.
+                🔒 To secure your account and receive appointment updates, a valid <b>mobile number</b> must be added.
               </div>
 
               <div>
@@ -488,23 +458,23 @@ const DashboardLayout = () => {
                   inputStyle={{
                     width: '100%',
                     height: '42px',
-                    background: 'var(--bg-elevated)',
-                    border: '1px solid var(--border)',
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid var(--glass-border)',
                     borderRadius: 'var(--input-radius)',
                     color: 'var(--text-primary)',
                     fontFamily: 'var(--font-body)',
                     paddingLeft: '48px'
                   }}
                   buttonStyle={{
-                    background: 'var(--bg-elevated)',
-                    border: '1px solid var(--border)',
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid var(--glass-border)',
                     borderTopLeftRadius: 'var(--input-radius)',
                     borderBottomLeftRadius: 'var(--input-radius)',
                   }}
                   dropdownStyle={{
-                    background: 'var(--bg-surface)',
+                    background: 'var(--bg-base)',
                     color: 'var(--text-primary)',
-                    border: '1px solid var(--border)',
+                    border: '1px solid var(--glass-border)',
                   }}
                 />
               </div>
@@ -533,18 +503,21 @@ const DashboardLayout = () => {
               </button>
             </form>
           </div>
-        </div>
+        </motion.div>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden', background: 'var(--bg-base)' }}>
+    <div style={{ display: 'flex', height: '100dvh', overflow: 'hidden', background: 'var(--bg-base)', position: 'relative' }}>
 
-      {/* ── DESKTOP SIDEBAR ─────────────────────── */}
+      {/* Background orbs for dashboard — subtle */}
+      <AnimatedBackground variant="dashboard" />
+
+      {/* ── DESKTOP SIDEBAR — floating glass ─────────────────────── */}
       <aside
-        className="desktop-sidebar sidebar"
+        className="desktop-sidebar sidebar glass-surface"
         style={{
           width: '15.5rem',
           flexShrink: 0,
@@ -552,40 +525,47 @@ const DashboardLayout = () => {
           flexDirection: 'column',
           height: '100%',
           overflow: 'hidden',
+          position: 'relative',
+          zIndex: 2,
         }}
       >
         <SidebarContent onLinkClick={null} />
       </aside>
 
-      {/* ── MOBILE SIDEBAR (overlay) ───────────── */}
-      <>
+      {/* ── MOBILE SIDEBAR (overlay) — glass ───────────── */}
+      <AnimatePresence>
         {sidebarOpen && (
-          <div
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
             style={{
               position: 'fixed', inset: 0, zIndex: 20,
-              background: 'rgba(0,0,0,0.65)',
-              backdropFilter: 'blur(6px)',
+              background: 'rgba(0, 0, 0, 0.6)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
             }}
             onClick={closeSidebar}
           />
         )}
-        <aside
-          className="sidebar"
-          style={{
-            position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 30,
-            width: 'min(16rem, 85vw)',
-            display: 'flex', flexDirection: 'column',
-            transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-            transition: 'transform 0.3s cubic-bezier(.22,.61,.36,1)',
-            overflowY: 'auto',
-          }}
-        >
-          <SidebarContent onLinkClick={closeSidebar} />
-        </aside>
-      </>
+      </AnimatePresence>
+      <aside
+        className="sidebar glass-surface"
+        style={{
+          position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 30,
+          width: 'min(16rem, 85vw)',
+          display: 'flex', flexDirection: 'column',
+          transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s cubic-bezier(.22,.61,.36,1)',
+          overflowY: 'auto',
+        }}
+      >
+        <SidebarContent onLinkClick={closeSidebar} />
+      </aside>
 
       {/* ── MAIN CONTENT ──────────────────────── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0, position: 'relative', zIndex: 1 }}>
         <Navbar
           sidebarOpen={sidebarOpen}
           onMenuClick={() => setSidebarOpen(prev => !prev)}
@@ -593,7 +573,6 @@ const DashboardLayout = () => {
         <main style={{
           flex: 1, overflowY: 'auto',
           padding: 'clamp(0.75rem, 2vw, 1.5rem)',
-          background: 'var(--bg-base)',
         }}>
           <div style={{ maxWidth: '90rem', margin: '0 auto' }}>
             <Outlet />

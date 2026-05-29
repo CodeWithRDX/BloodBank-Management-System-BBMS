@@ -4,7 +4,6 @@ import { useTheme } from '../theme/ThemeContext';
 
 const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
   const { theme } = useTheme();
-  const isAnime = theme?.group === 'anime';
 
   if (!isOpen) return null;
 
@@ -20,14 +19,15 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
       }}
       onClick={onClose}
     >
-      {/* Backdrop */}
+      {/* Backdrop — frosted glass */}
       <div style={{
         position: 'fixed', inset: 0,
-        background: isAnime ? 'rgba(0,0,0,0.75)' : 'rgba(0,0,0,0.6)',
-        backdropFilter: 'blur(6px)',
+        background: 'rgba(0,0,0,0.6)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
       }} />
 
-      {/* Panel */}
+      {/* Panel — glass card */}
       <div
         className="animate-fadeIn"
         style={{
@@ -37,39 +37,33 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
           maxHeight: '92dvh',
           display: 'flex',
           flexDirection: 'column',
-          borderRadius: 'var(--card-radius)',
-          background: 'var(--bg-surface)',
-          border: `1px solid ${isAnime ? 'var(--accent)' : 'var(--border)'}`,
-          boxShadow: isAnime
-            ? `0 24px 80px rgba(0,0,0,0.6), 0 0 40px var(--anime-glow)`
-            : '0 24px 80px rgba(0,0,0,0.5)',
+          borderRadius: '1.25rem',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(24px) saturate(130%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(130%)',
+          border: '1px solid var(--glass-border)',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.5), 0 0 1px rgba(255,255,255,0.1)',
           overflow: 'hidden',
         }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Anime: energy top stripe */}
-        {isAnime && (
-          <div style={{
-            height: '2px', flexShrink: 0,
-            background: `linear-gradient(90deg, transparent, var(--accent), var(--energy-color), var(--accent), transparent)`,
-            backgroundSize: '200% auto',
-            animation: 'energyTextFlow 2.5s linear infinite',
-          }} />
-        )}
+        {/* Gradient accent line */}
+        <div style={{
+          height: '2px', flexShrink: 0,
+          background: 'linear-gradient(90deg, transparent, var(--accent), var(--accent-secondary), var(--accent), transparent)',
+        }} />
 
         {/* Header */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          borderBottom: `1px solid ${isAnime ? 'color-mix(in srgb, var(--accent) 30%, var(--border))' : 'var(--border)'}`,
+          borderBottom: '1px solid var(--glass-border)',
           padding: 'clamp(1rem, 2vw, 1.5rem)',
           flexShrink: 0,
-          background: isAnime ? 'color-mix(in srgb, var(--accent-soft) 40%, transparent)' : 'transparent',
         }}>
           <h3 style={{
             color: 'var(--text-primary)', fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)',
             fontWeight: 700, margin: 0,
-            fontFamily: 'var(--font-display)',
-            textShadow: isAnime ? '0 0 12px var(--accent-glow)' : 'none',
+            fontFamily: "'Space Grotesk', sans-serif",
           }}>
             {title}
           </h3>
@@ -77,14 +71,15 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
             onClick={onClose}
             aria-label="Close modal"
             style={{
-              background: 'var(--bg-elevated)', border: `1px solid var(--border)`,
-              borderRadius: 'var(--btn-radius)', padding: '0.3rem',
+              background: 'var(--glass-bg)', border: '1px solid var(--glass-border)',
+              borderRadius: '50px', padding: '0.3rem',
               cursor: 'pointer', color: 'var(--text-secondary)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.15s', flexShrink: 0,
+              transition: 'all 0.2s', flexShrink: 0,
+              backdropFilter: 'blur(8px)',
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; if (isAnime) e.currentTarget.style.boxShadow = '0 0 8px var(--accent-glow)'; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.boxShadow = 'none'; }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.boxShadow = '0 0 12px var(--accent-glow)'; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--glass-border)'; e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.boxShadow = 'none'; }}
           >
             <HiX style={{ width: '1rem', height: '1rem' }} />
           </button>

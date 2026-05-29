@@ -110,7 +110,7 @@ export default function AdminStaff() {
           value={search} onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name or email..."
           className="ios-safe-input"
-          style={{ width: '100%', maxWidth: 400, padding: '10px 12px 10px 38px', borderRadius: 10, background: 'var(--bg-elevated)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
+          style={{ width: '100%', maxWidth: 400, padding: '10px 12px 10px 38px', borderRadius: 10, background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
         />
       </div>
 
@@ -196,7 +196,7 @@ export default function AdminStaff() {
       {/* Add/Edit Modal */}
       {showModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)', padding: '1rem' }}>
-          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 16, padding: 'clamp(1rem, 3vw, 2rem)', width: '100%', maxWidth: 480, maxHeight: '92dvh', overflowY: 'auto' }}>
+          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: 16, padding: 'clamp(1rem, 3vw, 2rem)', width: '100%', maxWidth: 480, maxHeight: '92dvh', overflowY: 'auto' }}>
             <h3 style={{ margin: '0 0 1.5rem', color: 'var(--text-primary)', fontSize: '1.1rem', fontWeight: 700 }}>
               {editMode ? '✏️ Edit Staff Member' : '➕ Add Staff Member'}
             </h3>
@@ -209,7 +209,7 @@ export default function AdminStaff() {
                 <div key={key}>
                   <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>{label}</label>
                   <input type={type} required={required} value={form[key]} onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
                   />
                 </div>
               ))}
@@ -223,7 +223,7 @@ export default function AdminStaff() {
                     width: '100%',
                     height: '38px',
                     background: 'var(--bg-base)',
-                    border: '1px solid var(--border)',
+                    border: '1px solid var(--glass-border)',
                     borderRadius: '8px',
                     color: 'var(--text-primary)',
                     fontFamily: 'var(--font-body)',
@@ -231,28 +231,28 @@ export default function AdminStaff() {
                   }}
                   buttonStyle={{
                     background: 'var(--bg-base)',
-                    border: '1px solid var(--border)',
+                    border: '1px solid var(--glass-border)',
                     borderTopLeftRadius: '8px',
                     borderBottomLeftRadius: '8px',
                   }}
                   dropdownStyle={{
-                    background: 'var(--bg-surface)',
+                    background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
                     color: 'var(--text-primary)',
-                    border: '1px solid var(--border)',
+                    border: '1px solid var(--glass-border)',
                   }}
                 />
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Staff Role</label>
                 <select value={form.staffRole} onChange={(e) => setForm({ ...form, staffRole: e.target.value })}
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
                   {STAFF_ROLES.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
                 </select>
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Assign Branch</label>
                 <select value={form.branchId} onChange={(e) => setForm({ ...form, branchId: e.target.value })} required
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
                   <option value="">Select Branch...</option>
                   {branches.filter((b) => b.status === 'approved').map((b) => (
                     <option key={b._id} value={b._id}>{b.name} — {b.address?.city}</option>
@@ -260,10 +260,10 @@ export default function AdminStaff() {
                 </select>
               </div>
               <div style={{ display: 'flex', gap: 10, marginTop: '0.5rem' }}>
-                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600 }}>
+                <button type="button" onClick={() => setShowModal(false)} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'transparent', border: '1px solid var(--glass-border)', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600 }}>
                   Cancel
                 </button>
-                <button type="submit" disabled={submitting} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'var(--accent)', border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
+                <button type="submit" disabled={submitting} style={{ flex: 1, padding: '10px', borderRadius: 'var(--btn-radius)', background: 'var(--gradient-primary)', boxShadow: '0 0 20px var(--accent-glow)', border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
                   {submitting ? 'Saving...' : editMode ? 'Update' : 'Add Staff'}
                 </button>
               </div>

@@ -1,5 +1,7 @@
 import { HiOutlineHeart, HiOutlineBeaker, HiOutlineShieldCheck, HiOutlineUserGroup } from 'react-icons/hi';
 import { Link } from 'react-router-dom';
+import AnimatedBackground from '../components/AnimatedBackground';
+import ScrollReveal from '../components/ScrollReveal';
 
 const FEATURES = [
   { icon: '❤️',  title: 'Save Lives',         desc: 'Connect blood donors with hospitals and patients in need, ensuring timely and safe blood supply.' },
@@ -19,9 +21,7 @@ const STATS = [
 
 const About = () => (
   <div style={{ minHeight: '100vh', background: 'var(--bg-base)', position: 'relative', overflow: 'hidden' }}>
-    {/* Ambient blobs */}
-    <div style={{ position: 'fixed', top: '10%', right: '5%', width: '24rem', height: '24rem', borderRadius: '50%', background: 'var(--accent-glow)', filter: 'blur(90px)', opacity: 0.2, pointerEvents: 'none', zIndex: 0 }} />
-    <div style={{ position: 'fixed', bottom: '15%', left: '5%', width: '20rem', height: '20rem', borderRadius: '50%', background: 'color-mix(in srgb, #60a5fa 40%, transparent)', filter: 'blur(80px)', opacity: 0.12, pointerEvents: 'none', zIndex: 0 }} />
+    <AnimatedBackground variant="minimal" />
 
     <div style={{ maxWidth: '52rem', margin: '0 auto', padding: '4rem 1.5rem', position: 'relative', zIndex: 1 }} className="animate-fadeIn">
 
@@ -29,9 +29,9 @@ const About = () => (
       <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
         <div style={{
           width: '4.5rem', height: '4.5rem', borderRadius: '1.25rem',
-          background: 'var(--accent)', margin: '0 auto 1.5rem',
+          background: 'var(--gradient-primary)', margin: '0 auto 1.5rem',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '2rem', boxShadow: '0 0 32px var(--accent-glow)',
+          fontSize: '2rem', boxShadow: '0 0 32px rgba(239,68,68,0.3)',
         }}>
           🩸
         </div>
@@ -47,20 +47,23 @@ const About = () => (
       </div>
 
       {/* ── Stats row ──────────────────────────── */}
+      <ScrollReveal direction="up">
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '1rem', marginBottom: '4rem' }}>
         {STATS.map(s => (
           <div key={s.label} style={{
-            background: 'var(--bg-surface)', border: '1px solid var(--border)',
+            background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)',
             borderRadius: '1.25rem', padding: '1.5rem 1rem', textAlign: 'center',
-            boxShadow: 'var(--card-shadow)',
+            boxShadow: 'var(--glass-shadow)',
           }}>
             <p style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--accent)', fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1 }}>{s.value}</p>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.72rem', marginTop: '0.375rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</p>
           </div>
         ))}
       </div>
+      </ScrollReveal>
 
       {/* ── Mission ────────────────────────────── */}
+      <ScrollReveal direction="up" delay={0.1}>
       <div style={{
         background: 'linear-gradient(135deg, rgba(220,38,38,0.08), rgba(220,38,38,0.03))',
         border: '1px solid rgba(220,38,38,0.2)',
@@ -73,6 +76,7 @@ const About = () => (
           To bridge the gap between blood donors and recipients through technology — reducing manual errors, improving emergency response times, and maintaining an accurate, always-available inventory of life-saving blood units.
         </p>
       </div>
+      </ScrollReveal>
 
       {/* ── Features ───────────────────────────── */}
       <div style={{ marginBottom: '3rem' }}>
@@ -82,9 +86,9 @@ const About = () => (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem' }}>
           {FEATURES.map((f, i) => (
             <div key={f.title} className={`animate-fadeUp delay-${['75','150','300','75'][i % 4]}`} style={{
-              background: 'var(--bg-surface)', border: '1px solid var(--border)',
+              background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)',
               borderRadius: '1.25rem', padding: '1.5rem', transition: 'all 0.2s',
-              boxShadow: 'var(--card-shadow)',
+              boxShadow: 'var(--glass-shadow)',
             }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--accent) 40%, transparent)'; e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 24px var(--accent-soft)'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = 'var(--card-shadow)'; }}
@@ -106,7 +110,7 @@ const About = () => (
           {STACK.map(t => (
             <span key={t} style={{
               padding: '0.375rem 0.875rem',
-              background: 'var(--bg-surface)', border: '1px solid var(--border)',
+              background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)',
               borderRadius: '999px', color: 'var(--text-secondary)',
               fontSize: '0.82rem', fontWeight: 600,
               transition: 'all 0.15s',
@@ -121,7 +125,7 @@ const About = () => (
       </div>
 
       {/* ── CTA ────────────────────────────────── */}
-      <div style={{ textAlign: 'center', padding: '2.5rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.5rem', boxShadow: 'var(--card-shadow)' }}>
+      <div style={{ textAlign: 'center', padding: '2.5rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.5rem', boxShadow: 'var(--glass-shadow)' }}>
         <h3 style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '1.25rem', fontFamily: "'Space Grotesk', sans-serif", marginBottom: '0.5rem' }}>
           Ready to make a difference?
         </h3>
@@ -130,10 +134,10 @@ const About = () => (
         </p>
         <Link to="/register" style={{
           display: 'inline-block', padding: '0.75rem 2rem',
-          background: 'var(--accent)', color: 'white',
-          borderRadius: '0.875rem', textDecoration: 'none',
+          background: 'var(--gradient-primary)', color: 'white',
+          borderRadius: 'var(--btn-radius)', textDecoration: 'none',
           fontWeight: 700, fontSize: '0.9rem',
-          boxShadow: '0 0 20px var(--accent-glow)', transition: 'all 0.2s',
+          boxShadow: '0 0 24px rgba(239,68,68,0.3)', transition: 'all 0.3s',
         }}
           onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
           onMouseLeave={e => { e.currentTarget.style.filter = ''; e.currentTarget.style.transform = ''; }}

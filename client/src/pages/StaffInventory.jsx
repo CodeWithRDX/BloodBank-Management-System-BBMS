@@ -180,7 +180,7 @@ export default function StaffInventory() {
           <select
             value={bgFilter}
             onChange={(e) => setBgFilter(e.target.value)}
-            style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
+            style={{ padding: '0.5rem 0.875rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
           >
             <option value="">All Groups</option>
             {BLOOD_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
@@ -192,7 +192,7 @@ export default function StaffInventory() {
           <select
             value={compFilter}
             onChange={(e) => setCompFilter(e.target.value)}
-            style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
+            style={{ padding: '0.5rem 0.875rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
           >
             <option value="">All Components</option>
             {COMPONENTS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
@@ -204,7 +204,7 @@ export default function StaffInventory() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
+            style={{ padding: '0.5rem 0.875rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none' }}
           >
             {STATUSES.map(s => <option key={s} value={s}>{s.toUpperCase()}</option>)}
           </select>

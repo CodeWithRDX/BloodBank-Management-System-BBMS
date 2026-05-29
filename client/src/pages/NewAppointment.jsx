@@ -9,7 +9,7 @@ import { HiOutlineArrowLeft } from 'react-icons/hi';
 
 const TIME_SLOTS = ['09:00-10:00','10:00-11:00','11:00-12:00','12:00-13:00','14:00-15:00','15:00-16:00','16:00-17:00'];
 
-const iStyle = { width: '100%', padding: '0.7rem 0.875rem', fontSize: '0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', boxSizing: 'border-box' };
+const iStyle = { width: '100%', padding: '0.7rem 0.875rem', fontSize: '0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', boxSizing: 'border-box' };
 const Lbl = ({ children }) => (
   <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>{children}</label>
 );
@@ -63,7 +63,7 @@ const NewAppointment = () => {
     <div style={{ maxWidth: '40rem', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="animate-fadeIn">
       {/* Back + title */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
-        <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', transition: 'all 0.15s' }}
+        <button onClick={() => navigate(-1)} style={{ padding: '0.5rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', transition: 'all 0.15s' }}
           onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)'; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
         >
@@ -107,7 +107,7 @@ const NewAppointment = () => {
         </div>
       )}
 
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '2rem', boxShadow: 'var(--card-shadow)', opacity: isBlocked ? 0.65 : 1, pointerEvents: isBlocked ? 'none' : 'auto', transition: 'opacity 0.2s' }}>
+      <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.25rem', padding: '2rem', boxShadow: 'var(--glass-shadow)', opacity: isBlocked ? 0.65 : 1, pointerEvents: isBlocked ? 'none' : 'auto', transition: 'opacity 0.2s' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
           {/* Branch */}

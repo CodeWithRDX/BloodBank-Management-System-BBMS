@@ -230,7 +230,7 @@ export default function StaffCamps() {
                 style={{
                   padding: '6px 12px',
                   borderRadius: '20px',
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--glass-border)',
                   background: campFilter === tab ? 'var(--accent)' : 'var(--bg-surface)',
                   color: campFilter === tab ? 'white' : 'var(--text-secondary)',
                   fontSize: '0.75rem',
@@ -337,7 +337,7 @@ export default function StaffCamps() {
               })}
 
               {filteredCamps.length === 0 && (
-                <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 12, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: 12, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
                   No camps found.
                 </div>
               )}
@@ -400,7 +400,7 @@ export default function StaffCamps() {
                     style={{
                       padding: '4px 10px',
                       borderRadius: '12px',
-                      border: '1px solid var(--border)',
+                      border: '1px solid var(--glass-border)',
                       background: regStatusFilter === status ? 'var(--accent)' : 'var(--bg-elevated)',
                       color: regStatusFilter === status ? 'white' : 'var(--text-secondary)',
                       fontSize: '0.7rem',
@@ -525,7 +525,7 @@ export default function StaffCamps() {
                                         fontWeight: 700,
                                         background: 'rgba(107,114,128,0.15)',
                                         color: 'var(--text-secondary)',
-                                        border: '1px solid var(--border)',
+                                        border: '1px solid var(--glass-border)',
                                         borderRadius: '0.375rem',
                                         cursor: 'pointer',
                                         display: 'flex',
@@ -577,7 +577,7 @@ export default function StaffCamps() {
               justifyContent: 'center',
               gap: '1rem',
               padding: '4rem 2rem',
-              background: 'var(--bg-surface)',
+              background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
               border: '1px dashed var(--border)',
               borderRadius: '1rem',
               textAlign: 'center',
@@ -597,7 +597,7 @@ export default function StaffCamps() {
       {/* Donor Verification / Completion Modal */}
       {verifyReg && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)', padding: '1rem' }}>
-          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 16, padding: '1.5rem', width: '100%', maxWidth: 480, maxHeight: '92dvh', overflowY: 'auto' }}>
+          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: 16, padding: '1.5rem', width: '100%', maxWidth: 480, maxHeight: '92dvh', overflowY: 'auto' }}>
             <h3 style={{ margin: '0 0 1.25rem', color: 'var(--text-primary)', fontSize: '1.1rem', fontWeight: 700 }}>
               🛡️ Verify Donor Details
             </h3>
@@ -608,7 +608,7 @@ export default function StaffCamps() {
               <div>
                 <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Donor Name</label>
                 <input type="text" disabled value={verifyReg.donorId?.fullName || verifyReg.userId?.name || ''}
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontSize: '0.9rem', boxSizing: 'border-box', cursor: 'not-allowed' }}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-secondary)', fontSize: '0.9rem', boxSizing: 'border-box', cursor: 'not-allowed' }}
                 />
               </div>
 
@@ -616,7 +616,7 @@ export default function StaffCamps() {
                 <div>
                   <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Gender *</label>
                   <select required value={verifyForm.gender} onChange={e => setVerifyForm({ ...verifyForm, gender: e.target.value })}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
                     <option value="">Select Gender</option>
                     {['male', 'female', 'other'].map(g => <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>)}
                   </select>
@@ -624,7 +624,7 @@ export default function StaffCamps() {
                 <div>
                   <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Blood Group *</label>
                   <select required value={verifyForm.bloodGroup} onChange={e => setVerifyForm({ ...verifyForm, bloodGroup: e.target.value })}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
                     <option value="">Select Blood Group</option>
                     {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => <option key={bg} value={bg}>{bg}</option>)}
                   </select>
@@ -635,13 +635,13 @@ export default function StaffCamps() {
                 <div>
                   <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Date of Birth *</label>
                   <input type="date" required value={verifyForm.dateOfBirth} onChange={e => setVerifyForm({ ...verifyForm, dateOfBirth: e.target.value })}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
                   />
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Weight (kg) *</label>
                   <input type="number" min="45" required value={verifyForm.weight} onChange={e => setVerifyForm({ ...verifyForm, weight: e.target.value })}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
@@ -650,14 +650,14 @@ export default function StaffCamps() {
                 <div>
                   <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Govt ID Type *</label>
                   <select value={verifyForm.idType} onChange={e => setVerifyForm({ ...verifyForm, idType: e.target.value })}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', fontSize: '0.9rem' }}>
                     {['Aadhaar', 'PAN', 'Passport', 'Driving License', 'Voter ID'].map(id => <option key={id} value={id}>{id}</option>)}
                   </select>
                 </div>
                 <div>
                   <label style={{ display: 'block', marginBottom: 4, fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-secondary)' }}>ID Number *</label>
                   <input type="text" required value={verifyForm.idNumber} onChange={e => setVerifyForm({ ...verifyForm, idNumber: e.target.value })}
-                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
+                    style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', fontSize: '0.9rem', boxSizing: 'border-box' }}
                   />
                 </div>
               </div>
@@ -668,13 +668,13 @@ export default function StaffCamps() {
                   <div>
                     <label style={{ display: 'block', marginBottom: 4, fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Contact Name *</label>
                     <input type="text" required value={verifyForm.emergencyName} onChange={e => setVerifyForm({ ...verifyForm, emergencyName: e.target.value })}
-                      style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', fontSize: '0.85rem', boxSizing: 'border-box' }}
                     />
                   </div>
                   <div>
                     <label style={{ display: 'block', marginBottom: 4, fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Relation *</label>
                     <input type="text" required value={verifyForm.emergencyRelation} onChange={e => setVerifyForm({ ...verifyForm, emergencyRelation: e.target.value })}
-                      style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.85rem', boxSizing: 'border-box' }}
+                      style={{ width: '100%', padding: '9px 12px', borderRadius: 8, background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', fontSize: '0.85rem', boxSizing: 'border-box' }}
                     />
                   </div>
                 </div>
@@ -688,7 +688,7 @@ export default function StaffCamps() {
                       width: '100%',
                       height: '38px',
                       background: 'var(--bg-base)',
-                      border: '1px solid var(--border)',
+                      border: '1px solid var(--glass-border)',
                       borderRadius: '8px',
                       color: 'var(--text-primary)',
                       fontFamily: 'var(--font-body)',
@@ -696,24 +696,24 @@ export default function StaffCamps() {
                     }}
                     buttonStyle={{
                       background: 'var(--bg-base)',
-                      border: '1px solid var(--border)',
+                      border: '1px solid var(--glass-border)',
                       borderTopLeftRadius: '8px',
                       borderBottomLeftRadius: '8px',
                     }}
                     dropdownStyle={{
-                      background: 'var(--bg-surface)',
+                      background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
                       color: 'var(--text-primary)',
-                      border: '1px solid var(--border)',
+                      border: '1px solid var(--glass-border)',
                     }}
                   />
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: 10, marginTop: '0.75rem' }}>
-                <button type="button" onClick={() => setVerifyReg(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600 }}>
+                <button type="button" onClick={() => setVerifyReg(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'transparent', border: '1px solid var(--glass-border)', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600 }}>
                   Cancel
                 </button>
-                <button type="submit" style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'var(--accent)', border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
+                <button type="submit" style={{ flex: 1, padding: '10px', borderRadius: 'var(--btn-radius)', background: 'var(--gradient-primary)', boxShadow: '0 0 20px var(--accent-glow)', border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
                   Verify & Check In
                 </button>
               </div>

@@ -45,7 +45,6 @@ export default function AdminAnalytics() {
   const [loading, setLoading] = useState(true);
   const [year, setYear] = useState(new Date().getFullYear());
   const { theme } = useTheme();
-  const isAnime = theme?.group === 'anime';
 
   useEffect(() => {
     loadAll();
@@ -79,7 +78,7 @@ export default function AdminAnalytics() {
       borderRadius: '0.75rem',
       color: 'var(--text-primary)',
       fontSize: '0.8rem',
-      boxShadow: 'var(--card-shadow)',
+      boxShadow: 'var(--glass-shadow)',
     },
   };
 
@@ -102,7 +101,7 @@ export default function AdminAnalytics() {
             color: 'var(--text-primary)',
             letterSpacing: '-0.025em',
             fontFamily: 'var(--font-display)',
-            textTransform: (theme?.id === 'titan' || theme?.id === 'dragonball') ? 'uppercase' : 'none'
+            textTransform: 'none'
           }}>
             Analytics & Operations Reports
           </h1>
@@ -116,7 +115,7 @@ export default function AdminAnalytics() {
           className="input"
           style={{ padding: '0.5rem 1.25rem', width: 'auto', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 700 }}
         >
-          {[2024, 2025, 2026].map((y) => <option key={y} value={y} style={{ background: 'var(--bg-surface)' }}>Year {y}</option>)}
+          {[2024, 2025, 2026].map((y) => <option key={y} value={y} style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>Year {y}</option>)}
         </select>
       </div>
 
@@ -138,13 +137,13 @@ export default function AdminAnalytics() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(320px, 100%), 1fr))', gap: '1.5rem' }}>
             {/* Blood Stock Chart */}
             <div
-              className={isAnime ? 'anime-card' : 'card'}
+              className={'glass-card'}
               style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border)',
+                background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid var(--glass-border)',
                 borderRadius: '1.5rem',
                 padding: '1.75rem',
-                boxShadow: 'var(--card-shadow)'
+                boxShadow: 'var(--glass-shadow)'
               }}
             >
               <h3 style={{
@@ -174,13 +173,13 @@ export default function AdminAnalytics() {
 
             {/* Requests Pie Chart */}
             <div
-              className={isAnime ? 'anime-card' : 'card'}
+              className={'glass-card'}
               style={{
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border)',
+                background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid var(--glass-border)',
                 borderRadius: '1.5rem',
                 padding: '1.75rem',
-                boxShadow: 'var(--card-shadow)'
+                boxShadow: 'var(--glass-shadow)'
               }}
             >
               <h3 style={{
@@ -222,13 +221,13 @@ export default function AdminAnalytics() {
 
           {/* Line Chart */}
           <div
-            className={isAnime ? 'anime-card' : 'card'}
+            className={'glass-card'}
             style={{
-              background: 'var(--bg-surface)',
-              border: '1px solid var(--border)',
+              background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid var(--glass-border)',
               borderRadius: '1.5rem',
               padding: '1.75rem',
-              boxShadow: 'var(--card-shadow)'
+              boxShadow: 'var(--glass-shadow)'
             }}
           >
             <h3 style={{
@@ -258,11 +257,11 @@ export default function AdminAnalytics() {
 
           {/* Branch Performance table */}
           <div style={{
-            background: 'var(--bg-surface)',
-            border: '1px solid var(--border)',
+            background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--glass-border)',
             borderRadius: '1.5rem',
             overflow: 'hidden',
-            boxShadow: 'var(--card-shadow)'
+            boxShadow: 'var(--glass-shadow)'
           }}>
             <div style={{
               padding: '1.25rem 1.5rem',
@@ -274,7 +273,7 @@ export default function AdminAnalytics() {
             <div className="table-wrapper" style={{ border: 'none', borderRadius: 0, background: 'transparent' }}>
               <table style={{ borderCollapse: 'collapse', width: '100%' }}>
                 <thead>
-                  <tr style={{ background: 'var(--bg-surface)' }}>
+                  <tr style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}>
                     {['Branch Office', 'City Location', 'Completed Donations', ' SOS Requests', 'Lab Staff count', 'Current Inventory', 'Scheduled Camps'].map((h) => (
                       <TH key={h}>{h}</TH>
                     ))}

@@ -156,7 +156,7 @@ export default function BloodBankLocator() {
               <option value={50}>Within 50 km</option>
               <option value={100}>Within 100 km</option>
             </select>
-            <button onClick={loadNearby} style={{ padding: '7px 14px', borderRadius: 8, background: 'var(--accent)', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <button onClick={loadNearby} style={{ padding: '7px 14px', borderRadius: 'var(--btn-radius)', background: 'var(--gradient-primary)', boxShadow: '0 0 20px var(--accent-glow)', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: 4 }}>
               <FiSearch size={13} /> Near Me
             </button>
           </div>

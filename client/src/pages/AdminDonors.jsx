@@ -60,17 +60,17 @@ const AdminDonors = () => {
             <input
               type="text" placeholder="Name, email, phone…" value={searchInput}
               onChange={e => setSearchInput(e.target.value)}
-              style={{ padding: '0.5rem 0.875rem 0.5rem 2.1rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', width: '14rem', outline: 'none' }}
+              style={{ padding: '0.5rem 0.875rem 0.5rem 2.1rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', width: '14rem', outline: 'none' }}
             />
           </div>
           <button type="submit" className="btn-primary" style={{ padding: '0.5rem 0.875rem', border: 'none', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', borderRadius: '0.625rem' }}>Search</button>
           {keyword && (
-            <button type="button" onClick={() => { setKeyword(''); setSearchInput(''); }} style={{ padding: '0.5rem 0.75rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-secondary)', fontSize: '0.82rem', cursor: 'pointer' }}>
+            <button type="button" onClick={() => { setKeyword(''); setSearchInput(''); }} style={{ padding: '0.5rem 0.75rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-secondary)', fontSize: '0.82rem', cursor: 'pointer' }}>
               Clear
             </button>
           )}
         </form>
-        <select value={bgFilter} onChange={e => setBgFilter(e.target.value)} style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', cursor: 'pointer' }}>
+        <select value={bgFilter} onChange={e => setBgFilter(e.target.value)} style={{ padding: '0.5rem 0.875rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', cursor: 'pointer' }}>
           <option value="">All Blood Groups</option>
           {BLOOD_GROUPS.map(g => <option key={g} value={g}>{g}</option>)}
         </select>

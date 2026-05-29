@@ -1,59 +1,97 @@
 /* ═══════════════════════════════════════════════════════════════
-   FONT IMPORTS — Base fonts
+   BBMS — Futuristic Glassmorphism Design System
+   Inspired by Sui.io · Adapted for Healthcare
 ═══════════════════════════════════════════════════════════════ */
+
+/* ── FONT IMPORTS ─────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&display=swap');
-
-/* Anime theme fonts — loaded separately for performance */
-
-/* Dragon Ball: Bangers + Oswald */
-@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@300;400;500;600;700&display=swap');
-
-/* One Piece: Pirata One + Crimson Pro */
-@import url('https://fonts.googleapis.com/css2?family=Pirata+One&family=Crimson+Pro:wght@400;500;600;700&display=swap');
-
-/* Naruto + Demon Slayer: Noto Serif JP + Noto Sans JP */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600;700;900&family=Noto+Sans+JP:wght@400;500;600;700&display=swap');
-
-/* Death Note: Playfair Display + EB Garamond */
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=EB+Garamond:wght@400;500;600&display=swap');
-
-/* Jujutsu Kaisen: Rajdhani */
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap');
-
-/* Attack on Titan: Bebas Neue */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
-
-/* Orbitron — for sci-fi accents */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
 
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════
-   DEFAULT CSS VARIABLES (overridden per-theme by JS)
+   CSS VARIABLES — Sui-inspired Deep Dark + Glass System
 ═══════════════════════════════════════════════════════════════ */
 :root {
-  --bg-base:        #0f172a;
-  --bg-surface:     #1e293b;
-  --bg-elevated:    #263347;
-  --border:         #334155;
-  --text-primary:   #f1f5f9;
-  --text-secondary: #94a3b8;
-  --accent:         #ef4444;
-  --accent-glow:    rgba(239,68,68,0.3);
-  --accent-soft:    rgba(239,68,68,0.1);
-  --sidebar-bg:     #111827;
-  --sidebar-border: #1f2937;
-  --card-shadow:    0 4px 24px rgba(0,0,0,0.4);
-  --anime-glow:     rgba(0,0,0,0);
-  --energy-color:   #ef4444;
+  /* Core Colors — Deep space dark */
+  --bg-base:        #030A14;
+  --bg-surface:     rgba(255, 255, 255, 0.04);
+  --bg-elevated:    rgba(255, 255, 255, 0.08);
+  --border:         rgba(255, 255, 255, 0.08);
+  --text-primary:   #F1F5F9;
+  --text-secondary: #94A3B8;
 
-  /* Shape & Font variables — each theme overrides these */
+  /* Accent System — Blood red → rose pink */
+  --accent:         #EF4444;
+  --accent-secondary: #EC4899;
+  --accent-glow:    rgba(239, 68, 68, 0.35);
+  --accent-soft:    rgba(239, 68, 68, 0.1);
+  --energy-color:   #EC4899;
+  --gradient-primary: linear-gradient(135deg, #EF4444, #EC4899);
+  --gradient-text:  linear-gradient(135deg, #EF4444, #EC4899, #F472B6);
+
+  /* Glassmorphism */
+  --glass-bg:       rgba(255, 255, 255, 0.05);
+  --glass-bg-hover: rgba(255, 255, 255, 0.08);
+  --glass-border:   rgba(255, 255, 255, 0.1);
+  --glass-border-hover: rgba(255, 255, 255, 0.2);
+  --glass-blur:     16px;
+  --glass-shadow:   0 8px 32px rgba(0, 0, 0, 0.3);
+
+  /* Gradient Orbs */
+  --gradient-orb-1: rgba(239, 68, 68, 0.15);
+  --gradient-orb-2: rgba(236, 72, 153, 0.12);
+  --gradient-orb-3: rgba(168, 85, 247, 0.08);
+
+  /* Sidebar */
+  --sidebar-bg:     rgba(3, 10, 20, 0.85);
+  --sidebar-border: rgba(255, 255, 255, 0.06);
+
+  /* Shadows & Glows */
+  --card-shadow:    0 4px 24px rgba(0, 0, 0, 0.4);
+  --glow-sm:        0 0 12px var(--accent-glow);
+  --glow-md:        0 0 24px var(--accent-glow);
+  --glow-lg:        0 0 48px var(--accent-glow);
+  --anime-glow:     rgba(0, 0, 0, 0);
+
+  /* Shape & Font */
   --card-radius:    1rem;
-  --btn-radius:     0.75rem;
+  --btn-radius:     50px;
   --input-radius:   0.75rem;
   --font-display:   'Space Grotesk', sans-serif;
   --font-body:      'Inter', system-ui, sans-serif;
   --border-width:   1px;
+  --card-style:     standard;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT THEME OVERRIDES
+═══════════════════════════════════════════════════════════════ */
+html.theme-light {
+  --bg-base:        #F0F4F8;
+  --bg-surface:     rgba(255, 255, 255, 0.85);
+  --bg-elevated:    rgba(255, 255, 255, 0.95);
+  --border:         rgba(15, 23, 42, 0.08);
+  --text-primary:   #0F172A;
+  --text-secondary: #64748B;
+  --accent:         #DC2626;
+  --accent-secondary: #DB2777;
+  --accent-glow:    rgba(220, 38, 38, 0.15);
+  --accent-soft:    rgba(220, 38, 38, 0.07);
+  --energy-color:   #DB2777;
+  --glass-bg:       rgba(255, 255, 255, 0.7);
+  --glass-bg-hover: rgba(255, 255, 255, 0.85);
+  --glass-border:   rgba(15, 23, 42, 0.08);
+  --glass-border-hover: rgba(15, 23, 42, 0.15);
+  --glass-blur:     12px;
+  --glass-shadow:   0 4px 24px rgba(0, 0, 0, 0.06);
+  --sidebar-bg:     rgba(255, 255, 255, 0.9);
+  --sidebar-border: rgba(15, 23, 42, 0.06);
+  --gradient-orb-1: rgba(239, 68, 68, 0.06);
+  --gradient-orb-2: rgba(219, 39, 119, 0.04);
+  --gradient-orb-3: rgba(168, 85, 247, 0.03);
+  --card-shadow:    0 4px 24px rgba(0, 0, 0, 0.06);
+  --anime-glow:     rgba(0, 0, 0, 0);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -70,23 +108,25 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background 0.4s ease, color 0.3s ease;
+  transition: background 0.5s ease, color 0.3s ease;
   overflow-x: hidden;
 }
 
 #root { overflow-x: hidden; width: 100%; min-height: 100dvh; }
 
 /* ═══════════════════════════════════════════════════════════════
-   SCROLLBAR
+   SCROLLBAR — Gradient thumb
 ═══════════════════════════════════════════════════════════════ */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: var(--bg-surface); }
-::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 999px; opacity: 0.6; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent); opacity: 1; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--accent), var(--accent-secondary));
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { opacity: 1; }
 
 /* ═══════════════════════════════════════════════════════════════
-   GLOBAL HEADING FONT SYSTEM
-   — All h1-h6, labels, and .display-font use --font-display
+   HEADING FONT SYSTEM
 ═══════════════════════════════════════════════════════════════ */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
@@ -95,50 +135,107 @@ h1, h2, h3, h4, h5, h6 {
 .body-font    { font-family: var(--font-body) !important; }
 
 /* ═══════════════════════════════════════════════════════════════
-   ANIME AMBIENT BACKGROUNDS
+   GLASSMORPHISM SYSTEM
 ═══════════════════════════════════════════════════════════════ */
-html.theme-dragonball  { background: radial-gradient(ellipse 90% 50% at 50% -10%, rgba(249,115,22,0.2), transparent) #0d0800; }
-html.theme-onepiece    { background: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(245,158,11,0.15), rgba(15,80,180,0.1), transparent) #020c1b; }
-html.theme-naruto      { background: radial-gradient(ellipse 80% 50% at 80% 20%, rgba(249,115,22,0.1), transparent) #0a0d00; }
-html.theme-deathnote   { background: #050505; }
-html.theme-jujutsu     { background: radial-gradient(ellipse 80% 50% at 30% 50%, rgba(168,85,247,0.18), transparent) #08020f; }
-html.theme-titan       { background: radial-gradient(ellipse 80% 50% at 50% 100%, rgba(132,204,22,0.08), transparent) #0c0f0a; }
-html.theme-demonslayer { background: radial-gradient(ellipse 80% 60% at 20% 50%, rgba(6,182,212,0.15), rgba(220,38,38,0.06), transparent) #010c12; }
-html.theme-aurora      { background: radial-gradient(ellipse 80% 60% at 30% 50%, rgba(16,185,129,0.12), rgba(99,102,241,0.06), transparent) #030712; }
-
-/* ═══════════════════════════════════════════════════════════════
-   CARDS — use CSS variable radius
-═══════════════════════════════════════════════════════════════ */
-.card {
-  background: var(--bg-surface);
-  border: var(--border-width) solid var(--border);
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
   border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
-.card:hover {
-  border-color: var(--accent);
-  box-shadow: var(--card-shadow), 0 0 24px var(--accent-glow);
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glass-card:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow), 0 0 20px rgba(239, 68, 68, 0.08);
   transform: translateY(-2px);
 }
 
-/* Anime card — same radius from variable */
-.anime-card {
-  background: var(--bg-surface);
-  border: var(--border-width) solid var(--border);
+.glass-card-glow {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
   border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow);
-  position: relative;
-  overflow: hidden;
-  transition: all 0.25s ease;
+  box-shadow: var(--glass-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.anime-card:hover {
-  border-color: var(--accent);
-  box-shadow: var(--card-shadow), 0 0 30px var(--anime-glow);
+.glass-card-glow:hover {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: var(--glass-shadow), 0 0 24px var(--accent-glow);
   transform: translateY(-3px);
 }
 
-/* Energy animated border */
+.glass-surface {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-premium {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px) saturate(130%);
+  -webkit-backdrop-filter: blur(24px) saturate(130%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+html.theme-light .glass-surface {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(15, 23, 42, 0.06);
+}
+
+html.theme-light .glass-premium {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(15, 23, 42, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CARDS — Glassmorphism base
+═══════════════════════════════════════════════════════════════ */
+.card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--border-width) solid var(--glass-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--glass-shadow);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.card:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow), 0 0 20px rgba(239, 68, 68, 0.08);
+  transform: translateY(-2px);
+}
+
+.anime-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: var(--border-width) solid var(--glass-border);
+  border-radius: var(--card-radius);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.anime-card:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow), 0 0 24px rgba(239, 68, 68, 0.1);
+  transform: translateY(-3px);
+}
+
 .energy-border {
   border: var(--border-width) solid var(--accent);
   box-shadow: 0 0 12px var(--accent-glow), inset 0 0 12px var(--accent-soft);
@@ -146,60 +243,83 @@ html.theme-aurora      { background: radial-gradient(ellipse 80% 60% at 30% 50%,
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   BUTTONS — use --btn-radius
+   BUTTONS — Gradient pill style
 ═══════════════════════════════════════════════════════════════ */
 .btn-primary {
-  background: var(--accent);
+  background: var(--gradient-primary);
   color: white;
   border-radius: var(--btn-radius);
   font-family: var(--font-display);
   font-weight: 700;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 16px var(--accent-glow);
+  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 20px var(--accent-glow);
   border: none;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: inherit;
 }
 .btn-primary:hover {
-  filter: brightness(1.15);
-  box-shadow: 0 0 28px var(--accent-glow), 0 0 50px var(--anime-glow);
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 0 30px var(--accent-glow), 0 0 60px rgba(239, 68, 68, 0.15);
 }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:hover::before { opacity: 1; }
+.btn-primary:active { transform: translateY(0) scale(0.98); }
 
 .btn-ghost {
-  background: var(--bg-elevated);
+  background: var(--glass-bg);
   color: var(--text-primary);
-  border: var(--border-width) solid var(--border);
+  border: 1px solid var(--glass-border);
   border-radius: var(--btn-radius);
   font-family: var(--font-display);
   font-weight: 600;
-  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
   cursor: pointer;
 }
 .btn-ghost:hover {
-  border-color: var(--accent);
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.08);
   color: var(--accent);
-  box-shadow: 0 0 12px var(--accent-soft);
+  box-shadow: 0 0 16px var(--accent-soft);
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   INPUTS — use --input-radius
+   INPUTS — Glass-styled
 ═══════════════════════════════════════════════════════════════ */
 .input {
-  background: var(--bg-elevated);
-  border: var(--border-width) solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
   color: var(--text-primary);
   border-radius: var(--input-radius);
   font-family: var(--font-body);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.3s ease;
   width: 100%;
 }
 .input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft), 0 0 12px var(--anime-glow);
+  box-shadow: 0 0 0 3px var(--accent-soft), 0 0 16px var(--accent-glow);
+  background: rgba(255, 255, 255, 0.06);
 }
-.input::placeholder { color: var(--text-secondary); opacity: 0.6; }
+.input::placeholder { color: var(--text-secondary); opacity: 0.5; }
+
+html.theme-light .input {
+  background: rgba(255, 255, 255, 0.8);
+}
+html.theme-light .input:focus {
+  background: rgba(255, 255, 255, 0.95);
+}
 
 /* iOS zoom fix */
 @media (max-width: 768px) {
@@ -210,58 +330,63 @@ html.theme-aurora      { background: radial-gradient(ellipse 80% 60% at 30% 50%,
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SIDEBAR
+   SIDEBAR — Glass navigation
 ═══════════════════════════════════════════════════════════════ */
-.sidebar { background: var(--sidebar-bg); border-right: var(--border-width) solid var(--sidebar-border); }
+.sidebar {
+  background: var(--sidebar-bg);
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  border-right: 1px solid var(--sidebar-border);
+}
 .nav-link {
   color: var(--text-secondary);
-  border-radius: var(--btn-radius);
-  transition: all 0.15s ease;
+  border-radius: 0.75rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid transparent;
   font-family: var(--font-body);
+  position: relative;
 }
-.nav-link:hover  { background: var(--accent-soft); color: var(--accent); border-color: var(--accent-glow); }
-.nav-link.active { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
-
-/* ═══════════════════════════════════════════════════════════════
-   GLASSMORPHISM
-═══════════════════════════════════════════════════════════════ */
-.glass {
-  background: color-mix(in srgb, var(--bg-surface) 70%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+.nav-link:hover {
+  background: rgba(239, 68, 68, 0.06);
+  color: var(--accent);
+  border-color: rgba(239, 68, 68, 0.15);
+}
+.nav-link.active {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--accent);
+  border-color: rgba(239, 68, 68, 0.2);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.08);
 }
 
 /* ═══════════════════════════════════════════════════════════════
    TEXT EFFECTS
 ═══════════════════════════════════════════════════════════════ */
 .accent-gradient {
-  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #fff));
+  background: var(--gradient-text);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 .energy-text {
-  background: linear-gradient(90deg, var(--accent), var(--energy-color), var(--accent));
+  background: linear-gradient(90deg, var(--accent), var(--accent-secondary), var(--accent));
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   animation: energyTextFlow 3s linear infinite;
 }
-.glow-accent { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px color-mix(in srgb, var(--accent-glow) 50%, transparent); }
-.text-glow   { text-shadow: 0 0 12px var(--accent-glow), 0 0 24px var(--anime-glow); }
+.glow-accent { box-shadow: 0 0 20px var(--accent-glow), 0 0 40px rgba(239,68,68,0.15); }
+.text-glow   { text-shadow: 0 0 12px var(--accent-glow), 0 0 30px rgba(239,68,68,0.15); }
 
 .badge-accent {
   background: var(--accent-soft);
   color: var(--accent);
-  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: var(--btn-radius);
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   CLASSIC KEYFRAMES
+   KEYFRAMES — Classic
 ═══════════════════════════════════════════════════════════════ */
 @keyframes fadeUp   { from { opacity:0; transform:translateY(24px); }  to { opacity:1; transform:translateY(0); } }
 @keyframes fadeIn   { from { opacity:0; transform:translateY(16px); }  to { opacity:1; transform:translateY(0); } }
@@ -283,17 +408,15 @@ html.theme-aurora      { background: radial-gradient(ellipse 80% 60% at 30% 50%,
   100%{ transform:translate(0,0) scale(1); }
 }
 @keyframes borderPulse {
-  0%,100% { border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+  0%,100% { border-color: rgba(239, 68, 68, 0.2); }
   50%     { border-color: var(--accent); }
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   ANIME KEYFRAMES
-═══════════════════════════════════════════════════════════════ */
+/* ── Anime Keyframes (preserved for compat) ── */
 @keyframes energyPulse {
   0%,100% {
     box-shadow: 0 0 8px var(--accent-glow), 0 0 16px var(--anime-glow);
-    border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+    border-color: rgba(239, 68, 68, 0.3);
   }
   50% {
     box-shadow: 0 0 24px var(--accent-glow), 0 0 48px var(--anime-glow), 0 0 70px var(--accent-soft);
@@ -325,6 +448,39 @@ html.theme-aurora      { background: radial-gradient(ellipse 80% 60% at 30% 50%,
   to  {opacity:1; transform:scaleY(1) translateY(0)}
 }
 
+/* ── NEW Sui-inspired Keyframes ── */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes orb-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); border-radius: 50%; }
+  25% { transform: translate(40px, -30px) scale(1.1); border-radius: 40% 60% 55% 45%; }
+  50% { transform: translate(-20px, 20px) scale(0.95); border-radius: 55% 45% 50% 50%; }
+  75% { transform: translate(15px, -10px) scale(1.05); border-radius: 45% 55% 45% 55%; }
+}
+@keyframes glow-breathe {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+@keyframes slide-up-fade {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+@keyframes counter-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ═══════════════════════════════════════════════════════════════
    ANIMATION CLASSES
 ═══════════════════════════════════════════════════════════════ */
@@ -333,7 +489,7 @@ html.theme-aurora      { background: radial-gradient(ellipse 80% 60% at 30% 50%,
 .animate-slideInLeft { animation: slideInLeft 0.4s cubic-bezier(.22,.61,.36,1) both; }
 .animate-slideInRight{ animation: slideInRight 0.4s cubic-bezier(.22,.61,.36,1) both; }
 .animate-scaleIn     { animation: scaleIn 0.3s cubic-bezier(.22,.61,.36,1) both; }
-.animate-scaleInCentered     { animation: scaleInCentered 0.3s cubic-bezier(.22,.61,.36,1) both; }
+.animate-scaleInCentered { animation: scaleInCentered 0.3s cubic-bezier(.22,.61,.36,1) both; }
 .animate-float       { animation: float 3s ease-in-out infinite; }
 .animate-blob        { animation: blob 7s infinite; }
 .animate-spin-slow   { animation: spin-slow 8s linear infinite; }
@@ -341,6 +497,10 @@ html.theme-aurora      { background: radial-gradient(ellipse 80% 60% at 30% 50%,
 .animate-borderPulse { animation: borderPulse 2s ease-in-out infinite; }
 .animate-energyPulse { animation: energyPulse 2.5s ease-in-out infinite; }
 .animate-saiyanAura  { animation: saiyanAura 1.5s ease-in-out infinite; }
+.animate-gradient-shift { animation: gradient-shift 8s ease infinite; background-size: 200% 200%; }
+.animate-orb-drift   { animation: orb-drift 12s ease-in-out infinite; }
+.animate-glow-breathe { animation: glow-breathe 3s ease-in-out infinite; }
+.animate-slide-up    { animation: slide-up-fade 0.6s cubic-bezier(.22,.61,.36,1) both; }
 
 .delay-75  { animation-delay: 75ms; }
 .delay-150 { animation-delay: 150ms; }
@@ -349,642 +509,65 @@ html.theme-aurora      { background: radial-gradient(ellipse 80% 60% at 30% 50%,
 .delay-700 { animation-delay: 700ms; }
 
 .skeleton {
-  background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-elevated) 50%, var(--bg-surface) 75%);
+  background: linear-gradient(90deg, var(--glass-bg) 25%, var(--glass-bg-hover) 50%, var(--glass-bg) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--card-radius);
 }
 
 /* ═══════════════════════════════════════════════════════════════
-
-   PER-THEME DEEP PERSONALITY STYLES
-   ─────────────────────────────────
-   Each theme overrides: fonts, shapes, borders, decorations
-
+   ANIMATED BACKGROUND — Floating gradient orbs
 ═══════════════════════════════════════════════════════════════ */
-
-/* ────────────────────────────────────────────────────────────
-   🔥 DRAGON BALL — Sharp diagonal panels, chunky comic font
-──────────────────────────────────────────────────────────── */
-html.theme-dragonball body {
-  font-family: 'Oswald', 'Inter', sans-serif;
-  letter-spacing: 0.01em;
-}
-html.theme-dragonball h1,
-html.theme-dragonball h2,
-html.theme-dragonball h3 {
-  font-family: 'Bangers', 'Impact', cursive;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(249,115,22,0.5), 0 0 20px rgba(249,115,22,0.4);
-}
-/* Sharp diagonal card corners — clip-path for true DB feel */
-html.theme-dragonball .card,
-html.theme-dragonball .anime-card {
-  clip-path: polygon(
-    0 8px,            /* top-left cut */
-    8px 0,            /* top-left diagonal */
-    100% 0,
-    100% calc(100% - 8px),
-    calc(100% - 8px) 100%,
-    0 100%
-  );
-  border-radius: 0 !important;
-  border-width: 2px !important;
-  border-color: #4a2c00 !important;
-  background: linear-gradient(135deg, #1a1000 0%, #261800 100%);
-}
-html.theme-dragonball .card:hover,
-html.theme-dragonball .anime-card:hover {
-  border-color: #f97316 !important;
-  box-shadow: 0 0 30px rgba(249,115,22,0.5), 4px 4px 0 rgba(249,115,22,0.3) !important;
-  transform: translateY(-3px) !important;
-}
-/* Power-level stripe at card top */
-html.theme-dragonball .card::before,
-html.theme-dragonball .anime-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #f97316, #fbbf24, #f97316);
-  background-size: 200% auto;
-  animation: energyTextFlow 2s linear infinite;
-}
-html.theme-dragonball .btn-primary {
-  font-family: 'Bangers', cursive !important;
-  letter-spacing: 0.1em;
-  font-size: 1rem;
-  text-transform: uppercase;
-  background: linear-gradient(135deg, #f97316, #fbbf24);
-  color: #0d0800;
-  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
-  border-radius: 0 !important;
-  padding-left: 1.5rem !important;
-  padding-right: 1.5rem !important;
-  box-shadow: 0 0 20px rgba(249,115,22,0.5);
-}
-html.theme-dragonball .btn-primary:hover {
-  box-shadow: 0 0 40px rgba(249,115,22,0.7), 0 0 80px rgba(251,191,36,0.3);
-}
-html.theme-dragonball .btn-ghost {
-  font-family: 'Oswald', sans-serif !important;
-  letter-spacing: 0.05em;
-  border-width: 2px !important;
-  border-radius: 0 !important;
-}
-html.theme-dragonball .input,
-html.theme-dragonball select,
-html.theme-dragonball textarea {
-  border-radius: 0 !important;
-  border-width: 2px !important;
-  font-family: 'Oswald', sans-serif !important;
-}
-html.theme-dragonball .input:focus {
-  box-shadow: 0 0 0 2px rgba(249,115,22,0.3), 0 0 20px rgba(249,115,22,0.4) !important;
-  border-color: #f97316 !important;
-}
-html.theme-dragonball .nav-link {
-  border-radius: 0 !important;
-  font-family: 'Oswald', sans-serif !important;
-  letter-spacing: 0.05em;
-  font-weight: 600;
-}
-html.theme-dragonball .nav-link.active {
-  box-shadow: inset 3px 0 0 #f97316, 0 0 12px rgba(249,115,22,0.3);
-}
-html.theme-dragonball .sidebar {
-  border-right: 3px solid #f97316 !important;
-  box-shadow: 4px 0 24px rgba(249,115,22,0.25);
-}
-
-/* ────────────────────────────────────────────────────────────
-   ☠️ ONE PIECE — Rounded pirate treasure, elegant serifs
-──────────────────────────────────────────────────────────── */
-html.theme-onepiece body {
-  font-family: 'Crimson Pro', 'Georgia', serif;
-  font-size: 1.05em;
-}
-html.theme-onepiece h1,
-html.theme-onepiece h2,
-html.theme-onepiece h3 {
-  font-family: 'Pirata One', 'Cinzel', serif;
-  letter-spacing: 0.04em;
-  text-shadow: 0 0 20px rgba(245,158,11,0.4);
-}
-html.theme-onepiece .card,
-html.theme-onepiece .anime-card {
-  border-radius: 1.5rem !important;
-  border-width: 2px !important;
-  border-color: rgba(14,58,110,0.8) !important;
-  /* Double-border treasure chest effect */
-  box-shadow: 0 0 0 1px rgba(245,158,11,0.15), var(--card-shadow);
-  background: linear-gradient(180deg, #041530 0%, #051a3d 100%);
-}
-html.theme-onepiece .card:hover,
-html.theme-onepiece .anime-card:hover {
-  border-color: rgba(245,158,11,0.7) !important;
-  box-shadow: 0 0 0 2px rgba(245,158,11,0.3), var(--card-shadow), 0 0 30px rgba(245,158,11,0.3) !important;
-}
-html.theme-onepiece .btn-primary {
-  font-family: 'Pirata One', 'Cinzel', serif !important;
-  letter-spacing: 0.08em;
-  border-radius: 2rem !important;
-  background: linear-gradient(135deg, #d97706, #f59e0b);
-  color: #020c1b;
-  border: 2px solid rgba(251,191,36,0.4);
-  box-shadow: 0 0 16px rgba(245,158,11,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
-  text-transform: none;
-}
-html.theme-onepiece .btn-ghost {
-  font-family: 'Pirata One', serif !important;
-  border-radius: 2rem !important;
-  border-width: 2px !important;
-}
-html.theme-onepiece .input,
-html.theme-onepiece select,
-html.theme-onepiece textarea {
-  border-radius: 1rem !important;
-  font-family: 'Crimson Pro', serif !important;
-  font-size: 1.05em;
-  border-width: 2px !important;
-}
-html.theme-onepiece .nav-link {
-  border-radius: 1.5rem !important;
-  font-family: 'Crimson Pro', serif !important;
-  font-size: 1em;
-}
-html.theme-onepiece .sidebar {
-  border-right: 2px solid rgba(245,158,11,0.3) !important;
-  box-shadow: 4px 0 20px rgba(245,158,11,0.1);
-  background: linear-gradient(180deg, #010a16 0%, #020c1b 100%) !important;
-}
-
-/* ────────────────────────────────────────────────────────────
-   🍃 NARUTO — Ninja scrolls, seal marks, Japanese serif
-──────────────────────────────────────────────────────────── */
-html.theme-naruto body {
-  font-family: 'Noto Sans JP', 'Inter', sans-serif;
-}
-html.theme-naruto h1,
-html.theme-naruto h2,
-html.theme-naruto h3 {
-  font-family: 'Noto Serif JP', serif;
-  font-weight: 700;
-  text-shadow: 0 0 16px rgba(249,115,22,0.3);
-}
-html.theme-naruto .card,
-html.theme-naruto .anime-card {
-  border-radius: 0.25rem !important;
-  border-width: 1px !important;
-  position: relative;
-  background: linear-gradient(135deg, #141800 0%, #1e2500 100%);
-}
-/* Seal marks — corner markers like chakra seals */
-html.theme-naruto .card::before,
-html.theme-naruto .anime-card::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: 0.25rem;
-  background:
-    radial-gradient(circle 4px at 0px 0px, rgba(249,115,22,0.8) 0%, transparent 100%),
-    radial-gradient(circle 4px at 100% 0px, rgba(249,115,22,0.8) 0%, transparent 100%),
-    radial-gradient(circle 4px at 0px 100%, rgba(249,115,22,0.8) 0%, transparent 100%),
-    radial-gradient(circle 4px at 100% 100%, rgba(249,115,22,0.8) 0%, transparent 100%);
+.animated-bg {
+  position: fixed;
+  inset: 0;
   pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.animated-bg .orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
   opacity: 0.6;
 }
-html.theme-naruto .card:hover,
-html.theme-naruto .anime-card:hover {
-  border-color: #f97316 !important;
-  box-shadow: var(--card-shadow), 0 0 20px rgba(249,115,22,0.3), inset 0 0 20px rgba(249,115,22,0.04) !important;
+.animated-bg .orb-1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, var(--gradient-orb-1), transparent 70%);
+  top: -10%; left: -5%;
+  animation: orb-drift 15s ease-in-out infinite;
 }
-html.theme-naruto .btn-primary {
-  font-family: 'Noto Serif JP', serif !important;
-  font-weight: 700;
-  border-radius: 0.25rem !important;
-  background: linear-gradient(135deg, #f97316, #dc2626);
-  border: 1px solid rgba(249,115,22,0.4);
-  clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
-  padding-left: 1.2rem !important;
-  padding-right: 1.2rem !important;
+.animated-bg .orb-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, var(--gradient-orb-2), transparent 70%);
+  bottom: -10%; right: -5%;
+  animation: orb-drift 18s ease-in-out infinite reverse;
 }
-html.theme-naruto .btn-ghost {
-  font-family: 'Noto Serif JP', serif !important;
-  border-radius: 0.25rem !important;
+.animated-bg .orb-3 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, var(--gradient-orb-3), transparent 70%);
+  top: 40%; left: 50%;
+  animation: orb-drift 20s ease-in-out infinite 3s;
 }
-html.theme-naruto .input,
-html.theme-naruto select,
-html.theme-naruto textarea {
-  border-radius: 0.125rem !important;
-  font-family: 'Noto Sans JP', sans-serif !important;
-  border-left: 2px solid rgba(249,115,22,0.3) !important;
-}
-html.theme-naruto .input:focus {
-  border-left-color: #f97316 !important;
-  border-color: rgba(249,115,22,0.5) !important;
-}
-html.theme-naruto .nav-link {
-  border-radius: 0.25rem !important;
-  font-family: 'Noto Sans JP', sans-serif !important;
-}
-html.theme-naruto .nav-link.active {
-  box-shadow: inset 3px 0 0 #f97316;
-  border-left: 2px solid #f97316 !important;
-}
-html.theme-naruto .sidebar {
-  border-right: 1px solid rgba(163,190,80,0.3) !important;
-}
-
-/* ────────────────────────────────────────────────────────────
-   📓 DEATH NOTE — Gothic serif, razor sharp, ink black
-──────────────────────────────────────────────────────────── */
-html.theme-deathnote body {
-  font-family: 'EB Garamond', 'Georgia', serif;
-  font-size: 1.05em;
-  letter-spacing: 0.01em;
-}
-html.theme-deathnote h1,
-html.theme-deathnote h2,
-html.theme-deathnote h3 {
-  font-family: 'Playfair Display', 'Didact Gothic', serif;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-shadow: 0 0 30px rgba(255,255,255,0.15);
-}
-html.theme-deathnote .card,
-html.theme-deathnote .anime-card {
-  border-radius: 0 !important;
-  border-width: 1px !important;
-  border-color: #1a1a1a !important;
-  background: #0d0d0d;
-  box-shadow: 0 4px 40px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(255,255,255,0.04);
-}
-html.theme-deathnote .card:hover,
-html.theme-deathnote .anime-card:hover {
-  border-color: rgba(255,255,255,0.4) !important;
-  box-shadow: 0 4px 40px rgba(0,0,0,0.9), 0 0 20px rgba(255,255,255,0.08), inset 0 0 0 1px rgba(255,255,255,0.15) !important;
-  transform: translateY(-2px) !important;
-  animation: cursedFlicker 4s ease-in-out infinite;
-}
-/* Clean ink-line accent */
-html.theme-deathnote .card::before,
-html.theme-deathnote .anime-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 1rem; right: 1rem;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-}
-html.theme-deathnote .btn-primary {
-  font-family: 'Playfair Display', serif !important;
-  letter-spacing: 0.1em;
-  font-weight: 900;
-  text-transform: uppercase;
-  border-radius: 0 !important;
-  background: #f5f5f5;
-  color: #050505;
-  border: 1px solid rgba(255,255,255,0.15) !important;
-  box-shadow: none;
-}
-html.theme-deathnote .btn-primary:hover {
-  background: #ffffff;
-  box-shadow: 0 0 20px rgba(255,255,255,0.25) !important;
-}
-html.theme-deathnote .btn-ghost {
-  font-family: 'EB Garamond', serif !important;
-  letter-spacing: 0.05em;
-  border-radius: 0 !important;
-}
-html.theme-deathnote .input,
-html.theme-deathnote select,
-html.theme-deathnote textarea {
-  border-radius: 0 !important;
-  font-family: 'EB Garamond', serif !important;
-  background: #0d0d0d !important;
-  border-color: #2a2a2a !important;
-  font-size: 1.05em;
-}
-html.theme-deathnote .input:focus {
-  border-color: rgba(255,255,255,0.5) !important;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.15) !important;
-}
-html.theme-deathnote .nav-link {
-  border-radius: 0 !important;
-  font-family: 'EB Garamond', serif !important;
-  font-size: 1em;
-  letter-spacing: 0.02em;
-}
-html.theme-deathnote .nav-link.active {
-  border-left: 2px solid #ffffff !important;
-  box-shadow: inset 2px 0 0 #fff;
-  background: rgba(255,255,255,0.05) !important;
-}
-html.theme-deathnote .sidebar {
-  border-right: 1px solid #1a1a1a !important;
-}
-
-/* ────────────────────────────────────────────────────────────
-   👁️ JUJUTSU KAISEN — Sharp Rajdhani, cursed purple cracks
-──────────────────────────────────────────────────────────── */
-html.theme-jujutsu body {
-  font-family: 'Rajdhani', 'Inter', sans-serif;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-}
-html.theme-jujutsu h1,
-html.theme-jujutsu h2,
-html.theme-jujutsu h3 {
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  text-shadow: 0 0 16px rgba(168,85,247,0.5);
-}
-html.theme-jujutsu .card,
-html.theme-jujutsu .anime-card {
-  border-radius: 0.25rem !important;
-  border-width: 1px !important;
-  border-color: rgba(59,16,96,0.8) !important;
-  background: linear-gradient(135deg, #110520 0%, #1a0830 100%);
-  /* Fractured cursed energy shadow */
-  box-shadow: 0 4px 32px rgba(168,85,247,0.2), inset 0 0 40px rgba(168,85,247,0.03);
-}
-html.theme-jujutsu .card:hover,
-html.theme-jujutsu .anime-card:hover {
-  border-color: rgba(168,85,247,0.7) !important;
-  box-shadow: 0 0 40px rgba(168,85,247,0.4), 0 0 80px rgba(168,85,247,0.15), inset 0 0 20px rgba(168,85,247,0.05) !important;
-  transform: translateY(-3px) !important;
-}
-/* Cursed energy crack lines */
-html.theme-jujutsu .card::before,
-html.theme-jujutsu .anime-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  border-radius: 0.25rem;
-  background:
-    linear-gradient(135deg, rgba(168,85,247,0.08) 0%, transparent 50%),
-    linear-gradient(315deg, rgba(192,132,252,0.06) 0%, transparent 50%);
-  pointer-events: none;
-}
-html.theme-jujutsu .btn-primary {
-  font-family: 'Rajdhani', sans-serif !important;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  border-radius: 0.25rem !important;
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
-  border: 1px solid rgba(168,85,247,0.3) !important;
-  box-shadow: 0 0 20px rgba(168,85,247,0.4), inset 0 0 20px rgba(168,85,247,0.1);
-}
-html.theme-jujutsu .btn-primary:hover {
-  box-shadow: 0 0 40px rgba(168,85,247,0.6), 0 0 80px rgba(168,85,247,0.2) !important;
-}
-html.theme-jujutsu .btn-ghost {
-  font-family: 'Rajdhani', sans-serif !important;
-  letter-spacing: 0.06em;
-  font-weight: 600;
-  border-radius: 0.25rem !important;
-}
-html.theme-jujutsu .input,
-html.theme-jujutsu select,
-html.theme-jujutsu textarea {
-  border-radius: 0.25rem !important;
-  font-family: 'Rajdhani', sans-serif !important;
-  font-size: 1.05em;
-  letter-spacing: 0.02em;
-  background: rgba(17,5,32,0.8) !important;
-}
-html.theme-jujutsu .nav-link {
-  border-radius: 0.25rem !important;
-  font-family: 'Rajdhani', sans-serif !important;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  font-size: 0.9rem;
-}
-html.theme-jujutsu .nav-link.active {
-  box-shadow: inset 3px 0 0 #a855f7, 0 0 16px rgba(168,85,247,0.35);
-}
-html.theme-jujutsu .sidebar {
-  border-right: 1px solid rgba(168,85,247,0.3) !important;
-  box-shadow: 4px 0 24px rgba(168,85,247,0.15);
-}
-
-/* ────────────────────────────────────────────────────────────
-   ⚔️ ATTACK ON TITAN — Military stencil, zero curves
-──────────────────────────────────────────────────────────── */
-html.theme-titan body {
-  font-family: 'Oswald', 'Inter', sans-serif;
-  letter-spacing: 0.02em;
-  font-weight: 400;
-}
-html.theme-titan h1,
-html.theme-titan h2,
-html.theme-titan h3 {
-  font-family: 'Bebas Neue', 'Impact', sans-serif;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
-}
-html.theme-titan .card,
-html.theme-titan .anime-card {
-  border-radius: 0 !important;
-  border-width: 2px !important;
-  border-color: #374832 !important;
-  background: linear-gradient(180deg, #151a10 0%, #1a2014 100%);
-  /* Military grid lines */
-  box-shadow: 0 4px 32px rgba(0,0,0,0.7), inset 0 0 0 1px rgba(132,204,22,0.06);
-}
-html.theme-titan .card:hover,
-html.theme-titan .anime-card:hover {
-  border-color: #84cc16 !important;
-  box-shadow: 0 4px 32px rgba(0,0,0,0.7), 0 0 16px rgba(132,204,22,0.25) !important;
-  transform: none !important; /* No float — military stays grounded */
-}
-/* Military form number / code decoration */
-html.theme-titan .card::before,
-html.theme-titan .anime-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 3px;
-  height: 100%;
-  background: rgba(132,204,22,0.4);
-}
-html.theme-titan .btn-primary {
-  font-family: 'Bebas Neue', sans-serif !important;
-  letter-spacing: 0.15em;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  border-radius: 0 !important;
-  background: #4d7c0f;
-  color: #e8ead4;
-  border: 2px solid #84cc16 !important;
-  box-shadow: none;
-}
-html.theme-titan .btn-primary:hover {
-  background: #3f6212 !important;
-  box-shadow: 0 0 16px rgba(132,204,22,0.3) !important;
-}
-html.theme-titan .btn-ghost {
-  font-family: 'Oswald', sans-serif !important;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  border-radius: 0 !important;
-  border-width: 2px !important;
-}
-html.theme-titan .input,
-html.theme-titan select,
-html.theme-titan textarea {
-  border-radius: 0 !important;
-  font-family: 'Oswald', sans-serif !important;
-  letter-spacing: 0.03em;
-  border-width: 2px !important;
-  background: #0c0f0a !important;
-  border-color: #2a3524 !important;
-}
-html.theme-titan .input:focus {
-  border-color: #84cc16 !important;
-  box-shadow: 0 0 0 1px rgba(132,204,22,0.2) !important;
-}
-html.theme-titan .nav-link {
-  border-radius: 0 !important;
-  font-family: 'Oswald', sans-serif !important;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-  font-size: 0.88rem;
-  text-transform: uppercase;
-}
-html.theme-titan .nav-link.active {
-  box-shadow: inset 4px 0 0 #84cc16;
-  background: rgba(132,204,22,0.08) !important;
-}
-html.theme-titan .sidebar {
-  border-right: 3px solid #374832 !important;
-  background: #090c08 !important;
-}
-
-/* ────────────────────────────────────────────────────────────
-   🌊 DEMON SLAYER — Flowing water curves, Japanese elegance
-──────────────────────────────────────────────────────────── */
-html.theme-demonslayer body {
-  font-family: 'Noto Sans JP', 'Inter', sans-serif;
-  letter-spacing: 0.01em;
-}
-html.theme-demonslayer h1,
-html.theme-demonslayer h2,
-html.theme-demonslayer h3 {
-  font-family: 'Noto Serif JP', serif;
-  font-weight: 700;
-  text-shadow: 0 0 20px rgba(6,182,212,0.35);
-  letter-spacing: 0.02em;
-}
-html.theme-demonslayer .card,
-html.theme-demonslayer .anime-card {
-  border-radius: 1.25rem !important;
-  border-width: 1px !important;
-  border-color: rgba(10,58,82,0.8) !important;
-  background: linear-gradient(160deg, #031622 0%, #052035 100%);
-  /* Water + fire gradient border shadow */
-  box-shadow: 0 0 0 1px rgba(6,182,212,0.1), var(--card-shadow);
-}
-html.theme-demonslayer .card:hover,
-html.theme-demonslayer .anime-card:hover {
-  border-color: rgba(6,182,212,0.6) !important;
-  box-shadow:
-    0 0 0 1px rgba(6,182,212,0.3),
-    0 0 30px rgba(6,182,212,0.3),
-    0 0 60px rgba(220,38,38,0.08),
-    var(--card-shadow) !important;
-  transform: translateY(-3px) !important;
-}
-/* Water ripple gradient top */
-html.theme-demonslayer .card::before,
-html.theme-demonslayer .anime-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 2px;
-  border-radius: 1.25rem 1.25rem 0 0;
-  background: linear-gradient(90deg, #06b6d4, #0284c7, #dc2626, #0284c7, #06b6d4);
-  background-size: 200% auto;
-  animation: waterFlow 4s ease-in-out infinite;
-}
-html.theme-demonslayer .btn-primary {
-  font-family: 'Noto Serif JP', serif !important;
-  font-weight: 700;
-  border-radius: 2rem !important;
-  background: linear-gradient(135deg, #06b6d4, #0284c7);
-  border: 1px solid rgba(6,182,212,0.3) !important;
-  box-shadow: 0 0 20px rgba(6,182,212,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-}
-html.theme-demonslayer .btn-primary:hover {
-  background: linear-gradient(135deg, #22d3ee, #0ea5e9) !important;
-  box-shadow: 0 0 30px rgba(6,182,212,0.6), 0 0 60px rgba(6,182,212,0.2) !important;
-}
-html.theme-demonslayer .btn-ghost {
-  font-family: 'Noto Serif JP', serif !important;
-  border-radius: 2rem !important;
-}
-html.theme-demonslayer .input,
-html.theme-demonslayer select,
-html.theme-demonslayer textarea {
-  border-radius: 1rem !important;
-  font-family: 'Noto Sans JP', sans-serif !important;
-  background: rgba(3,22,34,0.8) !important;
-  border-color: rgba(10,58,82,0.8) !important;
-}
-html.theme-demonslayer .input:focus {
-  border-color: #06b6d4 !important;
-  box-shadow: 0 0 0 3px rgba(6,182,212,0.15), 0 0 20px rgba(6,182,212,0.25) !important;
-}
-html.theme-demonslayer .nav-link {
-  border-radius: 1.25rem !important;
-  font-family: 'Noto Sans JP', sans-serif !important;
-}
-html.theme-demonslayer .nav-link.active {
-  box-shadow: inset 3px 0 0 #06b6d4, 0 0 12px rgba(6,182,212,0.25);
-}
-html.theme-demonslayer .sidebar {
-  border-right: 1px solid rgba(6,182,212,0.2) !important;
-  box-shadow: 4px 0 20px rgba(6,182,212,0.1);
-}
-
-/* ────────────────────────────────────────────────────────────
-   🌌 AURORA — Classic smooth (keep as is)
-──────────────────────────────────────────────────────────── */
-html.theme-aurora .nav-link.active { box-shadow: inset 3px 0 0 #10b981, 0 0 12px rgba(16,185,129,0.2); }
-html.theme-aurora .sidebar { border-right: 1px solid rgba(16,185,129,0.2) !important; }
 
 /* ═══════════════════════════════════════════════════════════════
-   INLINE BUTTON / INPUT STYLE FIX
-   — These targets ensure that JSX inline-style buttons also get
-     the theme radius applied (since they use style={{ borderRadius }})
+   BENTO GRID SYSTEM
 ═══════════════════════════════════════════════════════════════ */
-html.theme-dragonball button:not(.no-theme),
-html.theme-titan button:not(.no-theme),
-html.theme-deathnote button:not(.no-theme) {
-  border-radius: 0 !important;
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
-
-html.theme-onepiece button:not(.no-theme),
-html.theme-demonslayer button:not(.no-theme) {
-  border-radius: 2rem !important;
-}
-
-html.theme-naruto button:not(.no-theme),
-html.theme-jujutsu button:not(.no-theme) {
-  border-radius: 0.25rem !important;
-}
-
-/* Keep circular buttons (like avatar, notification bell) circular */
-html [class*="circular"],
-html [aria-label*="Close"],
-button[style*="border-radius: 50%"] {
-  border-radius: 50% !important;
+@media (min-width: 768px) { .bento-grid { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; } }
+@media (min-width: 1024px) { .bento-grid { grid-template-columns: repeat(4, 1fr); gap: 1.5rem; } }
+.bento-item { min-height: 180px; }
+.bento-item-wide { grid-column: span 2; }
+.bento-item-tall { grid-row: span 2; }
+.bento-item-large { grid-column: span 2; grid-row: span 2; }
+@media (max-width: 640px) {
+  .bento-item-wide, .bento-item-large { grid-column: span 1; }
+  .bento-item-tall, .bento-item-large { grid-row: span 1; }
+  .bento-grid { grid-template-columns: 1fr; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -994,8 +577,10 @@ button[style*="border-radius: 50%"] {
 .table-wrapper {
   width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
   border-radius: var(--card-radius);
-  border: var(--border-width) solid var(--border);
-  background: var(--bg-surface);
+  border: var(--border-width) solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
 }
 .table-wrapper table { min-width: 560px; width: 100%; }
 
@@ -1038,8 +623,8 @@ button[style*="border-radius: 50%"] {
 
 .locator-container { display:flex; flex-direction:column; height:calc(100dvh - 64px); background:var(--bg-base); overflow:hidden; }
 @media (min-width:768px) { .locator-container { flex-direction:row; } }
-.locator-sidebar { width:100%; height:45dvh; flex-shrink:0; display:flex; flex-direction:column; background:var(--bg-elevated); border-bottom:1px solid var(--border); overflow:hidden; }
-@media (min-width:768px) { .locator-sidebar { width:340px; height:100%; border-bottom:none; border-right:1px solid var(--border); } }
+.locator-sidebar { width:100%; height:45dvh; flex-shrink:0; display:flex; flex-direction:column; background:var(--glass-bg); backdrop-filter:blur(16px); border-bottom:1px solid var(--glass-border); overflow:hidden; }
+@media (min-width:768px) { .locator-sidebar { width:340px; height:100%; border-bottom:none; border-right:1px solid var(--glass-border); } }
 .locator-map-wrapper { flex:1; position:relative; height:55dvh; min-height:300px; }
 @media (min-width:768px) { .locator-map-wrapper { height:100%; } }
 
@@ -1086,7 +671,6 @@ textarea:focus-visible {
 
 /* Small device micro-fixes */
 @media (max-width:450px) {
-  .profile-dropdown { right:-0.5rem !important; width:calc(100vw - 1rem) !important; max-width:18rem; }
   .filter-tabs { flex-wrap:wrap !important; gap:0.5rem !important; }
 }
 @media (max-width:360px) {
@@ -1095,10 +679,8 @@ textarea:focus-visible {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   PREMIUM REDESIGN UTILITY CLASSES (vertical timelines, glass tables, glows)
+   TIMELINE UI
 ═══════════════════════════════════════════════════════════════ */
-
-/* Timeline UI */
 .timeline {
   position: relative;
   max-width: 800px;
@@ -1109,16 +691,14 @@ textarea:focus-visible {
   content: '';
   position: absolute;
   width: 2px;
-  background: var(--border);
+  background: var(--glass-border);
   top: 0;
   bottom: 0;
   left: 50%;
   margin-left: -1px;
 }
 @media (max-width: 768px) {
-  .timeline::after {
-    left: 31px;
-  }
+  .timeline::after { left: 31px; }
 }
 .timeline-item {
   padding: 10px 40px;
@@ -1127,11 +707,7 @@ textarea:focus-visible {
   width: 50%;
 }
 @media (max-width: 768px) {
-  .timeline-item {
-    width: 100%;
-    padding-left: 70px;
-    padding-right: 25px;
-  }
+  .timeline-item { width: 100%; padding-left: 70px; padding-right: 25px; }
 }
 .timeline-item::after {
   content: '';
@@ -1139,12 +715,12 @@ textarea:focus-visible {
   width: 16px;
   height: 16px;
   right: -8px;
-  background-color: var(--bg-surface);
+  background-color: var(--bg-base);
   border: 4px solid var(--accent);
   top: 24px;
   border-radius: 50%;
   z-index: 1;
-  box-shadow: 0 0 10px var(--accent-glow);
+  box-shadow: 0 0 12px var(--accent-glow);
   transition: all 0.3s ease;
 }
 .timeline-item:hover::after {
@@ -1152,75 +728,205 @@ textarea:focus-visible {
   box-shadow: 0 0 20px var(--accent);
 }
 @media (max-width: 768px) {
-  .timeline-item::after {
-    left: 23px;
-    right: auto;
-  }
+  .timeline-item::after { left: 23px; right: auto; }
 }
-.left-timeline {
-  left: 0;
-}
-.right-timeline {
-  left: 50%;
-}
-@media (max-width: 768px) {
-  .right-timeline {
-    left: 0%;
-  }
-}
+.left-timeline { left: 0; }
+.right-timeline { left: 50%; }
+@media (max-width: 768px) { .right-timeline { left: 0%; } }
 .timeline-content {
   padding: 1.5rem;
-  background: var(--bg-surface);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
   position: relative;
   border-radius: var(--card-radius);
-  border: var(--border-width) solid var(--border);
-  box-shadow: var(--card-shadow);
+  border: var(--border-width) solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
   transition: all 0.3s ease;
 }
 .timeline-content:hover {
-  border-color: var(--accent);
-  box-shadow: var(--card-shadow), 0 0 20px var(--accent-glow);
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--glass-shadow), 0 0 20px var(--accent-glow);
   transform: translateY(-2px);
 }
 
-/* Glassmorphism details */
-.glass-premium {
-  background: rgba(30, 41, 59, 0.45) !important;
-  backdrop-filter: blur(16px) saturate(120%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(120%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-}
-.theme-light .glass-premium {
-  background: rgba(255, 255, 255, 0.65) !important;
-  backdrop-filter: blur(16px) saturate(120%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(120%) !important;
-  border: 1px solid rgba(15, 23, 42, 0.08) !important;
-}
-
-/* Compatibility Table Styling */
+/* ═══════════════════════════════════════════════════════════════
+   COMPATIBILITY TABLE
+═══════════════════════════════════════════════════════════════ */
 .comp-table th {
-  background: var(--bg-elevated);
+  background: var(--glass-bg-hover);
   font-family: var(--font-display);
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
-.comp-table tr {
-  transition: all 0.2s ease;
-}
-.comp-table tr:hover {
-  background: var(--accent-soft) !important;
-}
+.comp-table tr { transition: all 0.2s ease; }
+.comp-table tr:hover { background: var(--accent-soft) !important; }
 
-/* Pulse energy animations */
+/* ═══════════════════════════════════════════════════════════════
+   PULSE ENERGY ANIMATIONS
+═══════════════════════════════════════════════════════════════ */
 .pulse-glow-red { animation: pulseGlowRed 2s infinite; }
 @keyframes pulseGlowRed {
   0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.3); }
   50% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); }
 }
 
-/* Smooth Slider transitions for Quotes */
+/* Quote card transitions */
 .quote-card {
   transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   REDUCED MOTION — Accessibility
+═══════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .animated-bg .orb { animation: none !important; }
+  .animate-float, .animate-blob, .animate-spin-slow,
+  .animate-pulseGlow, .animate-energyPulse, .animate-orb-drift,
+  .animate-glow-breathe { animation: none !important; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DROPDOWN GLASSMORPHISM READABILITY FIXES
+   ═══════════════════════════════════════════════════════════════ */
+select {
+  background: #0d1527 !important; /* Solid dark background to prevent backdrop overlap text bleed */
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+  color: var(--text-primary) !important;
+}
+html.theme-light select {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(15, 23, 42, 0.15) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+  color: #0F172A !important;
+}
+select option {
+  background: #0d1527 !important; /* Solid backing */
+  color: var(--text-primary) !important;
+}
+html.theme-light select option {
+  background: #FFFFFF !important;
+  color: #0F172A !important;
+}
+.profile-dropdown, .dropdown-menu, .glass-dropdown-menu {
+  background: #0d1527 !important; /* Solid backing for readability */
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+  z-index: 9999 !important;
+}
+html.theme-light .profile-dropdown, html.theme-light .dropdown-menu, html.theme-light .glass-dropdown-menu {
+  background: #FFFFFF !important; /* Solid backing */
+  border: 1px solid rgba(15, 23, 42, 0.1) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CUSTOM CURSOR STYLES
+   ═══════════════════════════════════════════════════════════════ */
+.custom-cursor-none,
+.custom-cursor-none a,
+.custom-cursor-none button,
+.custom-cursor-none input[type="submit"],
+.custom-cursor-none input[type="button"],
+.custom-cursor-none [role="button"] {
+  cursor: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE COMPATIBILITY TABLE DISPLAY SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
+.mobile-only-cards {
+  display: none !important;
+}
+
+@media (max-width: 640px) {
+  .comp-table table {
+    min-width: 100% !important;
+    width: 100% !important;
+    table-layout: fixed !important;
+  }
+  .comp-table th,
+  .comp-table td {
+    padding: 0.5rem 0.35rem !important;
+    font-size: 0.72rem !important;
+  }
+  .comp-table th {
+    font-size: 0.68rem !important;
+    letter-spacing: 0.02em !important;
+  }
+  .comp-table th:nth-child(1),
+  .comp-table td:nth-child(1) {
+    width: 22% !important;
+  }
+  .comp-table th:nth-child(2),
+  .comp-table td:nth-child(2) {
+    width: 39% !important;
+  }
+  .comp-table th:nth-child(3),
+  .comp-table td:nth-child(3) {
+    width: 39% !important;
+  }
+  .comp-table td span.blood-badge-cell {
+    font-size: 0.65rem !important;
+    padding: 0.1rem 0.25rem !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LIGHT THEME HERO SECTION VISUAL DEPTH REDESIGN
+   ═══════════════════════════════════════════════════════════════ */
+.hero-section {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  padding: 7rem 1.5rem 5rem;
+  background: var(--bg-base);
+}
+html.theme-light .hero-section {
+  /* Soft pink/rose radial overlay */
+  background: radial-gradient(circle at 10% 20%, rgba(253, 244, 245, 0.9) 0%, rgba(240, 244, 248, 0.4) 90%) !important;
+}
+html.theme-light .hero-section::before {
+  content: '';
+  position: absolute;
+  bottom: -15%;
+  right: -10%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(252, 231, 243, 0.75) 0%, rgba(251, 207, 232, 0) 70%) !important;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+html.theme-light .hero-section::after {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: 20%;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(255, 228, 230, 0.6) 0%, rgba(254, 244, 245, 0) 70%) !important;
+  filter: blur(60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PROFILE DROPDOWN VIEWPORT OVERFLOW FIX
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .profile-dropdown {
+    right: -12px !important;
+    width: calc(100vw - 24px) !important;
+    max-width: 20rem !important;
+  }
+}

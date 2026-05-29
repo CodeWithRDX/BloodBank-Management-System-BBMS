@@ -199,7 +199,7 @@ export default function AdminBranches() {
           </button>
           <button
             onClick={() => dispatch(fetchBranches({}))}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--border)', cursor: 'pointer', fontWeight: 600 }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 8, background: 'var(--bg-elevated)', color: 'var(--text-primary)', border: '1px solid var(--glass-border)', cursor: 'pointer', fontWeight: 600 }}
           >
             <FiRefreshCw /> Refresh
           </button>
@@ -233,7 +233,7 @@ export default function AdminBranches() {
           {branches.map((branch) => (
             <div key={branch._id} style={{
               background: 'var(--bg-elevated)',
-              border: '1px solid var(--border)',
+              border: '1px solid var(--glass-border)',
               borderRadius: 14,
               padding: '1.25rem',
               transition: 'box-shadow 0.2s',
@@ -378,7 +378,7 @@ export default function AdminBranches() {
                   width: '100%',
                   height: '38px',
                   background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--glass-border)',
                   borderRadius: 'var(--input-radius)',
                   color: 'var(--text-primary)',
                   fontFamily: 'var(--font-body)',
@@ -386,14 +386,14 @@ export default function AdminBranches() {
                 }}
                 buttonStyle={{
                   background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--glass-border)',
                   borderTopLeftRadius: 'var(--input-radius)',
                   borderBottomLeftRadius: 'var(--input-radius)',
                 }}
                 dropdownStyle={{
-                  background: 'var(--bg-surface)',
+                  background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
                   color: 'var(--text-primary)',
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--glass-border)',
                 }}
               />
             </div>
@@ -590,7 +590,7 @@ export default function AdminBranches() {
       {/* Reject Modal */}
       {rejectModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)', padding: '1rem' }}>
-          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: 16, padding: 'clamp(1rem, 3vw, 2rem)', width: '100%', maxWidth: 440, maxHeight: '92dvh', overflowY: 'auto' }}>
+          <div style={{ background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: 16, padding: 'clamp(1rem, 3vw, 2rem)', width: '100%', maxWidth: 440, maxHeight: '92dvh', overflowY: 'auto' }}>
             <h3 style={{ margin: '0 0 0.5rem', color: 'var(--text-primary)' }}>Reject Branch</h3>
             <p style={{ margin: '0 0 1.25rem', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
               Provide a reason for rejecting <strong>{rejectModal.name}</strong>
@@ -600,10 +600,10 @@ export default function AdminBranches() {
               onChange={(e) => setRejectReason(e.target.value)}
               placeholder="Rejection reason..."
               rows={4}
-              style={{ width: '100%', borderRadius: 8, padding: '10px 12px', background: 'var(--bg-base)', border: '1px solid var(--border)', color: 'var(--text-primary)', resize: 'vertical', boxSizing: 'border-box', fontSize: '0.9rem' }}
+              style={{ width: '100%', borderRadius: 8, padding: '10px 12px', background: 'var(--bg-base)', border: '1px solid var(--glass-border)', color: 'var(--text-primary)', resize: 'vertical', boxSizing: 'border-box', fontSize: '0.9rem' }}
             />
             <div style={{ display: 'flex', gap: 10, marginTop: '1.25rem' }}>
-              <button onClick={() => setRejectModal(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600 }}>
+              <button onClick={() => setRejectModal(null)} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'transparent', border: '1px solid var(--glass-border)', color: 'var(--text-secondary)', cursor: 'pointer', fontWeight: 600 }}>
                 Cancel
               </button>
               <button onClick={handleReject} style={{ flex: 1, padding: '10px', borderRadius: 8, background: '#ef4444', border: 'none', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>

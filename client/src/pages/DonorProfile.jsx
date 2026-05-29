@@ -29,7 +29,7 @@ const Lbl = ({ children }) => (
   </label>
 );
 const Field = ({ children }) => <div>{children}</div>;
-const iStyle = { width: '100%', padding: '0.7rem 0.875rem', fontSize: '0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', boxSizing: 'border-box' };
+const iStyle = { width: '100%', padding: '0.7rem 0.875rem', fontSize: '0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', boxSizing: 'border-box' };
 const Section = ({ title, children }) => (
   <div>
     <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1rem', marginBottom: '1rem', paddingBottom: '0.625rem', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -201,7 +201,7 @@ const DonorProfile = () => {
       </div>
 
       {/* Form card */}
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '2rem', boxShadow: 'var(--card-shadow)' }}>
+      <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.25rem', padding: '2rem', boxShadow: 'var(--glass-shadow)' }}>
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
           {/* Avatar Settings */}
@@ -240,7 +240,7 @@ const DonorProfile = () => {
                       onClick={() => setForm(f => ({ ...f, avatar: '' }))}
                       style={{
                         padding: '0.5rem 1rem', fontSize: '0.8rem', fontWeight: 600,
-                        background: 'transparent', border: '1px solid var(--border)', borderRadius: '0.5rem',
+                        background: 'transparent', border: '1px solid var(--glass-border)', borderRadius: '0.5rem',
                         color: 'var(--text-secondary)', cursor: 'pointer'
                       }}
                     >
@@ -300,7 +300,7 @@ const DonorProfile = () => {
                   width: '100%',
                   height: '42px',
                   background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--glass-border)',
                   borderRadius: '0.625rem',
                   color: 'var(--text-primary)',
                   fontFamily: 'var(--font-body)',
@@ -308,14 +308,14 @@ const DonorProfile = () => {
                 }}
                 buttonStyle={{
                   background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--glass-border)',
                   borderTopLeftRadius: '0.625rem',
                   borderBottomLeftRadius: '0.625rem',
                 }}
                 dropdownStyle={{
-                  background: 'var(--bg-surface)',
+                  background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
                   color: 'var(--text-primary)',
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--glass-border)',
                 }}
               />
             </Field>
@@ -376,7 +376,7 @@ const DonorProfile = () => {
 
       {/* Change Password Inline Form Section (Local Accounts Only) */}
       {isLocalAccount && (
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '2rem', boxShadow: 'var(--card-shadow)' }}>
+        <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.25rem', padding: '2rem', boxShadow: 'var(--glass-shadow)' }}>
           <h3 
             onClick={() => setShowPasswordForm(!showPasswordForm)}
             style={{ 

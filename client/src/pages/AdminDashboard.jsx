@@ -42,7 +42,6 @@ const AdminDashboard = () => {
   const dispatch = useDispatch();
   const { stats, loading } = useSelector(s => s.admin);
   const { theme } = useTheme();
-  const isAnime = theme?.group === 'anime';
 
   usePolling(() => {
     dispatch(fetchDashboardStats());
@@ -86,7 +85,7 @@ const AdminDashboard = () => {
             color: 'var(--text-primary)',
             letterSpacing: '-0.025em',
             fontFamily: 'var(--font-display)',
-            textTransform: (theme?.id === 'titan' || theme?.id === 'dragonball') ? 'uppercase' : 'none'
+            textTransform: 'none'
           }}>
             Super Admin Control Panel
           </h1>
@@ -120,10 +119,12 @@ const AdminDashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(340px, 100%), 1fr))', gap: '1.5rem' }}>
         {/* Blood Stock Chart */}
         <div
-          className={isAnime ? 'anime-card' : 'card'}
+          className="glass-card"
           style={{
-            background: 'var(--bg-surface)',
-            border: '1px solid var(--border)',
+            background: 'var(--glass-bg)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--glass-border)',
             borderRadius: '1.5rem',
             padding: '1.75rem',
             boxShadow: 'var(--card-shadow)'
@@ -156,10 +157,12 @@ const AdminDashboard = () => {
 
         {/* Monthly Trend Area Chart */}
         <div
-          className={isAnime ? 'anime-card' : 'card'}
+          className="glass-card"
           style={{
-            background: 'var(--bg-surface)',
-            border: '1px solid var(--border)',
+            background: 'var(--glass-bg)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--glass-border)',
             borderRadius: '1.5rem',
             padding: '1.75rem',
             boxShadow: 'var(--card-shadow)'
@@ -201,8 +204,10 @@ const AdminDashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(360px, 100%), 1fr))', gap: '1.5rem' }}>
         {/* Recent Donations */}
         <div style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid var(--glass-border)',
           borderRadius: '1.5rem',
           overflow: 'hidden',
           boxShadow: 'var(--card-shadow)'
@@ -251,8 +256,10 @@ const AdminDashboard = () => {
 
         {/* Recent Requests */}
         <div style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid var(--glass-border)',
           borderRadius: '1.5rem',
           overflow: 'hidden',
           boxShadow: 'var(--card-shadow)'

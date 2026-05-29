@@ -70,7 +70,7 @@ export default function DonorEligibility() {
 
   if (!myProfile) {
     return (
-      <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 12 }}>
+      <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: 12 }}>
         <FiAlertOctagon style={{ fontSize: '2.5rem', color: 'var(--text-secondary)', marginBottom: '1rem' }} />
         <p style={{ color: 'var(--text-secondary)' }}>Donor profile not found. Please complete your donor profile registration first.</p>
       </div>

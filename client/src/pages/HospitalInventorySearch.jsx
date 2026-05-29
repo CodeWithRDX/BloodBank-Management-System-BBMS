@@ -47,7 +47,7 @@ const HospitalInventorySearch = () => {
       </div>
 
       {/* Selector card */}
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: 'var(--card-shadow)' }}>
+      <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.25rem', padding: '1.5rem', boxShadow: 'var(--glass-shadow)' }}>
         <p style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.75rem' }}>
           🔍 Filter by Patient's Blood Group
         </p>
@@ -85,7 +85,7 @@ const HospitalInventorySearch = () => {
             const isHighlighted = selected && compat.includes(item.bloodGroup);
             return (
               <div key={item.bloodGroup} style={{
-                background: 'var(--bg-surface)',
+                background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
                 border: `1px solid ${isHighlighted ? 'rgba(74,222,128,0.4)' : 'var(--border)'}`,
                 borderRadius: '1.25rem', padding: '1.5rem',
                 textAlign: 'center', transition: 'all 0.2s',
@@ -119,8 +119,8 @@ const HospitalInventorySearch = () => {
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Submit a request and our team will process it as quickly as possible.</p>
         </div>
         <Link to="/hospital/requests/new" style={{
-          padding: '0.625rem 1.5rem', background: 'var(--accent)', color: 'white',
-          borderRadius: '0.75rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.875rem',
+          padding: '0.625rem 1.5rem', background: 'var(--gradient-primary)', color: 'white',
+          borderRadius: 'var(--btn-radius)', textDecoration: 'none', fontWeight: 700, fontSize: '0.875rem',
           boxShadow: '0 0 14px var(--accent-glow)', whiteSpace: 'nowrap', transition: 'all 0.2s',
         }}
           onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; }}

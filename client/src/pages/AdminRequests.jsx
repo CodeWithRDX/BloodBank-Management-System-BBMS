@@ -45,7 +45,7 @@ const AdminRequests = () => {
           <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', fontFamily: "'Space Grotesk', sans-serif" }}>Blood Requests</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.25rem' }}>Review and manage hospital blood requests</p>
         </div>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ padding: '0.5rem 0.875rem', fontSize: '0.82rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', cursor: 'pointer' }}>
+        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} style={{ padding: '0.5rem 0.875rem', fontSize: '0.82rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', cursor: 'pointer' }}>
           {[['', 'All Statuses'], ['pending', 'Pending'], ['approved', 'Approved'], ['rejected', 'Rejected'], ['completed', 'Completed']].map(([v, l]) => <option key={v} value={v}>{l}</option>)}
         </select>
       </div>
@@ -105,17 +105,17 @@ const AdminRequests = () => {
       {selected && (
         <>
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 40 }} onClick={() => setSelected(null)} />
-          <div className="animate-scaleInCentered" style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 50, width: '90%', maxWidth: '26rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', boxShadow: 'var(--card-shadow)', padding: '1.5rem' }}>
+          <div className="animate-scaleInCentered" style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 50, width: '90%', maxWidth: '26rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.25rem', boxShadow: 'var(--glass-shadow)', padding: '1.5rem' }}>
             <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1rem', marginBottom: '0.25rem' }}>❌ Reject Request</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginBottom: '1.25rem' }}>
               Rejecting request <strong style={{ color: 'var(--accent)' }}>{selected.requestId}</strong> for {selected.patientName}
             </p>
             <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.375rem' }}>Rejection Reason</label>
             <textarea value={rejReason} onChange={e => setRejReason(e.target.value)} placeholder="Explain why this request is being rejected…" rows={3}
-              style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.875rem', resize: 'vertical', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '0.75rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.875rem', resize: 'vertical', boxSizing: 'border-box' }}
             />
             <div style={{ display: 'flex', gap: '0.625rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
-              <button onClick={() => setSelected(null)} style={{ padding: '0.625rem 1.25rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => setSelected(null)} style={{ padding: '0.625rem 1.25rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.875rem', cursor: 'pointer' }}>Cancel</button>
               <button onClick={() => handleStatus(selected._id, 'rejected', rejReason)} style={{ padding: '0.625rem 1.25rem', background: 'rgba(248,113,113,0.15)', border: '1px solid rgba(248,113,113,0.4)', borderRadius: '0.625rem', color: '#f87171', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer' }}>
                 Reject Request
               </button>

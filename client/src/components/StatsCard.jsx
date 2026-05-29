@@ -2,7 +2,6 @@ import { useTheme } from '../theme/ThemeContext';
 
 const StatsCard = ({ title, value, icon: Icon, color = 'accent', subtitle, trend }) => {
   const { theme } = useTheme();
-  const isAnime = theme?.group === 'anime';
 
   const colorStyles = {
     accent:  { icon: 'var(--accent)',  glow: 'var(--accent-glow)', bg: 'var(--accent-soft)' },
@@ -19,54 +18,53 @@ const StatsCard = ({ title, value, icon: Icon, color = 'accent', subtitle, trend
 
   return (
     <div
-      className={`animate-fadeUp ${isAnime ? 'anime-card' : 'card'}`}
+      className="animate-fadeUp glass-card"
       style={{
-        background: 'var(--bg-surface)',
-        border: `1px solid ${isAnime ? 'color-mix(in srgb, var(--accent) 20%, var(--border))' : 'var(--border)'}`,
-        borderRadius: isAnime ? '0.75rem' : '1rem',
+        background: 'var(--glass-bg)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid var(--glass-border)',
+        borderRadius: '1rem',
         padding: 'clamp(1rem, 2vw, 1.25rem) clamp(1rem, 2vw, 1.5rem)',
-        boxShadow: 'var(--card-shadow)',
-        transition: 'all 0.25s ease',
+        boxShadow: 'var(--glass-shadow)',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         cursor: 'default',
         position: 'relative',
         overflow: 'hidden',
       }}
       onMouseEnter={e => {
         e.currentTarget.style.transform = 'translateY(-4px)';
-        e.currentTarget.style.borderColor = isAnime ? 'var(--accent)' : c.icon;
-        e.currentTarget.style.boxShadow = isAnime
-          ? `var(--card-shadow), 0 0 30px var(--anime-glow), 0 0 15px ${c.glow}`
-          : `var(--card-shadow), 0 0 20px ${c.glow}`;
+        e.currentTarget.style.borderColor = c.icon;
+        e.currentTarget.style.boxShadow = `var(--glass-shadow), 0 0 20px ${c.glow}`;
       }}
       onMouseLeave={e => {
         e.currentTarget.style.transform = '';
-        e.currentTarget.style.borderColor = isAnime ? 'color-mix(in srgb, var(--accent) 20%, var(--border))' : 'var(--border)';
-        e.currentTarget.style.boxShadow = 'var(--card-shadow)';
+        e.currentTarget.style.borderColor = 'var(--glass-border)';
+        e.currentTarget.style.boxShadow = 'var(--glass-shadow)';
       }}
     >
       {/* Background glow blob */}
       <div style={{
         position: 'absolute', top: '-1.5rem', right: '-1.5rem',
         width: '5rem', height: '5rem', borderRadius: '50%',
-        background: isAnime ? 'var(--anime-glow)' : c.bg,
-        filter: 'blur(20px)', pointerEvents: 'none', opacity: isAnime ? 0.6 : 1,
+        background: c.bg,
+        filter: 'blur(20px)', pointerEvents: 'none', opacity: 1,
       }} />
 
-      {/* Anime: corner accent stripe */}
-      {isAnime && (
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0,
-          height: '2px',
-          background: `linear-gradient(90deg, transparent, var(--accent), var(--energy-color), transparent)`,
-        }} />
-      )}
+      {/* Gradient accent line */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0,
+        height: '2px',
+        background: `linear-gradient(90deg, transparent, ${c.icon}, transparent)`,
+        opacity: 0.5,
+      }} />
 
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', position: 'relative' }}>
         <div style={{ minWidth: 0, flex: 1 }}>
           <p style={{
             color: 'var(--text-secondary)', fontSize: '0.72rem', fontWeight: 700,
-            textTransform: 'uppercase', letterSpacing: isAnime ? '0.1em' : '0.06em',
-            fontFamily: 'var(--font-display)',
+            textTransform: 'uppercase', letterSpacing: '0.06em',
+            fontFamily: "'Space Grotesk', sans-serif",
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}>
             {title}
@@ -76,8 +74,7 @@ const StatsCard = ({ title, value, icon: Icon, color = 'accent', subtitle, trend
             fontSize: 'clamp(1.75rem, 4vw, 2.25rem)',
             fontWeight: 900, lineHeight: 1,
             marginTop: '0.375rem',
-            fontFamily: 'var(--font-display)',
-            textShadow: isAnime ? `0 0 16px var(--accent-glow)` : 'none',
+            fontFamily: "'Space Grotesk', sans-serif",
           }}>
             {value ?? '—'}
           </p>
@@ -103,14 +100,11 @@ const StatsCard = ({ title, value, icon: Icon, color = 'accent', subtitle, trend
             border: `1px solid ${c.glow}`,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
-            boxShadow: isAnime
-              ? `0 0 20px ${c.glow}, 0 0 8px var(--anime-glow)`
-              : `0 0 16px ${c.glow}`,
+            boxShadow: `0 0 16px ${c.glow}`,
             marginLeft: '0.75rem',
           }}>
             <Icon style={{
               width: '1.4rem', height: '1.4rem', color: c.icon,
-              filter: isAnime ? `drop-shadow(0 0 4px ${c.glow})` : 'none',
             }} />
           </div>
         )}

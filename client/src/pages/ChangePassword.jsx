@@ -166,11 +166,11 @@ const ChangePassword = () => {
         )}
 
         <div style={{
-          background: 'var(--bg-surface)',
-          border: '1px solid var(--border)',
+          background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+          border: '1px solid var(--glass-border)',
           borderRadius: '1.25rem',
           padding: '2rem',
-          boxShadow: 'var(--card-shadow)'
+          boxShadow: 'var(--glass-shadow)'
         }}>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
             

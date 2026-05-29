@@ -43,9 +43,9 @@ const HospitalDashboard = () => {
         </div>
         <Link to="/hospital/requests/new" style={{
           display: 'flex', alignItems: 'center', gap: '0.4rem',
-          padding: '0.625rem 1.25rem', background: 'var(--accent)', color: 'white',
-          borderRadius: '0.75rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.875rem',
-          boxShadow: '0 0 16px var(--accent-glow)', transition: 'all 0.2s',
+          padding: '0.625rem 1.25rem', background: 'var(--gradient-primary)', color: 'white',
+          borderRadius: 'var(--btn-radius)', textDecoration: 'none', fontWeight: 700, fontSize: '0.875rem',
+          boxShadow: '0 0 20px rgba(239,68,68,0.3)', transition: 'all 0.3s',
         }}
           onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
           onMouseLeave={e => { e.currentTarget.style.filter = ''; e.currentTarget.style.transform = ''; }}
@@ -63,7 +63,7 @@ const HospitalDashboard = () => {
       </div>
 
       {/* Recent requests table */}
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
+      <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--glass-shadow)' }}>
         <div style={{ padding: '1.125rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.95rem' }}>Recent Requests</h3>
           <Link to="/hospital/requests" style={{ color: 'var(--accent)', textDecoration: 'none', fontSize: '0.78rem', fontWeight: 700 }}>View All →</Link>

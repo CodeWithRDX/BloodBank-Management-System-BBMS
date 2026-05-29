@@ -246,7 +246,7 @@ export default function AdminCamps() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', cursor: 'pointer', outline: 'none' }}
+            style={{ padding: '0.5rem 0.875rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', cursor: 'pointer', outline: 'none' }}
           >
             <option value="all">All Statuses</option>
             <option value="upcoming">Upcoming</option>
@@ -261,7 +261,7 @@ export default function AdminCamps() {
           <select
             value={branchFilter}
             onChange={(e) => setBranchFilter(e.target.value)}
-            style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', cursor: 'pointer', outline: 'none' }}
+            style={{ padding: '0.5rem 0.875rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', cursor: 'pointer', outline: 'none' }}
           >
             <option value="all">All Branches</option>
             {branches.map((b) => (
@@ -368,7 +368,7 @@ export default function AdminCamps() {
           ))}
 
           {camps.length === 0 && (
-            <div style={{ gridColumn: '1 / -1', padding: '4rem 2rem', textAlign: 'center', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 12 }}>
+            <div style={{ gridColumn: '1 / -1', padding: '4rem 2rem', textAlign: 'center', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: 12 }}>
               <FiAlertTriangle style={{ fontSize: '2.5rem', color: 'var(--text-secondary)', marginBottom: '1rem' }} />
               <p style={{ color: 'var(--text-secondary)' }}>No donation camps scheduled matching current filters.</p>
             </div>
@@ -624,7 +624,7 @@ export default function AdminCamps() {
                   width: '100%',
                   height: '38px',
                   background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--glass-border)',
                   borderRadius: 'var(--input-radius)',
                   color: 'var(--text-primary)',
                   fontFamily: 'var(--font-body)',
@@ -632,14 +632,14 @@ export default function AdminCamps() {
                 }}
                 buttonStyle={{
                   background: 'var(--bg-elevated)',
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--glass-border)',
                   borderTopLeftRadius: 'var(--input-radius)',
                   borderBottomLeftRadius: 'var(--input-radius)',
                 }}
                 dropdownStyle={{
-                  background: 'var(--bg-surface)',
+                  background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
                   color: 'var(--text-primary)',
-                  border: '1px solid var(--border)',
+                  border: '1px solid var(--glass-border)',
                 }}
               />
             </div>
@@ -792,7 +792,7 @@ export default function AdminCamps() {
                                     fontWeight: 700,
                                     background: 'rgba(107,114,128,0.15)',
                                     color: 'var(--text-secondary)',
-                                    border: '1px solid var(--border)',
+                                    border: '1px solid var(--glass-border)',
                                     borderRadius: '0.375rem',
                                     cursor: 'pointer',
                                     display: 'flex',

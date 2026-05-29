@@ -16,7 +16,7 @@ const STATUSES     = ['available', 'reserved', 'issued', 'expired', 'discarded']
 const defaultForm = { bloodGroup: 'A+', component: 'whole_blood', quantity: 1, storageLocation: 'Main Storage', expiryDate: '', status: 'available' };
 
 /* ── shared input/select style ─────────────── */
-const selectStyle = { width: '100%', padding: '0.65rem 0.875rem', fontSize: '0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', cursor: 'pointer' };
+const selectStyle = { width: '100%', padding: '0.65rem 0.875rem', fontSize: '0.875rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', cursor: 'pointer' };
 const inputStyle  = { ...selectStyle, cursor: 'text' };
 const Label = ({ children }) => (
   <label style={{ display: 'block', color: 'var(--text-secondary)', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.35rem' }}>
@@ -83,7 +83,7 @@ const AdminInventory = () => {
             {total} blood units in system
           </p>
         </div>
-        <button onClick={openAdd} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.625rem 1.25rem', background: 'var(--accent)', color: 'white', borderRadius: '0.75rem', border: 'none', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', boxShadow: '0 0 16px var(--accent-glow)', transition: 'all 0.2s' }}
+        <button onClick={openAdd} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.625rem 1.25rem', background: 'var(--gradient-primary)', color: 'white', borderRadius: 'var(--btn-radius)', border: 'none', fontWeight: 700, fontSize: '0.875rem', cursor: 'pointer', boxShadow: '0 0 16px var(--accent-glow)', transition: 'all 0.2s' }}
           onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
           onMouseLeave={e => { e.currentTarget.style.filter = ''; e.currentTarget.style.transform = ''; }}
         >
@@ -97,7 +97,7 @@ const AdminInventory = () => {
           { value: filterGroup, onChange: e => setFilterGroup(e.target.value), options: [['', 'All Groups'], ...BLOOD_GROUPS.map(g => [g, g])] },
           { value: filterStatus, onChange: e => setFilterStatus(e.target.value), options: [['', 'All Statuses'], ...STATUSES.map(s => [s, s])] },
         ].map((f, i) => (
-          <select key={i} value={f.value} onChange={f.onChange} className="input" style={{ padding: '0.5rem 0.875rem', fontSize: '0.82rem', width: 'auto', cursor: 'pointer', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)' }}>
+          <select key={i} value={f.value} onChange={f.onChange} className="input" style={{ padding: '0.5rem 0.875rem', fontSize: '0.82rem', width: 'auto', cursor: 'pointer', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)' }}>
             {f.options.map(([val, label]) => <option key={val} value={val}>{label}</option>)}
           </select>
         ))}
@@ -139,7 +139,7 @@ const AdminInventory = () => {
                       <td style={{ padding: '0.875rem 1rem', color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{item.storageLocation}</td>
                       <td style={{ padding: '0.875rem 1rem' }}><StatusBadge status={item.status} /></td>
                       <td style={{ padding: '0.875rem 1rem' }}>
-                        <button onClick={() => openEdit(item)} style={{ padding: '0.3rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.5rem', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', transition: 'all 0.15s' }}
+                        <button onClick={() => openEdit(item)} style={{ padding: '0.3rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.5rem', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', transition: 'all 0.15s' }}
                           onMouseEnter={e => { e.currentTarget.style.borderColor = '#60a5fa'; e.currentTarget.style.color = '#60a5fa'; }}
                           onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
                           title="Edit"
@@ -160,13 +160,13 @@ const AdminInventory = () => {
       {modal && (
         <>
           <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', zIndex: 40 }} onClick={() => setModal(false)} />
-          <div className="animate-scaleInCentered" style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 50, width: '90%', maxWidth: '32rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', boxShadow: 'var(--card-shadow), 0 0 40px var(--accent-soft)', overflow: 'hidden' }}>
+          <div className="animate-scaleInCentered" style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', zIndex: 50, width: '90%', maxWidth: '32rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.25rem', boxShadow: 'var(--card-shadow), 0 0 40px var(--accent-soft)', overflow: 'hidden' }}>
             {/* Modal header */}
             <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1rem' }}>
                 {editItem ? '✏️ Edit Blood Unit' : '➕ Add Blood Unit'}
               </h3>
-              <button onClick={() => setModal(false)} style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.5rem', padding: '0.3rem', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex' }}>
+              <button onClick={() => setModal(false)} style={{ background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.5rem', padding: '0.3rem', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex' }}>
                 <HiOutlineX style={{ width: '0.9rem', height: '0.9rem' }} />
               </button>
             </div>
@@ -181,7 +181,7 @@ const AdminInventory = () => {
                 <div><Label>Status</Label><select name="status" value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} style={selectStyle}>{STATUSES.map(s => <option key={s} value={s}>{s}</option>)}</select></div>
               </div>
               <div style={{ display: 'flex', gap: '0.625rem', justifyContent: 'flex-end', paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
-                <button type="button" onClick={() => setModal(false)} style={{ padding: '0.625rem 1.25rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+                <button type="button" onClick={() => setModal(false)} style={{ padding: '0.625rem 1.25rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
                 <button type="submit" disabled={loading} className="btn-primary" style={{ padding: '0.625rem 1.5rem', border: 'none', fontSize: '0.875rem', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
                   {loading ? 'Saving…' : editItem ? 'Update' : 'Add Unit'}
                 </button>

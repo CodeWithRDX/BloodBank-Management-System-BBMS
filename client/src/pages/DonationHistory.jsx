@@ -11,10 +11,10 @@ const TH = ({ c }) => (
 
 const StatBox = ({ label, value, color, emoji }) => (
   <div style={{
-    background: 'var(--bg-surface)', border: '1px solid var(--border)',
+    background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)',
     borderRadius: '1rem', padding: '1.25rem 1.5rem',
     display: 'flex', alignItems: 'center', gap: '1rem',
-    boxShadow: 'var(--card-shadow)',
+    boxShadow: 'var(--glass-shadow)',
   }}>
     <div style={{
       width: '3rem', height: '3rem', borderRadius: '0.75rem',
@@ -59,7 +59,7 @@ const DonationHistory = () => {
       </div>
 
       {/* Table */}
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
+      <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--glass-shadow)' }}>
         {loading && !myDonations?.length ? (
           <LoadingSpinner text="Loading history…" />
         ) : !myDonations?.length ? (

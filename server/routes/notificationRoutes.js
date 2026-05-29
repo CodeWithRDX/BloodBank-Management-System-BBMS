@@ -4,6 +4,7 @@ import {
   markAsRead, 
   markAllAsRead, 
   deleteNotification,
+  clearAllNotifications,
   getNotificationSettings,
   updateNotificationSettings,
   testTelegramSettings,
@@ -20,6 +21,7 @@ router.put('/settings', protect, updateNotificationSettings);
 router.post('/settings/test-telegram', protect, testTelegramSettings);
 router.post('/settings/test-whatsapp', protect, testWhatsAppSettings);
 router.put('/:id/read', protect, markAsRead);
+router.delete('/clear-all', protect, clearAllNotifications);
 router.delete('/:id', protect, deleteNotification);
 
 export default router;

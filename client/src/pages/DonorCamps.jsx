@@ -106,11 +106,11 @@ export default function DonorCamps() {
           
           {/* Filters Bar */}
           <div style={{
-            background: 'var(--bg-surface)',
-            border: '1px solid var(--border)',
+            background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            border: '1px solid var(--glass-border)',
             borderRadius: '1rem',
             padding: '1.25rem',
-            boxShadow: 'var(--card-shadow)',
+            boxShadow: 'var(--glass-shadow)',
             display: 'flex',
             flexDirection: 'column',
             gap: '1rem'
@@ -127,7 +127,7 @@ export default function DonorCamps() {
                   value={radius} 
                   onChange={(e) => setRadius(Number(e.target.value))} 
                   disabled={!coords}
-                  style={{ width: '100%', padding: '0.5rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.5rem', color: 'var(--text-primary)', fontSize: '0.82rem' }}
+                  style={{ width: '100%', padding: '0.5rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.5rem', color: 'var(--text-primary)', fontSize: '0.82rem' }}
                 >
                   <option value={10}>Within 10 km</option>
                   <option value={25}>Within 25 km</option>
@@ -146,7 +146,7 @@ export default function DonorCamps() {
                   type="date" 
                   value={dateFilter} 
                   onChange={(e) => setDateFilter(e.target.value)}
-                  style={{ width: '100%', padding: '0.5rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.5rem', color: 'var(--text-primary)', fontSize: '0.82rem' }}
+                  style={{ width: '100%', padding: '0.5rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.5rem', color: 'var(--text-primary)', fontSize: '0.82rem' }}
                 />
               </div>
 
@@ -156,7 +156,7 @@ export default function DonorCamps() {
                 <select 
                   value={branchFilter} 
                   onChange={(e) => setBranchFilter(e.target.value)}
-                  style={{ width: '100%', padding: '0.5rem', background: 'var(--bg-elevated)', border: '1px solid var(--border)', borderRadius: '0.5rem', color: 'var(--text-primary)', fontSize: '0.82rem' }}
+                  style={{ width: '100%', padding: '0.5rem', background: 'var(--bg-elevated)', border: '1px solid var(--glass-border)', borderRadius: '0.5rem', color: 'var(--text-primary)', fontSize: '0.82rem' }}
                 >
                   <option value="">All Branches</option>
                   {publicBranches?.map(b => (
@@ -286,7 +286,7 @@ export default function DonorCamps() {
               })}
 
               {filteredCamps.length === 0 && (
-                <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 12, color: 'var(--text-secondary)' }}>
+                <div style={{ padding: '3rem', textAlign: 'center', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: 12, color: 'var(--text-secondary)' }}>
                   No donation camps matching the criteria found at the moment.
                 </div>
               )}
@@ -313,7 +313,7 @@ export default function DonorCamps() {
                     border: '1px dashed var(--accent)',
                     borderRadius: 14,
                     padding: '1.25rem',
-                    boxShadow: 'var(--card-shadow)',
+                    boxShadow: 'var(--glass-shadow)',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '1rem',

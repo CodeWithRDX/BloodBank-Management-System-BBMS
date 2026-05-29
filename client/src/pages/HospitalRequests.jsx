@@ -40,8 +40,8 @@ const HospitalRequests = () => {
         </div>
         <Link to="/hospital/requests/new" style={{
           display: 'flex', alignItems: 'center', gap: '0.4rem',
-          padding: '0.625rem 1.25rem', background: 'var(--accent)', color: 'white',
-          borderRadius: '0.75rem', textDecoration: 'none', fontWeight: 700, fontSize: '0.875rem',
+          padding: '0.625rem 1.25rem', background: 'var(--gradient-primary)', color: 'white',
+          borderRadius: 'var(--btn-radius)', textDecoration: 'none', fontWeight: 700, fontSize: '0.875rem',
           boxShadow: '0 0 16px var(--accent-glow)', transition: 'all 0.2s',
         }}
           onMouseEnter={e => { e.currentTarget.style.filter = 'brightness(1.15)'; }}
@@ -73,7 +73,7 @@ const HospitalRequests = () => {
       </div>
 
       {/* Table */}
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
+      <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--glass-shadow)' }}>
         {loading && !myRequests?.length ? (
           <LoadingSpinner text="Loading requests…" />
         ) : (

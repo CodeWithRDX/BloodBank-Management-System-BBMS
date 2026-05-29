@@ -61,11 +61,11 @@ const AdminUsers = () => {
             <input
               type="text" placeholder="Search name / email…" value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ padding: '0.5rem 0.875rem 0.5rem 2.2rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none', width: '15rem' }}
+              style={{ padding: '0.5rem 0.875rem 0.5rem 2.2rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', outline: 'none', width: '15rem' }}
             />
           </div>
           {/* Role filter */}
-          <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} style={{ padding: '0.5rem 0.875rem', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', cursor: 'pointer' }}>
+          <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} style={{ padding: '0.5rem 0.875rem', background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '0.625rem', color: 'var(--text-primary)', fontSize: '0.82rem', cursor: 'pointer' }}>
             <option value="">All Roles</option>
             {['admin', 'staff', 'donor', 'hospital'].map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}
           </select>
@@ -73,7 +73,7 @@ const AdminUsers = () => {
       </div>
 
       {/* Table */}
-      <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--card-shadow)' }}>
+      <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.25rem', overflow: 'hidden', boxShadow: 'var(--glass-shadow)' }}>
         <div style={{ padding: '0.875rem 1.25rem', borderBottom: '1px solid var(--border)', background: 'var(--bg-elevated)' }}>
           <span style={{ color: 'var(--text-secondary)', fontSize: '0.78rem', fontWeight: 600 }}>
             Showing {filtered?.length || 0} of {totalUsers} users
