@@ -28,7 +28,7 @@ services:
   # Internal database service
   # ────────────────────────────────────────────────────────────────────────────
   mongo:
-    image: mongo:latest
+    image: mongo:8.2.9
     container_name: bbms-mongo
     restart: unless-stopped
 
