@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /inventory
+Allow: /locator
+Allow: /camps
+Allow: /login
+Allow: /register
+
+# Disallow private user/dashboard routes from being indexed
+Disallow: /admin/
+Disallow: /donor/
+Disallow: /hospital/
+Disallow: /staff/
+Disallow: /profile
+Disallow: /change-password
+Disallow: /unauthorized
+
+Sitemap: https://bbms.raushan.live/sitemap.xml
