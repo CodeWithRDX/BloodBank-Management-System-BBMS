@@ -1,8 +1,11 @@
 /**
  * socketManager.js
- * Centralized Socket.IO emission utilities.
+ * Centralized Socket.IO emission utilities + SSE redirection.
  * Import `getIO()` anywhere in the server to emit real-time events.
+ * Redundant one-way alerts are redirected to Server-Sent Events (sseManager).
  */
+
+import { sendToAdmins, sendToBranch, sendToUser, sendToAll } from './sseManager.js';
 
 let _io = null;
 
@@ -21,95 +24,86 @@ export const getIO = () => {
   return _io;
 };
 
-// ─── Emission Helpers ────────────────────────────────────────────────────────
+// ─── SSE Emission Redirection Helpers ────────────────────────────────────────
 
 /**
- * Emit to all connected admin clients
+ * Emit to all connected admin clients via SSE
  */
 export const emitToAdmins = (event, data) => {
-  if (!_io) return;
-  _io.to('room:admins').emit(event, data);
+  sendToAdmins(event, data);
 };
 
 /**
- * Emit to all staff/admin in a specific branch
+ * Emit to all staff/admin in a specific branch via SSE
  */
 export const emitToBranch = (branchId, event, data) => {
-  if (!_io) return;
-  _io.to(`room:branch:${branchId}`).emit(event, data);
+  sendToBranch(branchId, event, data);
 };
 
 /**
- * Emit to a specific user by userId
+ * Emit to a specific user by userId via SSE
  */
 export const emitToUser = (userId, event, data) => {
-  if (!_io) return;
-  _io.to(`room:user:${userId}`).emit(event, data);
+  sendToUser(userId, event, data);
 };
 
 /**
- * Broadcast inventory update to admins + relevant branch
+ * Broadcast inventory update to admins + relevant branch via SSE
  */
 export const broadcastInventoryUpdate = (branchId, inventorySummary) => {
-  if (!_io) return;
-  emitToAdmins('inventory:updated', { branchId, summary: inventorySummary });
+  sendToAdmins('inventory:updated', { branchId, summary: inventorySummary });
   if (branchId) {
-    emitToBranch(branchId, 'inventory:updated', { branchId, summary: inventorySummary });
+    sendToBranch(branchId, 'inventory:updated', { branchId, summary: inventorySummary });
   }
 };
 
 /**
- * Broadcast a new notification in real-time
+ * Broadcast a new notification in real-time via SSE
  */
 export const emitNotification = (userId, notification) => {
-  if (!_io) return;
   if (userId) {
-    emitToUser(userId, 'notification:new', notification);
+    sendToUser(userId, 'notification:new', notification);
   }
   // Also push to admins room for admin-targeted notifications
-  emitToAdmins('notification:new', notification);
+  sendToAdmins('notification:new', notification);
 };
 
 /**
- * Broadcast low-stock alert to admins and branch
+ * Broadcast low-stock alert to admins and branch via SSE
  */
 export const emitLowStockAlert = (branchId, bloodGroup, quantity) => {
-  if (!_io) return;
   const payload = { branchId, bloodGroup, quantity, timestamp: new Date() };
-  emitToAdmins('inventory:low_stock', payload);
+  sendToAdmins('inventory:low_stock', payload);
   if (branchId) {
-    emitToBranch(branchId, 'inventory:low_stock', payload);
+    sendToBranch(branchId, 'inventory:low_stock', payload);
   }
 };
 
 /**
- * Emit blood request update
+ * Emit blood request update via SSE
  */
 export const emitRequestUpdate = (userId, branchId, request) => {
-  if (!_io) return;
-  emitToUser(userId, 'request:updated', request);
-  emitToAdmins('request:updated', request);
+  sendToUser(userId, 'request:updated', request);
+  sendToAdmins('request:updated', request);
   if (branchId) {
-    emitToBranch(branchId, 'request:updated', request);
+    sendToBranch(branchId, 'request:updated', request);
   }
 };
 
 /**
- * Emit camp registration event
+ * Emit camp registration event via SSE
  */
 export const emitCampRegistration = (branchId, registration) => {
-  if (!_io) return;
-  emitToAdmins('camp:registration', registration);
+  sendToAdmins('camp:registration', registration);
   if (branchId) {
-    emitToBranch(branchId, 'camp:registration', registration);
+    sendToBranch(branchId, 'camp:registration', registration);
   }
 };
 
 /**
- * Emit branch status change (approval/rejection/suspension)
+ * Emit branch status change (approval/rejection/suspension) via SSE
  */
 export const emitBranchStatusChange = (branchId, status) => {
-  if (!_io) return;
-  _io.to(`room:branch:${branchId}`).emit('branch:status_changed', { branchId, status });
-  emitToAdmins('branch:status_changed', { branchId, status });
+  sendToBranch(branchId, 'branch:status_changed', { branchId, status });
+  sendToAdmins('branch:status_changed', { branchId, status });
 };

@@ -40,6 +40,7 @@ import analyticsRoutes from './routes/analyticsRoutes.js';
 import geoRoutes from './routes/geoRoutes.js';
 import broadcastRoutes from './routes/broadcastRoutes.js';
 import communicationRoutes from './routes/communicationRoutes.js';
+import sseRoutes from './routes/sseRoutes.js';
 
 
 // Load env vars
@@ -72,12 +73,6 @@ initSocket(io);
 
 io.on('connection', (socket) => {
   console.log(`🔌 Socket connected: ${socket.id}`);
-
-  // Register Telegram simulation event handlers
-  registerTelegramSocketHandlers(socket, io);
-
-  // Register WhatsApp simulation event handlers
-  registerWhatsAppSocketHandlers(socket, io);
 
   // Join user-specific room
   socket.on('join:user', (userId) => {
@@ -272,6 +267,7 @@ app.use('/api/analytics', analyticsRoutes);
 app.use('/api/geo', geoRoutes);
 app.use('/api/broadcasts', broadcastRoutes);
 app.use('/api/communications', communicationRoutes);
+app.use('/api/events', sseRoutes);
 
 
 // ─── Health check ─────────────────────────────────────────────────────────────

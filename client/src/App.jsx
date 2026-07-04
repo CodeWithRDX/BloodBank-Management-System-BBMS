@@ -3,6 +3,7 @@ import { useEffect, lazy, Suspense } from 'react';
 import { useDispatch } from 'react-redux';
 import { Toaster } from 'react-hot-toast';
 import { loadUser } from './redux/slices/authSlice';
+import useSSE from './hooks/useSSE';
 
 // Layouts (eager — always needed)
 import PublicLayout from './layouts/PublicLayout';
@@ -87,6 +88,7 @@ function PageLoader() {
 
 function App() {
   const dispatch = useDispatch();
+  useSSE();
 
   useEffect(() => {
     dispatch(loadUser());

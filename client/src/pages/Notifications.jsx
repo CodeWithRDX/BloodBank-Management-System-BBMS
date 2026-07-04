@@ -8,7 +8,7 @@ import API from '../api/axios';
 import toast from 'react-hot-toast';
 import PhoneInputComponent from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
-import { io } from 'socket.io-client';
+import { addSSEListener, removeSSEListener } from '../hooks/useSSE';
 
 const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 
@@ -35,7 +35,6 @@ const Notifications = () => {
   const [telegramToken, setTelegramToken] = useState('');
   const [simChatId, setSimChatId] = useState('');
   const [simulating, setSimulating] = useState(false);
-  const [socket, setSocket] = useState(null);
 
   // WhatsApp states
   const [whatsappLinking, setWhatsappLinking] = useState(false);
@@ -48,55 +47,42 @@ const Notifications = () => {
     dispatch(fetchNotifications()); 
   }, [dispatch]);
 
-  // Socket.IO Listener for Real-Time pairing callback
+  // SSE Listener for Real-Time pairing callback
   useEffect(() => {
-    if (!user?._id) return;
-
-    const socketUrl = import.meta.env.VITE_SOCKET_URL || '/';
-    const s = io(socketUrl, {
-      withCredentials: true,
-      transports: ['websocket', 'polling']
-    });
-
-    setSocket(s);
-
-    s.on('connect', () => {
-      s.emit('join:user', user._id || user.id);
-    });
-
-    s.on('telegram:connected', (data) => {
+    const handleTelegramConnected = (data) => {
       if (data.enabled) {
         toast.success('🎉 Telegram paired and connected in real-time!');
         setTelegramLinking(false);
         setTelegramToken('');
-        // Reload user Redux profile & settings
         dispatch(loadUser());
         setSettings(prev => ({
           ...prev,
           telegram: { enabled: true, chatId: data.chatId }
         }));
       }
-    });
+    };
 
-    s.on('whatsapp:connected', (data) => {
+    const handleWhatsAppConnected = (data) => {
       if (data.enabled) {
         toast.success('🎉 WhatsApp paired and connected in real-time!');
         setWhatsappLinking(false);
         setWhatsappToken('');
-        // Reload user Redux profile & settings
         dispatch(loadUser());
         setSettings(prev => ({
           ...prev,
           whatsapp: { enabled: true, phone: data.phone }
         }));
       }
-    });
+    };
+
+    addSSEListener('telegram:connected', handleTelegramConnected);
+    addSSEListener('whatsapp:connected', handleWhatsAppConnected);
 
     return () => {
-      s.disconnect();
-      setSocket(null);
+      removeSSEListener('telegram:connected', handleTelegramConnected);
+      removeSSEListener('whatsapp:connected', handleWhatsAppConnected);
     };
-  }, [user?._id, dispatch]);
+  }, [dispatch]);
 
   // Fetch settings on tab switch
   useEffect(() => {
@@ -202,24 +188,15 @@ const Notifications = () => {
     if (!targetPhone) return toast.error('Please enter a mock phone number.');
 
     setSimulatingWhatsApp(true);
-    const toastId = toast.loading('Simulating WhatsApp message payload...');
+    const toastId = toast.loading('Simulating WhatsApp pairing payload via HTTP API...');
     try {
-      if (socket && socket.connected) {
-        socket.emit('whatsapp:bot_message', {
-          text: `start ${whatsappToken}`,
-          phone: targetPhone
-        });
-        toast.success('Simulated pairing event emitted via Socket.IO!', { id: toastId });
+      const { data } = await API.post('/communications/whatsapp/simulate', {
+        token: whatsappToken,
+        phone: targetPhone
+      });
+      if (data.success) {
+        toast.success('Simulated pairing payload submitted successfully!', { id: toastId });
         setSimPhone('');
-      } else {
-        const { data } = await API.post('/communications/whatsapp/simulate', {
-          token: whatsappToken,
-          phone: targetPhone
-        });
-        if (data.success) {
-          toast.success('Simulated pairing successful via API fallback!', { id: toastId });
-          setSimPhone('');
-        }
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Simulation failed', { id: toastId });
@@ -253,24 +230,15 @@ const Notifications = () => {
     const targetChatId = simChatId.trim() || '12345678';
     
     setSimulating(true);
-    const toastId = toast.loading('Simulating `/start` command payload...');
+    const toastId = toast.loading('Simulating `/start` command pairing payload via HTTP API...');
     try {
-      if (socket && socket.connected) {
-        socket.emit('telegram:bot_message', {
-          text: `/start ${telegramToken}`,
-          chatId: targetChatId
-        });
-        toast.success('Simulated pairing event emitted via Socket.IO!', { id: toastId });
+      const { data } = await API.post('/communications/telegram/simulate', {
+        token: telegramToken,
+        chatId: targetChatId
+      });
+      if (data.success) {
+        toast.success('Simulated pairing payload submitted successfully!', { id: toastId });
         setSimChatId('');
-      } else {
-        const { data } = await API.post('/communications/telegram/simulate', {
-          token: telegramToken,
-          chatId: targetChatId
-        });
-        if (data.success) {
-          toast.success('Simulated pairing successful via API fallback!', { id: toastId });
-          setSimChatId('');
-        }
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Simulation failed', { id: toastId });
