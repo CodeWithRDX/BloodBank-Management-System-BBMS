@@ -43,7 +43,7 @@ const AISupportWidget = () => {
 
   // Initialize Socket.IO
   useEffect(() => {
-    if (!sessionId || !showWidget) return;
+    if (!sessionId || !showWidget || !isOpen) return;
 
     const socketUrl = import.meta.env.VITE_SOCKET_URL || '/';
     const newSocket = io(socketUrl, {
@@ -86,6 +86,7 @@ const AISupportWidget = () => {
         
         if (typewriterIntervalRef.current) {
           clearInterval(typewriterIntervalRef.current);
+          typewriterIntervalRef.current = null;
         }
         
         typewriterIntervalRef.current = setInterval(() => {
@@ -156,7 +157,7 @@ const AISupportWidget = () => {
         typewriterIntervalRef.current = null;
       }
     };
-  }, [sessionId, showWidget]);
+  }, [sessionId, showWidget, isOpen]);
 
   // Read receipts when opening widget
   useEffect(() => {
