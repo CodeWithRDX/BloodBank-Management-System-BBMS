@@ -24,7 +24,7 @@ const AnimatedBackground = ({ variant = 'default' }) => {
       { className: 'orb orb-1', style: { width: 600, height: 600, top: '-15%', left: '10%', animationDuration: '12s' } },
       { className: 'orb orb-2', style: { width: 500, height: 500, bottom: '-15%', right: '10%', animationDuration: '16s', animationDirection: 'reverse' } },
       { className: 'orb orb-3', style: { width: 400, height: 400, top: '30%', right: '20%', animationDuration: '18s', animationDelay: '2s' } },
-      { className: 'orb', style: { width: 350, height: 350, bottom: '20%', left: '30%', background: 'radial-gradient(circle, rgba(251,191,36,0.1), transparent 70%)', filter: 'blur(80px)', animationDuration: '22s', animationDelay: '5s' } },
+      { className: 'orb', style: { width: 350, height: 350, bottom: '20%', left: '30%', background: 'radial-gradient(circle, var(--gradient-orb-2), transparent 70%)', filter: 'blur(80px)', animationDuration: '22s', animationDelay: '5s' } },
     ],
     dashboard: [
       { className: 'orb orb-1', style: { width: 400, height: 400, top: '-15%', right: '-10%', animationDuration: '20s', opacity: 0.4 } },

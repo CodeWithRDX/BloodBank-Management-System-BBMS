@@ -1,21 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { useTheme } from '../theme/ThemeContext';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import PhoneInputComponent from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import { motion, useInView } from 'framer-motion';
 import {
-  HiOutlineHeart, HiOutlineBeaker, HiOutlineShieldCheck,
-  HiOutlineUserGroup, HiOutlineArrowRight, HiOutlineLightningBolt,
-  HiOutlineGlobe, HiOutlineClipboardCheck, HiOutlineInformationCircle,
+  HiOutlineHeart,
+  HiOutlineUserGroup, HiOutlineArrowRight,
+  HiOutlineGlobe,
 } from 'react-icons/hi';
-import { FiAlertTriangle, FiCheckCircle, FiClock, FiMapPin, FiAward } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiMapPin, FiAward } from 'react-icons/fi';
 import AnimatedBackground from '../components/AnimatedBackground';
 import ScrollReveal from '../components/ScrollReveal';
 import BloodParticles from '../components/BloodParticles';
+import './Home.css';
 
 const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 
@@ -49,7 +49,6 @@ const BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 // Helper to render compatibility groups as badges/subtitles
 const renderCompatibilityBadges = (text) => {
   if (!text) return null;
-  // If it's a list like "O+, A+, B+, AB+"
   if (text.includes(',')) {
     return (
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
@@ -80,7 +79,6 @@ const renderCompatibilityBadges = (text) => {
     );
   }
   
-  // If it has description like "AB+ (Universal Receiver)" or "Everyone (Universal Donor)"
   if (text.includes('(')) {
     const parts = text.split('(');
     const main = parts[0].trim();
@@ -111,7 +109,6 @@ const renderCompatibilityBadges = (text) => {
     );
   }
 
-  // Single value (e.g. "O-", "Everyone")
   return (
     <span
       className="blood-badge-cell"
@@ -133,16 +130,41 @@ const renderCompatibilityBadges = (text) => {
   );
 };
 
+// ── PHONE INPUT STYLING DEFINITION ──
+const PHONE_INPUT_PROPS = {
+  inputStyle: {
+    width: '100%',
+    height: '42px',
+    background: 'var(--bg-elevated)',
+    border: '1px solid var(--border)',
+    borderRadius: 'var(--input-radius)',
+    color: 'var(--text-primary)',
+    fontFamily: 'var(--font-body)',
+  },
+  buttonStyle: {
+    background: 'var(--bg-elevated)',
+    border: '1px solid var(--border)',
+    borderTopLeftRadius: 'var(--input-radius)',
+    borderBottomLeftRadius: 'var(--input-radius)',
+  },
+  dropdownStyle: {
+    background: 'var(--bg-surface)',
+    color: 'var(--text-primary)',
+    border: '1px solid var(--border)',
+  }
+};
+
+
 const Home = () => {
   const { isAuthenticated, user } = useSelector(s => s.auth);
-  const { themeId, theme, themes } = useTheme();
   const statsRef = useRef(null);
   const statsInView = useInView(statsRef, { once: true, margin: '-100px' });
 
   // State hooks
   const [currentQuote, setCurrentQuote] = useState(0);
   const [activeEduTab, setActiveEduTab] = useState('can'); // 'can' | 'cannot'
-  
+  const customEase = [0.16, 1, 0.3, 1];
+
   // Emergency request form states
   const [patientName, setPatientName] = useState('');
   const [bloodGroup, setBloodGroup] = useState('O+');
@@ -241,25 +263,19 @@ const Home = () => {
   };
 
   return (
-    <div style={{ background: 'var(--bg-base)', color: 'var(--text-primary)' }}>
+    <div className="neural-container">
       
-      {/* ═══ HERO SECTION — Sui.io-inspired cinematic ══════════════ */}
+      {/* ═══ HERO SECTION — Split Column layout with 3D glass blood droplet ══════════════ */}
       <section className="hero-section">
         {/* Premium animated background */}
         <AnimatedBackground variant="hero" />
         <BloodParticles />
 
         {/* Grid pattern overlay */}
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          backgroundImage: `radial-gradient(rgba(255,255,255,0.03) 1px, transparent 1px)`,
-          backgroundSize: '30px 30px',
-          maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
-          WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
-        }} />
+        <div className="hero-grid-pattern" />
 
         {/* Floating blood type elements */}
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        <div className="floating-bg-badges-container">
           {BLOOD_GROUPS.map((g, i) => (
             <motion.div
               key={g}
@@ -287,89 +303,53 @@ const Home = () => {
           ))}
         </div>
 
-        <div style={{ maxWidth: '58rem', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 1 }}>
-          {/* Header Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-              padding: '0.45rem 1.25rem', borderRadius: '999px',
-              background: 'var(--glass-bg)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(239, 68, 68, 0.2)',
-              marginBottom: '2rem', fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent)',
-            }}
-          >
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22C55E', animation: 'glow-breathe 2s ease-in-out infinite' }} />
-            <span>Live Platform · Real-Time Healthcare Network</span>
-          </motion.div>
+        <div className="hero-grid-container">
+          
+          {/* Left Column: Hero Content */}
+          <div className="hero-left-content">
+            {/* Header Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: customEase }}
+              className="hero-header-badge"
+            >
+              <span className="hero-header-badge-dot" />
+              <span>Live Platform · Real-Time Healthcare Network</span>
+            </motion.div>
 
-          {/* Core Title with staggered reveal */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-            className="fluid-h1"
-            style={{
-              fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
-              fontWeight: 900,
-              lineHeight: 1.08,
-              letterSpacing: '-0.03em',
-              marginBottom: '1.75rem',
-              fontFamily: "'Space Grotesk', sans-serif",
-            }}
-          >
-            Empower Hope.<br />
-            Every Drop{' '}
-            <span style={{
-              background: 'var(--gradient-text)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>Saves Lives</span>.
-          </motion.h1>
+            {/* Core Title */}
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.7, ease: customEase }}
+              className="hero-main-title"
+            >
+              Saving Lives<br />
+              Through Smarter{' '}
+              <span className="hero-gradient-span">Blood Management</span>.
+            </motion.h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            style={{
-              fontSize: 'clamp(1rem, 2vw, 1.2rem)',
-              color: 'var(--text-secondary)',
-              maxWidth: '38rem',
-              margin: '0 auto 2.5rem',
-              lineHeight: 1.7,
-            }}
-          >
-            A premium next-generation blood bank gateway connecting voluntary donors, 
-            local branch clinics, and hospitals instantly during critical emergencies.
-          </motion.p>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="hero-main-desc"
+            >
+              A premium next-generation blood bank gateway connecting voluntary donors, 
+              local branch clinics, and hospitals instantly during critical emergencies.
+            </motion.p>
 
-          {/* Action CTAs */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45, duration: 0.6 }}
-            style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}
-          >
-            {isAuthenticated ? (
-              <Link
-                to={`/${user?.role}`}
-                className="btn-primary"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                  padding: '0.9rem 2.2rem', textDecoration: 'none',
-                  fontSize: '0.95rem',
-                }}
-              >
-                Enter Control Panel <HiOutlineArrowRight />
-              </Link>
-            ) : (
-              <>
+            {/* Action CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45, duration: 0.6 }}
+              className="hero-action-ctas"
+            >
+              {isAuthenticated ? (
                 <Link
-                  to="/register"
+                  to={`/${user?.role}`}
                   className="btn-primary"
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
@@ -377,103 +357,187 @@ const Home = () => {
                     fontSize: '0.95rem',
                   }}
                 >
-                  Register to Donate <HiOutlineHeart />
+                  Enter Control Panel <HiOutlineArrowRight />
                 </Link>
-                <a
-                  href="#emergency-request-section"
-                  className="btn-ghost"
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                    padding: '0.9rem 2.2rem', textDecoration: 'none',
-                    fontSize: '0.95rem',
-                  }}
-                >
-                  Emergency Request 🚨
-                </a>
-              </>
-            )}
-          </motion.div>
-
-          {/* Scroll indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 0.6 }}
-            style={{
-              position: 'absolute', bottom: '-3rem', left: '50%', transform: 'translateX(-50%)',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem',
-            }}
-          >
-            <span style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Scroll</span>
-            <div style={{
-              width: '1px', height: '2rem',
-              background: 'linear-gradient(180deg, var(--accent), transparent)',
-              animation: 'slide-up-fade 1.5s ease-in-out infinite',
-            }} />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ═══ LIVE STATS SECTION — Glassmorphism counter cards ════ */}
-      <section ref={statsRef} style={{
-        padding: '4rem 1.5rem',
-        borderTop: '1px solid var(--glass-border)',
-        borderBottom: '1px solid var(--glass-border)',
-        background: 'var(--glass-bg)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        position: 'relative',
-      }}>
-        <div style={{
-          maxWidth: '72rem', margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-          gap: '1.5rem',
-        }}>
-          {STATS.map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 30 }}
-              animate={statsInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.1, duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-              style={{
-                textAlign: 'center',
-                padding: '1.5rem 1rem',
-                borderRadius: 'var(--card-radius)',
-                background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
-                border: '1px solid var(--glass-border)',
-                transition: 'all 0.3s',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = 'rgba(239,68,68,0.2)';
-                e.currentTarget.style.boxShadow = '0 0 24px var(--accent-glow)';
-                e.currentTarget.style.transform = 'translateY(-4px)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'var(--glass-border)';
-                e.currentTarget.style.boxShadow = 'none';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <div style={{ fontSize: '2rem', marginBottom: '0.35rem' }}>{s.icon}</div>
-              <p style={{
-                fontSize: '2.5rem', fontWeight: 900,
-                fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1.1,
-                background: 'var(--gradient-primary)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-              }}>
-                {s.value}
-              </p>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.5rem', fontWeight: 600 }}>
-                {s.label}
-              </p>
+              ) : (
+                <>
+                  <Link
+                    to="/register"
+                    className="btn-primary"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                      padding: '0.9rem 2.2rem', textDecoration: 'none',
+                      fontSize: '0.95rem',
+                    }}
+                  >
+                    Register to Donate <HiOutlineHeart />
+                  </Link>
+                  <a
+                    href="#emergency-request-section"
+                    className="btn-ghost"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+                      padding: '0.9rem 2.2rem', textDecoration: 'none',
+                      fontSize: '0.95rem',
+                    }}
+                  >
+                    Emergency Request 🚨
+                  </a>
+                </>
+              )}
             </motion.div>
-          ))}
+
+            {/* Trust Badges */}
+            <div className="hero-trust-badges">
+              <span className="pill-tag" style={{ fontSize: '10px' }}>✓ Clinical Safety Grade</span>
+              <span className="pill-tag" style={{ fontSize: '10px' }}>✓ WHO Compliant</span>
+              <span className="pill-tag" style={{ fontSize: '10px' }}>✓ FDA Standards</span>
+            </div>
+
+            {/* Live Metrics Grid restored from original counter cards */}
+            <div className="hero-stats-grid">
+              <div className="hero-stat-card">
+                <p className="hero-stat-val" style={{ color: 'var(--accent)' }}>52,480</p>
+                <p className="hero-stat-lbl">Lives Saved</p>
+              </div>
+              <div className="hero-stat-card">
+                <p className="hero-stat-val" style={{ color: 'var(--accent-secondary)' }}>1,420</p>
+                <p className="hero-stat-lbl">Active Donors</p>
+              </div>
+              <div className="hero-stat-card">
+                <p className="hero-stat-val" style={{ color: 'var(--accent-success)' }}>88</p>
+                <p className="hero-stat-lbl">Hospitals Connected</p>
+              </div>
+              <div className="hero-stat-card">
+                <p className="hero-stat-val" style={{ color: 'var(--accent-warning)' }}>99.99%</p>
+                <p className="hero-stat-lbl">Fulfillment Rate</p>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Right Column: Premium Animated 3D Glass Droplet Visualizer */}
+          <div className="hero-right-visual">
+            {/* Concentric glowing pulse rings */}
+            <motion.div
+              className="droplet-pulse-ring"
+              animate={{ scale: [0.75, 1.4], opacity: [0.7, 0] }}
+              transition={{ repeat: Infinity, duration: 4, ease: "easeOut" }}
+            />
+
+            {/* DNA curved helix lines */}
+            <svg className="dna-curve" viewBox="0 0 100 200">
+              <path d="M10,10 Q90,50 10,100 T90,190" fill="none" stroke="var(--accent)" strokeWidth="1.5" strokeDasharray="3 3" />
+              <path d="M90,10 Q10,50 90,100 T10,190" fill="none" stroke="var(--accent-secondary)" strokeWidth="1.5" strokeDasharray="3 3" />
+            </svg>
+
+            {/* Floating red blood cells */}
+            <motion.div
+              className="floating-cell"
+              style={{ top: '20px', left: '20px' }}
+              animate={{ y: [0, -12, 0], x: [0, 5, 0], rotate: [0, 45, 0] }}
+              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+            >
+              <svg viewBox="0 0 40 40" width="30" height="30">
+                <radialGradient id="rbc1" cx="35%" cy="35%" r="60%">
+                  <stop offset="0%" stopColor="#ff7b7b" />
+                  <stop offset="70%" stopColor="#d32f2f" />
+                  <stop offset="100%" stopColor="#5f0909" />
+                </radialGradient>
+                <circle cx="20" cy="20" r="16" fill="url(#rbc1)" />
+                <circle cx="20" cy="20" r="5" fill="#7f1d1d" opacity="0.25" />
+              </svg>
+            </motion.div>
+
+            <motion.div
+              className="floating-cell"
+              style={{ bottom: '30px', right: '30px' }}
+              animate={{ y: [0, 10, 0], x: [0, -5, 0], rotate: [0, -30, 0] }}
+              transition={{ repeat: Infinity, duration: 7, ease: "easeInOut" }}
+            >
+              <svg viewBox="0 0 40 40" width="34" height="34">
+                <radialGradient id="rbc2" cx="35%" cy="35%" r="60%">
+                  <stop offset="0%" stopColor="#ff7b7b" />
+                  <stop offset="70%" stopColor="#d32f2f" />
+                  <stop offset="100%" stopColor="#5f0909" />
+                </radialGradient>
+                <circle cx="20" cy="20" r="16" fill="url(#rbc2)" />
+                <circle cx="20" cy="20" r="5" fill="#7f1d1d" opacity="0.25" />
+              </svg>
+            </motion.div>
+
+            <motion.div
+              className="floating-cell blur-cell"
+              style={{ top: '150px', right: '15px' }}
+              animate={{ y: [0, -8, 0], x: [0, -4, 0] }}
+              transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+            >
+              <svg viewBox="0 0 40 40" width="22" height="22">
+                <radialGradient id="rbc3" cx="35%" cy="35%" r="60%">
+                  <stop offset="0%" stopColor="#ff7b7b" />
+                  <stop offset="70%" stopColor="#d32f2f" />
+                  <stop offset="100%" stopColor="#5f0909" />
+                </radialGradient>
+                <circle cx="20" cy="20" r="16" fill="url(#rbc3)" />
+              </svg>
+            </motion.div>
+
+            {/* Droplet container */}
+            <motion.div
+              className="droplet-container"
+              animate={{ y: [0, -10, 0], rotate: [0, 4, -4, 0], scale: [1, 1.02, 1] }}
+              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+            >
+              <svg viewBox="0 0 200 200" width="220" height="220" style={{ filter: 'drop-shadow(0 15px 35px rgba(229,57,53,0.38))' }}>
+                <defs>
+                  <radialGradient id="dropletGrad" cx="30%" cy="30%" r="70%">
+                    <stop offset="0%" stopColor="#ff5252" stopOpacity="0.95" />
+                    <stop offset="40%" stopColor="#e53935" stopOpacity="0.9" />
+                    <stop offset="85%" stopColor="#b71c1c" stopOpacity="0.95" />
+                    <stop offset="100%" stopColor="#4a0000" stopOpacity="0.98" />
+                  </radialGradient>
+                  <linearGradient id="glossGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.75" />
+                    <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                
+                {/* Blood Drop path */}
+                <path d="M100,20 Q160,115 160,150 A60,60 0 1,1 40,150 Q40,115 100,20 Z" fill="url(#dropletGrad)" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" />
+                
+                {/* Glass surface curves */}
+                <path d="M72,48 Q130,122 130,150" fill="none" stroke="url(#glossGrad)" strokeWidth="2.5" strokeLinecap="round" opacity="0.65" />
+                <ellipse cx="85" cy="72" rx="9" ry="14" transform="rotate(-30, 85, 72)" fill="url(#glossGrad)" opacity="0.75" />
+                
+                {/* Glowing medical plus (+) symbol inside */}
+                <g transform="translate(100, 142)" style={{ filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.9))' }}>
+                  <line x1="-8" y1="0" x2="8" y2="0" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
+                  <line x1="0" y1="-8" x2="0" y2="8" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
+                </g>
+              </svg>
+            </motion.div>
+          </div>
+
         </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.6 }}
+          className="hero-scroll-indicator"
+        >
+          <span style={{ color: 'var(--text-secondary)', fontSize: '0.7rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Scroll</span>
+          <div style={{
+            width: '1px', height: '2rem',
+            background: 'linear-gradient(180deg, var(--accent), transparent)',
+            animation: 'slide-up-fade 1.5s ease-in-out infinite',
+          }} />
+        </motion.div>
       </section>
 
       {/* ═══ COMPATIBILITY CHART & EDUCATION ═══════════════ */}
-      <section style={{ padding: '6rem 1.5rem', background: 'var(--bg-base)', position: 'relative' }}>
+      <section style={{ padding: '6rem 1.5rem', background: 'var(--bg-base)', position: 'relative', zIndex: 2 }}>
         <div style={{ maxWidth: '72rem', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr', gap: '3rem' }}>
           
           <ScrollReveal direction="up">
@@ -486,41 +550,36 @@ const Home = () => {
             </div>
           </ScrollReveal>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }} className="locator-container">
+          {/* Changed class name to compatibility-grid-container to prevent full-screen visibility clipping */}
+          <div className="compatibility-grid-container">
+            
             {/* Table wrapper — glass */}
             <ScrollReveal direction="up" delay={0.1}>
-            <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.5rem', padding: '1.5rem', boxShadow: 'var(--glass-shadow)' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '1rem', fontFamily: 'var(--font-display)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div className="comp-glass-card">
+              <h3 className="comp-card-title">
                 📊 Who Can Donate Blood To Whom
               </h3>
-              <div className="table-wrapper comp-table" style={{ borderRadius: '0.75rem', overflow: 'hidden' }}>
+              <div className="table-wrapper comp-table comp-table-container">
                 <table>
                   <thead>
                     <tr>
-                      <th style={{ padding: '0.85rem 1.25rem' }}>Blood Group</th>
-                      <th style={{ padding: '0.85rem 1.25rem' }}>Can Give Blood To (Recipients)</th>
-                      <th style={{ padding: '0.85rem 1.25rem' }}>Can Receive Blood From (Donors)</th>
+                      <th>Blood Group</th>
+                      <th>Can Give Blood To (Recipients)</th>
+                      <th>Can Receive Blood From (Donors)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {COMPATIBILITY_DATA.map((row) => (
-                      <tr key={row.type} style={{ borderBottom: '1px solid var(--border)' }}>
-                        <td style={{ padding: '0.85rem 1.25rem', fontWeight: 800 }}>
-                          <span style={{
-                            display: 'inline-block',
-                            padding: '0.2rem 0.6rem',
-                            borderRadius: '0.5rem',
-                            background: 'var(--accent-soft)',
-                            color: 'var(--accent)',
-                            fontFamily: 'var(--font-display)',
-                          }}>
+                      <tr key={row.type}>
+                        <td>
+                          <span className="comp-badge-type">
                             {row.type}
                           </span>
                         </td>
-                        <td style={{ padding: '0.85rem 1.25rem', color: 'var(--text-primary)', fontSize: '0.85rem' }}>
+                        <td className="comp-gives-cell">
                           {renderCompatibilityBadges(row.gives)}
                         </td>
-                        <td style={{ padding: '0.85rem 1.25rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                        <td className="comp-receives-cell">
                           {renderCompatibilityBadges(row.receives)}
                         </td>
                       </tr>
@@ -533,83 +592,81 @@ const Home = () => {
 
             {/* Educational Guidelines (Tabs) — glass */}
             <ScrollReveal direction="up" delay={0.2}>
-            <div style={{ background: 'var(--glass-bg)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', border: '1px solid var(--glass-border)', borderRadius: '1.5rem', padding: '1.5rem', boxShadow: 'var(--glass-shadow)', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+            <div className="comp-glass-card edu-glass-card">
+              <div className="edu-tabs-header">
                 <button
                   onClick={() => setActiveEduTab('can')}
-                  className={activeEduTab === 'can' ? 'btn-primary' : 'btn-ghost'}
-                  style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+                  className={`${activeEduTab === 'can' ? 'btn-primary' : 'btn-ghost'} edu-tab-btn`}
                 >
                   🟢 Who Can Donate
                 </button>
                 <button
                   onClick={() => setActiveEduTab('cannot')}
-                  className={activeEduTab === 'cannot' ? 'btn-primary' : 'btn-ghost'}
-                  style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+                  className={`${activeEduTab === 'cannot' ? 'btn-primary' : 'btn-ghost'} edu-tab-btn`}
                 >
                   🔴 Who Cannot Donate
                 </button>
               </div>
 
               {activeEduTab === 'can' ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} className="animate-fadeIn">
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                    <FiCheckCircle style={{ color: '#4ade80', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                <div className="edu-tab-content animate-fadeIn">
+                  <div className="edu-info-row">
+                    <FiCheckCircle className="edu-icon-check" />
                     <div>
-                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Age Requirements</p>
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Individuals between 18 and 65 years of age are generally eligible to donate.</p>
+                      <p className="edu-row-title">Age Requirements</p>
+                      <p className="edu-row-desc">Individuals between 18 and 65 years of age are generally eligible to donate.</p>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                    <FiCheckCircle style={{ color: '#4ade80', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <div className="edu-info-row">
+                    <FiCheckCircle className="edu-icon-check" />
                     <div>
-                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Weight Thresholds</p>
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Must weigh at least 50 kg (110 lbs) and be in good general health at the time of donation.</p>
+                      <p className="edu-row-title">Weight Thresholds</p>
+                      <p className="edu-row-desc">Must weigh at least 50 kg (110 lbs) and be in good general health at the time of donation.</p>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                    <FiCheckCircle style={{ color: '#4ade80', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <div className="edu-info-row">
+                    <FiCheckCircle className="edu-icon-check" />
                     <div>
-                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Interval Cooldowns</p>
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Minimum of 90 days between consecutive Whole Blood donations to allow iron stores to fully replenish.</p>
+                      <p className="edu-row-title">Interval Cooldowns</p>
+                      <p className="edu-row-desc">Minimum of 90 days between consecutive Whole Blood donations to allow iron stores to fully replenish.</p>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                    <FiCheckCircle style={{ color: '#4ade80', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <div className="edu-info-row">
+                    <FiCheckCircle className="edu-icon-check" />
                     <div>
-                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Vital Parameters</p>
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Normal blood pressure (systolic 90-140, diastolic 60-90) and healthy hemoglobin levels (above 12.5 g/dl).</p>
+                      <p className="edu-row-title">Vital Parameters</p>
+                      <p className="edu-row-desc">Normal blood pressure (systolic 90-140, diastolic 60-90) and healthy hemoglobin levels (above 12.5 g/dl).</p>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} className="animate-fadeIn">
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                    <FiAlertTriangle style={{ color: '#f87171', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                <div className="edu-tab-content animate-fadeIn">
+                  <div className="edu-info-row">
+                    <FiAlertTriangle className="edu-icon-alert" />
                     <div>
-                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Permanent Medical Restrictions</p>
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Individuals with chronic viral infections (HIV, Hepatitis B or C), major heart diseases, insulin-dependent diabetes, or active cancers.</p>
+                      <p className="edu-row-title">Permanent Medical Restrictions</p>
+                      <p className="edu-row-desc">Individuals with chronic viral infections (HIV, Hepatitis B or C), major heart diseases, insulin-dependent diabetes, or active cancers.</p>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                    <FiAlertTriangle style={{ color: '#f87171', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <div className="edu-info-row">
+                    <FiAlertTriangle className="edu-icon-alert" />
                     <div>
-                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Temporary Deferrals (Tattoos & Piercings)</p>
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Recent tattoos, body piercings, or acupuncture procedures defer donation eligibility for 6 to 12 months for blood safety.</p>
+                      <p className="edu-row-title">Temporary Deferrals (Tattoos & Piercings)</p>
+                      <p className="edu-row-desc">Recent tattoos, body piercings, or acupuncture procedures defer donation eligibility for 6 to 12 months for blood safety.</p>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                    <FiAlertTriangle style={{ color: '#f87171', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <div className="edu-info-row">
+                    <FiAlertTriangle className="edu-icon-alert" />
                     <div>
-                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Acute Infections & Medications</p>
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Active colds, fever, sore throat, or recent course of antibiotics defer donation until symptoms completely resolve.</p>
+                      <p className="edu-row-title">Acute Infections & Medications</p>
+                      <p className="edu-row-desc">Active colds, fever, sore throat, or recent course of antibiotics defer donation until symptoms completely resolve.</p>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                    <FiAlertTriangle style={{ color: '#f87171', width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.15rem' }} />
+                  <div className="edu-info-row">
+                    <FiAlertTriangle className="edu-icon-alert" />
                     <div>
-                      <p style={{ fontWeight: 700, fontSize: '0.9rem' }}>Pregnancy and Breastfeeding</p>
-                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', marginTop: '0.15rem' }}>Deffered during pregnancy and up to 6 months post-delivery or while actively breastfeeding.</p>
+                      <p className="edu-row-title">Pregnancy and Breastfeeding</p>
+                      <p className="edu-row-desc">Deffered during pregnancy and up to 6 months post-delivery or while actively breastfeeding.</p>
                     </div>
                   </div>
                 </div>
@@ -623,12 +680,12 @@ const Home = () => {
       </section>
 
       {/* ═══ DONATION PROCESS TIMELINE ═════════════════════ */}
-      <section style={{ padding: '6rem 1.5rem', background: 'var(--bg-surface)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Timeline</span>
-            <h2 className="fluid-h2" style={{ fontWeight: 800, marginTop: '0.5rem' }}>The Donation Journey</h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+      <section className="timeline-section">
+        <div className="timeline-container">
+          <div className="timeline-header">
+            <span className="timeline-subtitle">Timeline</span>
+            <h2 className="fluid-h2">The Donation Journey</h2>
+            <p>
               Your entire donation process is completed in five simple steps taking under 45 minutes.
             </p>
           </div>
@@ -643,16 +700,17 @@ const Home = () => {
             ].map((t, idx) => (
               <div key={idx} className={`timeline-item ${t.alignment}`}>
                 <div className="timeline-content">
-                  <div style={{
-                    position: 'absolute', top: '-1rem', left: idx % 2 === 0 ? '-1rem' : 'auto', right: idx % 2 !== 0 ? '-1rem' : 'auto',
-                    width: '2rem', height: '2rem', borderRadius: '50%', background: 'var(--accent)', color: 'white',
-                    display: 'flex', alignItems: 'center', justifySelf: 'center', justifyContent: 'center', fontWeight: 800,
-                    boxShadow: '0 0 10px var(--accent-glow)'
-                  }}>
+                  <div 
+                    className="timeline-badge"
+                    style={{
+                      left: idx % 2 === 0 ? '-1rem' : 'auto', 
+                      right: idx % 2 !== 0 ? '-1rem' : 'auto'
+                    }}
+                  >
                     {t.step}
                   </div>
-                  <h4 style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '0.5rem', marginTop: '0.25rem' }}>{t.title}</h4>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.6 }}>{t.desc}</p>
+                  <h4 className="timeline-item-title">{t.title}</h4>
+                  <p className="timeline-item-desc">{t.desc}</p>
                 </div>
               </div>
             ))}
@@ -661,57 +719,32 @@ const Home = () => {
       </section>
 
       {/* ═══ MOTIVATIONAL QUOTES SLIDER ════════════════════ */}
-      <section style={{
-        padding: '5rem 1.5rem',
-        background: 'linear-gradient(180deg, var(--bg-base) 0%, var(--bg-surface) 100%)',
-        textAlign: 'center',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
-        {/* Ambient background decoration */}
-        <div style={{ position: 'absolute', top: '10%', left: '50%', transform: 'translateX(-50%)', width: '20rem', height: '8rem', borderRadius: '50%', background: 'var(--accent-soft)', filter: 'blur(50px)', pointerEvents: 'none' }} />
+      <section className="quotes-section">
+        <div className="quotes-ambient-glow" />
         
-        <div style={{ maxWidth: '42rem', margin: '0 auto', position: 'relative', zIndex: 1 }}>
-          <FiAward style={{ fontSize: '2.5rem', color: 'var(--accent)', margin: '0 auto 1.5rem', animation: 'float 3s ease-in-out infinite' }} />
+        <div className="quotes-container">
+          <FiAward className="quotes-icon" />
           
-          <div style={{ minHeight: '8rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="quotes-slider-box">
             <div className="quote-card animate-fadeIn" key={currentQuote}>
-              <p style={{
-                fontSize: 'clamp(1.2rem, 3.5vw, 1.65rem)',
-                fontWeight: 600,
-                color: 'var(--text-primary)',
-                fontStyle: 'italic',
-                lineHeight: 1.6,
-                fontFamily: 'var(--font-body)',
-              }}>
+              <p className="quote-text">
                 {QUOTES[currentQuote].text}
               </p>
-              <p style={{
-                color: 'var(--accent)',
-                fontWeight: 700,
-                fontSize: '0.9rem',
-                marginTop: '1.25rem',
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-                fontFamily: 'var(--font-display)',
-              }}>
+              <p className="quote-author">
                 — {QUOTES[currentQuote].author}
               </p>
             </div>
           </div>
 
-          {/* Dots Indicator */}
-          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginTop: '2rem' }}>
+          <div className="quote-dots-container">
             {QUOTES.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentQuote(idx)}
                 aria-label={`Show quote ${idx + 1}`}
+                className="quote-dot"
                 style={{
-                  width: '0.5rem', height: '0.5rem', borderRadius: '50%',
-                  background: currentQuote === idx ? 'var(--accent)' : 'var(--border)',
-                  border: 'none', cursor: 'pointer', transition: 'background 0.3s ease',
-                  padding: 0,
+                  background: currentQuote === idx ? 'var(--accent)' : 'var(--border)'
                 }}
               />
             ))}
@@ -720,41 +753,24 @@ const Home = () => {
       </section>
 
       {/* ═══ EMERGENCY REQUEST FORM SECTION ════════════════ */}
-      <section id="emergency-request-section" style={{
-        padding: '6rem 1.5rem',
-        borderTop: '1px solid var(--border)',
-        background: 'var(--bg-base)',
-        position: 'relative'
-      }}>
-        <div style={{ maxWidth: '50rem', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-              padding: '0.25rem 0.85rem', borderRadius: '999px',
-              background: 'rgba(239, 68, 68, 0.12)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              marginBottom: '1rem', fontSize: '0.78rem', fontWeight: 700, color: '#ef4444'
-            }}>
+      <section id="emergency-request-section" className="emergency-section">
+        <div className="emergency-container">
+          <div className="emergency-header">
+            <span className="emergency-badge">
               🚨 URGENT BROADCAST SYSTEM
             </span>
-            <h2 className="fluid-h2" style={{ fontWeight: 800 }}>Submit Emergency Request</h2>
-            <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+            <h2 className="fluid-h2">Submit Emergency Request</h2>
+            <p>
               In need of immediate blood units? Submit a verified emergency request to alert nearby branches and active staff.
             </p>
           </div>
 
-          {/* Form wrapper */}
-          <div className="glass-premium" style={{
-            borderRadius: '1.75rem',
-            padding: '2.5rem',
-            boxShadow: 'var(--card-shadow)',
-          }}>
-            <form onSubmit={handleEmergencySubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          <div className="glass-premium emergency-form-card">
+            <form onSubmit={handleEmergencySubmit} className="emergency-form">
               
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
-                {/* Patient Name */}
+              <div className="form-grid-row">
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Patient Full Name</label>
+                  <label>Patient Full Name</label>
                   <input
                     type="text"
                     required
@@ -762,12 +778,10 @@ const Home = () => {
                     onChange={e => setPatientName(e.target.value)}
                     placeholder="Enter patient full name"
                     className="input"
-                    style={{ padding: '0.75rem' }}
                   />
                 </div>
-                {/* Email */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Email Address</label>
+                  <label>Email Address</label>
                   <input
                     type="email"
                     required
@@ -775,29 +789,25 @@ const Home = () => {
                     onChange={e => setEmail(e.target.value)}
                     placeholder="Enter notification email"
                     className="input"
-                    style={{ padding: '0.75rem' }}
                   />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '1.25rem' }}>
-                {/* Blood Group */}
+              <div className="form-grid-row-three">
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Required Blood Group</label>
+                  <label>Required Blood Group</label>
                   <select
                     value={bloodGroup}
                     onChange={e => setBloodGroup(e.target.value)}
                     className="input"
-                    style={{ padding: '0.75rem', cursor: 'pointer' }}
                   >
                     {BLOOD_GROUPS.map(bg => (
-                      <option key={bg} value={bg} style={{ background: 'var(--bg-surface)' }}>{bg}</option>
+                      <option key={bg} value={bg}>{bg}</option>
                     ))}
                   </select>
                 </div>
-                {/* Quantity */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Quantity (Units)</label>
+                  <label>Quantity (Units)</label>
                   <input
                     type="number"
                     min="1"
@@ -805,31 +815,27 @@ const Home = () => {
                     value={quantity}
                     onChange={e => setQuantity(parseInt(e.target.value) || 1)}
                     className="input"
-                    style={{ padding: '0.75rem' }}
                   />
                 </div>
-                {/* Branch Selection */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Target Branch</label>
+                  <label>Target Branch</label>
                   <select
                     required
                     value={branchId}
                     onChange={e => setBranchId(e.target.value)}
                     className="input"
-                    style={{ padding: '0.75rem', cursor: 'pointer' }}
                   >
-                    <option value="" style={{ background: 'var(--bg-surface)' }}>Select Nearest Branch</option>
+                    <option value="">Select Nearest Branch</option>
                     {branches.map(b => (
-                      <option key={b._id} value={b._id} style={{ background: 'var(--bg-surface)' }}>{b.name} ({b.city})</option>
+                      <option key={b._id} value={b._id}>{b.name} ({b.city})</option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
-                {/* Contact Name */}
+              <div className="form-grid-row">
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Emergency Contact Name</label>
+                  <label>Emergency Contact Name</label>
                   <input
                     type="text"
                     required
@@ -837,43 +843,21 @@ const Home = () => {
                     onChange={e => setContactName(e.target.value)}
                     placeholder="Contact person name"
                     className="input"
-                    style={{ padding: '0.75rem' }}
                   />
                 </div>
-                {/* Phone */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Contact Phone Number</label>
+                  <label>Contact Phone Number</label>
                   <PhoneInput
                     country={'in'}
                     value={contactPhone}
                     onChange={setContactPhone}
-                    inputStyle={{
-                      width: '100%',
-                      height: '42px',
-                      background: 'var(--bg-elevated)',
-                      border: '1px solid var(--border)',
-                      borderRadius: 'var(--input-radius)',
-                      color: 'var(--text-primary)',
-                      fontFamily: 'var(--font-body)',
-                    }}
-                    buttonStyle={{
-                      background: 'var(--bg-elevated)',
-                      border: '1px solid var(--border)',
-                      borderTopLeftRadius: 'var(--input-radius)',
-                      borderBottomLeftRadius: 'var(--input-radius)',
-                    }}
-                    dropdownStyle={{
-                      background: 'var(--bg-surface)',
-                      color: 'var(--text-primary)',
-                      border: '1px solid var(--border)',
-                    }}
+                    {...PHONE_INPUT_PROPS}
                   />
                 </div>
               </div>
 
-              {/* Reason */}
               <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Reason for Urgency</label>
+                <label>Reason for Urgency</label>
                 <textarea
                   required
                   rows="3"
@@ -881,109 +865,71 @@ const Home = () => {
                   onChange={e => setReason(e.target.value)}
                   placeholder="Describe details of the surgical / clinical emergency (e.g. bypass, trauma response, low platelets)..."
                   className="input"
-                  style={{ padding: '0.75rem', resize: 'none' }}
                 />
               </div>
 
-              {/* Verified Uploads */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem' }}>
-                {/* Medical Report */}
+              <div className="form-grid-row">
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Medical Request Report</label>
-                  <div style={{
-                    border: '2px dashed var(--border)',
-                    borderRadius: 'var(--input-radius)',
-                    padding: '1.25rem',
-                    textAlign: 'center',
-                    background: 'var(--bg-elevated)',
-                    position: 'relative',
-                    transition: 'border-color 0.2s',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-                  >
+                  <label>Medical Request Report</label>
+                  <div className="file-dropzone">
                     <input
                       type="file"
                       accept=".pdf,image/*"
                       required
                       onChange={handleMedicalReportChange}
-                      style={{
-                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-                        opacity: 0, cursor: 'pointer'
-                      }}
+                      className="file-input-hidden"
                     />
                     {medicalReport ? (
                       <div>
-                        <p style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent)' }}>
+                        <p className="file-name-text">
                           📄 {medicalReport.name}
                         </p>
-                        <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+                        <p className="file-size-text">
                           {(medicalReport.size / 1024 / 1024).toFixed(2)} MB (Ready)
                         </p>
                       </div>
                     ) : (
                       <div>
-                        <span style={{ fontSize: '1.5rem' }}>📤</span>
-                        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Upload doctor requisition form</p>
+                        <span className="file-icon">📤</span>
+                        <p className="file-label-text">Upload doctor requisition form</p>
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* ID Proof */}
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 700, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Patient ID / Proof</label>
-                  <div style={{
-                    border: '2px dashed var(--border)',
-                    borderRadius: 'var(--input-radius)',
-                    padding: '1.25rem',
-                    textAlign: 'center',
-                    background: 'var(--bg-elevated)',
-                    position: 'relative',
-                    transition: 'border-color 0.2s',
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--accent)'}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-                  >
+                  <label>Patient ID / Proof</label>
+                  <div className="file-dropzone">
                     <input
                       type="file"
                       accept=".pdf,image/*"
                       required
                       onChange={handleGovernmentIdChange}
-                      style={{
-                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-                        opacity: 0, cursor: 'pointer'
-                      }}
+                      className="file-input-hidden"
                     />
                     {governmentId ? (
                       <div>
-                        <p style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--accent)' }}>
+                        <p className="file-name-text">
                           💳 {governmentId.name}
                         </p>
-                        <p style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>
+                        <p className="file-size-text">
                           {(governmentId.size / 1024 / 1024).toFixed(2)} MB (Ready)
                         </p>
                       </div>
                     ) : (
                       <div>
-                        <span style={{ fontSize: '1.5rem' }}>💳</span>
-                        <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>Upload Patient ID document</p>
+                        <span className="file-icon">💳</span>
+                        <p className="file-label-text">Upload Patient ID document</p>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Submit Action */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="btn-primary"
-                style={{
-                  width: '100%', padding: '0.9rem',
-                  fontSize: '1rem', border: 'none', cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                  marginTop: '0.5rem'
-                }}
+                className="btn-primary form-submit-btn"
               >
                 {isSubmitting ? 'Submitting Urgent Request...' : '🚨 Broadcast Emergency SOS Request'}
               </button>
@@ -993,7 +939,7 @@ const Home = () => {
       </section>
 
       {/* ═══ NEARBY CAMPS & CLINICS SECTION ════════════════ */}
-      <section style={{ padding: '6rem 1.5rem', background: 'var(--bg-surface)', borderTop: '1px solid var(--border)' }}>
+      <section className="camps-section">
         <div style={{ maxWidth: '72rem', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '3.5rem' }}>
             <span style={{ color: 'var(--accent)', fontWeight: 800, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Locations</span>
@@ -1003,39 +949,27 @@ const Home = () => {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+          <div className="camps-grid">
             {branches.slice(0, 3).map(b => (
               <div
                 key={b._id}
-                className="glass-card"
-                style={{
-                  background: 'var(--bg-surface)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '1.25rem',
-                  padding: '1.75rem',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.75rem',
-                }}
+                className="glass-card camp-card"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '1.5rem' }}>🏥</span>
-                  <h3 style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>{b.name}</h3>
+                <div className="camp-card-header">
+                  <span className="camp-card-icon">🏥</span>
+                  <h3>{b.name}</h3>
                 </div>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <p className="camp-card-address">
                   <FiMapPin style={{ color: 'var(--accent)', flexShrink: 0 }} />
                   {b.address?.street}, {b.address?.city || b.city}
                 </p>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem' }}>
+                <p className="camp-card-contact">
                   📞 {b.phone || 'N/A'} &nbsp;·&nbsp; ✉️ {b.email || 'N/A'}
                 </p>
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+                <div className="camp-card-actions">
                   <Link
                     to={`/locator`}
-                    className="btn-ghost"
-                    style={{ padding: '0.45rem 1rem', fontSize: '0.78rem', textDecoration: 'none', width: '100%', textAlign: 'center' }}
+                    className="btn-ghost camp-card-btn"
                   >
                     View Map Details
                   </Link>
@@ -1044,14 +978,10 @@ const Home = () => {
             ))}
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+          <div className="camps-footer-actions">
             <Link
               to="/locator"
-              className="btn-primary"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                padding: '0.8rem 2rem', textDecoration: 'none', fontSize: '0.875rem'
-              }}
+              className="btn-primary camps-search-btn"
             >
               Search All Branches On Map <HiOutlineGlobe />
             </Link>
@@ -1060,33 +990,26 @@ const Home = () => {
       </section>
 
       {/* ═══ CTA SECTION ══════════════════════════════════ */}
-      <section style={{ padding: '6rem 1.5rem', background: 'var(--bg-base)', borderTop: '1px solid var(--border)' }}>
+      <section className="cta-section">
         <div style={{ maxWidth: '56rem', margin: '0 auto', textAlign: 'center' }}>
-          <div className="glass-premium" style={{
-            borderRadius: '1.75rem',
-            padding: '4rem 2rem',
-            position: 'relative',
-            overflow: 'hidden',
-          }}>
-            <div style={{ fontSize: '3.5rem', marginBottom: '1.25rem' }}>🩸</div>
-            <h2 className="fluid-h2" style={{ fontWeight: 800, marginBottom: '1rem', fontFamily: 'var(--font-display)' }}>
+          <div className="glass-premium cta-premium-card">
+            <div className="cta-icon-box">🩸</div>
+            <h2>
               Join the Life-Saving Network
             </h2>
-            <p style={{ color: 'var(--text-secondary)', maxWidth: '32rem', margin: '0 auto 2.5rem', lineHeight: 1.7 }}>
+            <p>
               Become a verified blood donor, schedule your screening appointments, check real-time stock levels, or manage branch inventory from a single premium control room.
             </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div className="cta-actions-group">
               <Link
                 to="/register"
-                className="btn-primary"
-                style={{ padding: '0.875rem 2.5rem', textDecoration: 'none', fontWeight: 700 }}
+                className="btn-primary cta-action-btn"
               >
                 Register Now
               </Link>
               <Link
                 to="/login"
-                className="btn-ghost"
-                style={{ padding: '0.875rem 2.5rem', textDecoration: 'none', fontWeight: 700 }}
+                className="btn-ghost cta-action-btn"
               >
                 Account Log In
               </Link>
@@ -1094,6 +1017,18 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* ── SOLID BOTTOM TAGS BLOCK ── */}
+      <div className="hero-tags-footer-block">
+        <div className="hero-tags-footer-inner">
+          <div className="footer-right">
+            <div className="pill-tag">Real-time Supply</div>
+            <div className="pill-tag">Emergency Care</div>
+            <div className="pill-tag">Safe Logistics</div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 };

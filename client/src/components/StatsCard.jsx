@@ -4,14 +4,14 @@ const StatsCard = ({ title, value, icon: Icon, color = 'accent', subtitle, trend
   const { theme } = useTheme();
 
   const colorStyles = {
-    accent:  { icon: 'var(--accent)',  glow: 'var(--accent-glow)', bg: 'var(--accent-soft)' },
-    red:     { icon: '#f87171',        glow: 'rgba(248,113,113,0.35)', bg: 'rgba(248,113,113,0.12)' },
-    blue:    { icon: '#60a5fa',        glow: 'rgba(96,165,250,0.35)',  bg: 'rgba(96,165,250,0.12)' },
-    green:   { icon: '#4ade80',        glow: 'rgba(74,222,128,0.35)',  bg: 'rgba(74,222,128,0.12)' },
-    amber:   { icon: '#fbbf24',        glow: 'rgba(251,191,36,0.35)',  bg: 'rgba(251,191,36,0.12)' },
-    purple:  { icon: '#a78bfa',        glow: 'rgba(167,139,250,0.35)', bg: 'rgba(167,139,250,0.12)' },
-    cyan:    { icon: '#22d3ee',        glow: 'rgba(34,211,238,0.35)',  bg: 'rgba(34,211,238,0.12)' },
-    pink:    { icon: '#f472b6',        glow: 'rgba(244,114,182,0.35)', bg: 'rgba(244,114,182,0.12)' },
+    accent:  { icon: 'var(--accent)',            glow: 'var(--accent-glow)', bg: 'var(--accent-soft)' },
+    red:     { icon: 'var(--accent-emergency)',   glow: 'rgba(220, 38, 38, 0.25)', bg: 'rgba(220, 38, 38, 0.06)' },
+    blue:    { icon: 'var(--accent-info)',        glow: 'rgba(96, 165, 250, 0.25)',  bg: 'rgba(96, 165, 250, 0.06)' },
+    green:   { icon: 'var(--accent-success)',     glow: 'rgba(34, 197, 94, 0.25)',  bg: 'rgba(34, 197, 94, 0.06)' },
+    amber:   { icon: 'var(--accent-warning)',     glow: 'rgba(245, 158, 11, 0.25)',  bg: 'rgba(245, 158, 11, 0.06)' },
+    purple:  { icon: 'var(--accent-inventory)',   glow: 'rgba(139, 92, 246, 0.25)', bg: 'rgba(139, 92, 246, 0.06)' },
+    cyan:    { icon: 'var(--accent-secondary)',   glow: 'rgba(79, 195, 247, 0.25)',  bg: 'rgba(79, 195, 247, 0.06)' },
+    pink:    { icon: 'var(--accent)',            glow: 'var(--accent-glow)', bg: 'var(--accent-soft)' },
   };
 
   const c = colorStyles[color] || colorStyles.accent;

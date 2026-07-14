@@ -11,48 +11,55 @@ export const THEMES = {
   // ═══════════════════════════
   dark: {
     id: 'dark', label: 'Dark Mode', emoji: '🌑',
-    description: 'Futuristic deep-space dark', group: 'classic',
+    description: 'Aura-inspired premium dark', group: 'classic',
     vars: {
-      // Core Colors — Sui-inspired deep dark
-      '--bg-base':        '#030A14',
-      '--bg-surface':     'rgba(255, 255, 255, 0.04)',
-      '--bg-elevated':    'rgba(255, 255, 255, 0.08)',
+      // Core Colors — Aura premium dark
+      '--bg-base':        '#0c0c0c',
+      '--bg-surface':     'rgba(255, 255, 255, 0.03)',
+      '--bg-elevated':    'rgba(255, 255, 255, 0.05)',
       '--border':         'rgba(255, 255, 255, 0.08)',
-      '--text-primary':   '#F1F5F9',
-      '--text-secondary': '#94A3B8',
+      '--text-primary':   '#ffffff',
+      '--text-secondary': 'rgba(255, 255, 255, 0.65)',
+      '--text-muted':     'rgba(255, 255, 255, 0.4)',
+      '--gradient-text':  'linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.75) 100%)',
 
       // Accent System
-      '--accent':         '#EF4444',
-      '--accent-secondary': '#EC4899',
-      '--accent-glow':    'rgba(239, 68, 68, 0.35)',
-      '--accent-soft':    'rgba(239, 68, 68, 0.1)',
-      '--energy-color':   '#EC4899',
+      '--accent':           '#E53935', // Blood Red
+      '--accent-secondary': '#4FC3F7', // Secondary
+      '--accent-success':   '#22C55E',
+      '--accent-warning':   '#F59E0B',
+      '--accent-emergency': '#DC2626',
+      '--accent-info':      '#60A5FA',
+      '--accent-inventory': '#8B5CF6',
+      '--accent-glow':      'rgba(229, 57, 53, 0.25)',
+      '--accent-soft':      'rgba(229, 57, 53, 0.06)',
+      '--energy-color':     '#E53935',
 
       // Glassmorphism
-      '--glass-bg':       'rgba(255, 255, 255, 0.05)',
-      '--glass-bg-hover': 'rgba(255, 255, 255, 0.08)',
-      '--glass-border':   'rgba(255, 255, 255, 0.1)',
-      '--glass-border-hover': 'rgba(255, 255, 255, 0.2)',
-      '--glass-blur':     '16px',
-      '--glass-shadow':   '0 8px 32px rgba(0, 0, 0, 0.3)',
+      '--glass-bg':           'rgba(255, 255, 255, 0.03)',
+      '--glass-bg-hover':     'rgba(255, 255, 255, 0.05)',
+      '--glass-border':       'rgba(255, 255, 255, 0.08)',
+      '--glass-border-hover': 'rgba(255, 255, 255, 0.16)',
+      '--glass-blur':         '20px',
+      '--glass-shadow':       '0 8px 32px rgba(0, 0, 0, 0.5)',
 
       // Gradient Orbs
-      '--gradient-orb-1': 'rgba(239, 68, 68, 0.15)',
-      '--gradient-orb-2': 'rgba(236, 72, 153, 0.12)',
-      '--gradient-orb-3': 'rgba(168, 85, 247, 0.08)',
+      '--gradient-orb-1': 'rgba(229, 57, 53, 0.1)',
+      '--gradient-orb-2': 'rgba(79, 195, 247, 0.08)',
+      '--gradient-orb-3': 'rgba(139, 92, 246, 0.06)',
 
       // Sidebar
-      '--sidebar-bg':     'rgba(3, 10, 20, 0.85)',
+      '--sidebar-bg':     'rgba(12, 12, 12, 0.85)',
       '--sidebar-border': 'rgba(255, 255, 255, 0.06)',
 
       // Shadows & Glows
-      '--card-shadow':    '0 4px 24px rgba(0, 0, 0, 0.4)',
+      '--card-shadow':    '0 8px 32px rgba(0, 0, 0, 0.5)',
       '--anime-glow':     'rgba(0, 0, 0, 0)',
 
       // Shape & Font
-      '--card-radius':    '1rem',
+      '--card-radius':    '1.5rem',
       '--btn-radius':     '50px',
-      '--input-radius':   '0.75rem',
+      '--input-radius':   '0.875rem',
       '--font-display':   "'Space Grotesk', sans-serif",
       '--font-body':      "'Inter', system-ui, sans-serif",
       '--border-width':   '1px',
@@ -74,6 +81,7 @@ export const THEMES = {
       '--border':         'rgba(15, 23, 42, 0.08)',
       '--text-primary':   '#0F172A',
       '--text-secondary': '#64748B',
+      '--gradient-text':  'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
 
       // Accent System
       '--accent':         '#DC2626',
