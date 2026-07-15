@@ -126,9 +126,9 @@ export const THEMES = {
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  const savedTheme = localStorage.getItem('bbms-theme') || 'dark';
-  const [themeId, setThemeId] = useState(THEMES[savedTheme] ? savedTheme : 'dark');
-  const theme = THEMES[themeId] || THEMES.dark;
+  const savedTheme = localStorage.getItem('bbms-theme') || 'light';
+  const [themeId, setThemeId] = useState(THEMES[savedTheme] ? savedTheme : 'light');
+  const theme = THEMES[themeId] || THEMES.light;
 
   useEffect(() => {
     const root = document.documentElement;

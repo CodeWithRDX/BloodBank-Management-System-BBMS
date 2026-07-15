@@ -15,7 +15,13 @@ import { FiAlertTriangle, FiCheckCircle, FiMapPin, FiAward } from 'react-icons/f
 import AnimatedBackground from '../components/AnimatedBackground';
 import ScrollReveal from '../components/ScrollReveal';
 import BloodParticles from '../components/BloodParticles';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ReactLenis } from 'lenis/react';
+import 'lenis/dist/lenis.css';
 import './Home.css';
+
+gsap.registerPlugin(ScrollTrigger);
 
 const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 
@@ -147,18 +153,226 @@ const PHONE_INPUT_PROPS = {
     borderTopLeftRadius: 'var(--input-radius)',
     borderBottomLeftRadius: 'var(--input-radius)',
   },
-  dropdownStyle: {
-    background: 'var(--bg-surface)',
-    color: 'var(--text-primary)',
-    border: '1px solid var(--border)',
-  }
 };
 
+const TIMELINE_STEPS = [
+  { step: '01', title: 'Registration', desc: 'Present photo identification, verify demographic profiles, and complete the donor health questionnaire.' },
+  { step: '02', title: 'Screening', desc: 'A quick health assessment testing blood pressure, temperature, and checking hemoglobin levels from a finger-prick.' },
+  { step: '03', title: 'Donation', desc: 'Relax in a donation chair. The actual draw takes around 8-10 minutes, collecting one unit (approx. 450ml) of whole blood.' },
+  { step: '04', title: 'Recovery', desc: 'Rest in the refreshment area for 15 minutes while enjoying snacks and fluids to quickly restore hydration levels.' },
+  { step: '05', title: 'Impact', desc: 'Your unit is safely transported, screened in our labs, componentized, and sent to hospitals to save up to 3 lives!' }
+];
+
+const renderTimelineIllustration = (idx) => {
+  switch(idx) {
+    case 0:
+      return (
+        <div className="timeline-illustration-container">
+          <div className="reg-badge-widget">
+            <div className="reg-avatar-row">
+              <div className="reg-avatar">RD</div>
+              <div className="reg-avatar-meta">
+                <span className="reg-name">Raushan Kumar</span>
+                <span className="reg-badge-state">Verified Donor</span>
+              </div>
+            </div>
+            <div className="reg-checklist">
+              <div className="reg-check-item done">
+                <span style={{ color: '#22c55e', marginRight: '8px', fontWeight: 800 }}>✓</span> Photo ID Verified
+              </div>
+              <div className="reg-check-item done">
+                <span style={{ color: '#22c55e', marginRight: '8px', fontWeight: 800 }}>✓</span> Health Profile Match
+              </div>
+              <div className="reg-check-item done">
+                <span style={{ color: '#22c55e', marginRight: '8px', fontWeight: 800 }}>✓</span> Digital Questionnaire
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    case 1:
+      return (
+        <div className="timeline-illustration-container">
+          <div className="vitals-monitor-widget">
+            <div className="vitals-header-row">
+              <span className="vitals-lbl">LIVE SCREENING</span>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00ff66', display: 'inline-block', boxShadow: '0 0 8px #00ff66' }}></span>
+            </div>
+            <div className="vitals-grid">
+              <div className="vitals-box">
+                <span className="v-val" style={{ color: '#00ff66' }}>120/80</span>
+                <span className="v-unit">BP (mmHg)</span>
+              </div>
+              <div className="vitals-box">
+                <span className="v-val" style={{ color: '#00ff66' }}>98.6°</span>
+                <span className="v-unit">TEMP (F)</span>
+              </div>
+              <div className="vitals-box">
+                <span className="v-val" style={{ color: '#00ff66' }}>14.2</span>
+                <span className="v-unit">HEMOGLOBIN</span>
+              </div>
+            </div>
+            <svg className="ekg-line-svg" viewBox="0 0 300 50">
+              <path 
+                className="ekg-pulse-wave"
+                d="M 0,25 L 30,25 L 40,25 L 45,5 L 50,45 L 55,20 L 60,25 L 80,25 L 120,25 L 130,25 L 135,5 L 140,45 L 145,20 L 150,25 L 200,25 L 230,25 L 240,25 L 245,5 L 250,45 L 255,20 L 260,25 L 300,25" 
+              />
+            </svg>
+          </div>
+        </div>
+      );
+    case 2:
+      return (
+        <div className="timeline-illustration-container">
+          <div className="donation-droplet-glow">
+            <div style={{ position: 'absolute', width: '180px', height: '180px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, transparent 70%)', filter: 'blur(10px)' }} />
+            <motion.svg 
+              width="120" 
+              height="160" 
+              viewBox="0 0 100 130"
+              animate={{
+                y: [0, -10, 0],
+                scale: [1, 1.02, 1],
+              }}
+              transition={{
+                duration: 4,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            >
+              <defs>
+                <linearGradient id="dropletGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#ef4444" stopOpacity="0.85" />
+                  <stop offset="100%" stopColor="#991b1b" stopOpacity="0.95" />
+                </linearGradient>
+              </defs>
+              <path 
+                d="M 50,5 C 50,5 95,65 95,90 C 95,115 75,130 50,130 C 25,130 5,115 5,90 C 5,65 50,5 50,5 Z" 
+                fill="url(#dropletGrad)" 
+                stroke="rgba(255,255,255,0.2)"
+                strokeWidth="1.5"
+                style={{ filter: 'drop-shadow(0px 8px 24px rgba(239, 68, 68, 0.45))' }}
+              />
+              <path 
+                d="M 43,80 H 57 M 50,73 V 87" 
+                stroke="rgba(255,255,255,0.6)" 
+                strokeWidth="3.5" 
+                strokeLinecap="round" 
+              />
+            </motion.svg>
+          </div>
+        </div>
+      );
+    case 3:
+      return (
+        <div className="timeline-illustration-container">
+          <div className="recovery-cup-widget" style={{ width: '280px', background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '1rem' }}>
+              <span style={{ fontSize: '3rem', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.3))' }}>🥤</span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--accent)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>15 Min Rest Area</span>
+              <div style={{ width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '999px', height: '6px', overflow: 'hidden' }}>
+                <motion.div 
+                  style={{ height: '100%', background: 'var(--accent)' }}
+                  animate={{ width: ['0%', '100%'] }}
+                  transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+                />
+              </div>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>Restoring hydration levels with snacks and fluids.</p>
+            </div>
+          </div>
+        </div>
+      );
+    case 4:
+      return (
+        <div className="timeline-illustration-container">
+          <div className="transfusion-widget">
+            <div className="trans-live-row">
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--text-primary)' }}>TRANSFUSION DISPATCH</span>
+              <span className="lives-saved-badge">Active SOS</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '0.5rem 0' }}>
+              <span style={{ fontSize: '2.5rem' }}>🩸</span>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>3 Lives</span>
+                <span style={{ fontSize: '0.75rem', color: '#22c55e', fontWeight: 700 }}>Saved Per Unit</span>
+              </div>
+            </div>
+            <div className="trans-progress-container">
+              <span className="trans-progress-lbl">Delivery Progress</span>
+              <div style={{ width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '999px', height: '6px', overflow: 'hidden' }}>
+                <motion.div 
+                  style={{ height: '100%', background: 'var(--accent)' }}
+                  animate={{ width: ['30%', '100%'] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    default:
+      return null;
+  }
+};
 
 const Home = () => {
   const { isAuthenticated, user } = useSelector(s => s.auth);
   const statsRef = useRef(null);
   const statsInView = useInView(statsRef, { once: true, margin: '-100px' });
+
+  // GSAP Sticky Card Stacking ScrollTrigger setup
+  useEffect(() => {
+    const cards = gsap.utils.toArray('.timeline-card-scene');
+    if (cards.length === 0) return;
+
+    // Set initial position of all card scenes except the first one
+    gsap.set(cards.slice(1), { 
+      yPercent: 100, 
+      scale: 0.9, 
+      rotation: -3, 
+      opacity: 0,
+      filter: 'blur(0px)'
+    });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '.timeline-stack-wrapper',
+        start: 'top top+=90',
+        end: 'bottom+=6000 bottom',
+        scrub: 1.5,
+        pin: '.timeline-stack-container',
+        pinSpacing: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      }
+    });
+
+    cards.forEach((card, i) => {
+      if (i === 0) return;
+
+      // Card enters: translates up, scales to 1, rotates to 0, opacity to 1
+      tl.to(card, {
+        yPercent: 0,
+        scale: 1,
+        rotation: 0,
+        opacity: 1,
+        ease: 'power1.out'
+      }, i - 1);
+
+      // Preceding card scales down, translates up, blurs, and dims opacity
+      tl.to(cards[i-1], {
+        scale: 0.95 - (i - 1) * 0.02,
+        yPercent: -6,
+        opacity: 0.8,
+        filter: 'blur(3px)',
+        ease: 'power1.out'
+      }, i - 1);
+    });
+
+    return () => {
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
+  }, []);
 
   // State hooks
   const [currentQuote, setCurrentQuote] = useState(0);
@@ -263,7 +477,8 @@ const Home = () => {
   };
 
   return (
-    <div className="neural-container">
+    <ReactLenis root>
+      <div className="neural-container">
       
       {/* ═══ HERO SECTION — Split Column layout with 3D glass blood droplet ══════════════ */}
       <section className="hero-section">
@@ -686,34 +901,30 @@ const Home = () => {
             <span className="timeline-subtitle">Timeline</span>
             <h2 className="fluid-h2">The Donation Journey</h2>
             <p>
-              Your entire donation process is completed in five simple steps taking under 45 minutes.
+              Track every stage of blood donation—from registration to successful transfusion—in one seamless journey.
             </p>
           </div>
 
-          <div className="timeline">
-            {[
-              { step: '1', title: 'Registration', desc: 'Present photo identification, verify demographic profiles, and complete the donor health questionnaire.', alignment: 'left-timeline' },
-              { step: '2', title: 'Screening', desc: 'A quick health assessment testing blood pressure, temperature, and checking hemoglobin levels from a finger-prick.', alignment: 'right-timeline' },
-              { step: '3', title: 'Donation', desc: 'Relax in a donation chair. The actual draw takes around 8-10 minutes, collecting one unit (approx. 450ml) of whole blood.', alignment: 'left-timeline' },
-              { step: '4', title: 'Recovery', desc: 'Rest in the refreshment area for 15 minutes while enjoying snacks and fluids to quickly restore hydration levels.', alignment: 'right-timeline' },
-              { step: '5', title: 'Impact', desc: 'Your unit is safely transported, screened in our labs, componentized, and sent to hospitals to save up to 3 lives!', alignment: 'left-timeline' }
-            ].map((t, idx) => (
-              <div key={idx} className={`timeline-item ${t.alignment}`}>
-                <div className="timeline-content">
-                  <div 
-                    className="timeline-badge"
-                    style={{
-                      left: idx % 2 === 0 ? '-1rem' : 'auto', 
-                      right: idx % 2 !== 0 ? '-1rem' : 'auto'
-                    }}
-                  >
-                    {t.step}
+          <div className="timeline-stack-wrapper">
+            <div className="timeline-stack-container">
+              {TIMELINE_STEPS.map((card, idx) => (
+                <div key={card.step} className="timeline-card-scene">
+                  <div className="timeline-card-inner">
+                    <div className="time-card-left">
+                      <h4 className="time-card-step-num">{card.step}</h4>
+                      <h3 className="time-card-title">{card.title}</h3>
+                      <p className="time-card-desc">{card.desc}</p>
+                      <Link to="/register" className="btn-primary time-card-cta">
+                        Learn More →
+                      </Link>
+                    </div>
+                    <div className="time-card-right">
+                      {renderTimelineIllustration(idx)}
+                    </div>
                   </div>
-                  <h4 className="timeline-item-title">{t.title}</h4>
-                  <p className="timeline-item-desc">{t.desc}</p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -1028,8 +1239,8 @@ const Home = () => {
           </div>
         </div>
       </div>
-
-    </div>
+      </div>
+    </ReactLenis>
   );
 };
 
