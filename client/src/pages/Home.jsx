@@ -266,11 +266,11 @@ const renderTimelineIllustration = (idx) => {
     case 3:
       return (
         <div className="timeline-illustration-container">
-          <div className="recovery-cup-widget" style={{ width: '280px', background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="recovery-cup-widget" style={{ width: '280px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '1rem' }}>
               <span style={{ fontSize: '3rem', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.3))' }}>🥤</span>
               <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--accent)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>15 Min Rest Area</span>
-              <div style={{ width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '999px', height: '6px', overflow: 'hidden' }}>
+              <div style={{ width: '100%', background: 'var(--border)', borderRadius: '999px', height: '6px', overflow: 'hidden' }}>
                 <motion.div 
                   style={{ height: '100%', background: 'var(--accent)' }}
                   animate={{ width: ['0%', '100%'] }}
@@ -299,7 +299,7 @@ const renderTimelineIllustration = (idx) => {
             </div>
             <div className="trans-progress-container">
               <span className="trans-progress-lbl">Delivery Progress</span>
-              <div style={{ width: '100%', background: 'rgba(255,255,255,0.05)', borderRadius: '999px', height: '6px', overflow: 'hidden' }}>
+              <div style={{ width: '100%', background: 'var(--border)', borderRadius: '999px', height: '6px', overflow: 'hidden' }}>
                 <motion.div 
                   style={{ height: '100%', background: 'var(--accent)' }}
                   animate={{ width: ['30%', '100%'] }}
@@ -322,56 +322,78 @@ const Home = () => {
 
   // GSAP Sticky Card Stacking ScrollTrigger setup
   useEffect(() => {
-    const cards = gsap.utils.toArray('.timeline-card-scene');
-    if (cards.length === 0) return;
+    let ctx = gsap.context(() => {
+      let mm = gsap.matchMedia();
 
-    // Set initial position of all card scenes except the first one
-    gsap.set(cards.slice(1), { 
-      yPercent: 100, 
-      scale: 0.9, 
-      rotation: -3, 
-      opacity: 0,
-      filter: 'blur(0px)'
+      // Desktop and tablet layout - active ScrollTrigger pinning
+      mm.add("(min-width: 769px)", () => {
+        const cards = gsap.utils.toArray('.timeline-card-scene');
+        if (cards.length === 0) return;
+
+        // Set initial position of all card scenes except the first one
+        gsap.set(cards.slice(1), { 
+          yPercent: 100, 
+          scale: 0.9, 
+          rotation: -3, 
+          opacity: 0,
+          filter: 'blur(0px)'
+        });
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '.timeline-stack-wrapper',
+            start: 'top top+=90',
+            end: 'bottom+=4000 bottom',
+            scrub: 1.5,
+            pin: '.timeline-stack-container',
+            pinSpacing: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          }
+        });
+
+        cards.forEach((card, i) => {
+          if (i === 0) return;
+
+          // Card enters: translates up, scales to 1, rotates to 0, opacity to 1
+          tl.to(card, {
+            yPercent: 0,
+            scale: 1,
+            rotation: 0,
+            opacity: 1,
+            ease: 'power1.out'
+          }, i - 1);
+
+          // Preceding card scales down, translates up, blurs, and dims opacity
+          tl.to(cards[i-1], {
+            scale: 0.95 - (i - 1) * 0.02,
+            yPercent: -6,
+            opacity: 0.8,
+            filter: 'blur(3px)',
+            ease: 'power1.out'
+          }, i - 1);
+
+          // Completely hide cards two levels down to prevent overlay visual glitches
+          if (i > 1) {
+            tl.to(cards[i-2], {
+              opacity: 0,
+              ease: 'power1.out'
+            }, i - 1);
+          }
+        });
+
+        // Add a small spacer at the end to keep the final card state stable before unpinning
+        tl.to({}, { duration: 0.2 });
+      });
+
+      // Mobile layout - disable pinning and clear inline styles
+      mm.add("(max-width: 768px)", () => {
+        const cards = gsap.utils.toArray('.timeline-card-scene');
+        gsap.set(cards, { clearProps: "all" });
+      });
     });
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '.timeline-stack-wrapper',
-        start: 'top top+=90',
-        end: 'bottom+=6000 bottom',
-        scrub: 1.5,
-        pin: '.timeline-stack-container',
-        pinSpacing: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-      }
-    });
-
-    cards.forEach((card, i) => {
-      if (i === 0) return;
-
-      // Card enters: translates up, scales to 1, rotates to 0, opacity to 1
-      tl.to(card, {
-        yPercent: 0,
-        scale: 1,
-        rotation: 0,
-        opacity: 1,
-        ease: 'power1.out'
-      }, i - 1);
-
-      // Preceding card scales down, translates up, blurs, and dims opacity
-      tl.to(cards[i-1], {
-        scale: 0.95 - (i - 1) * 0.02,
-        yPercent: -6,
-        opacity: 0.8,
-        filter: 'blur(3px)',
-        ease: 'power1.out'
-      }, i - 1);
-    });
-
-    return () => {
-      ScrollTrigger.getAll().forEach(t => t.kill());
-    };
+    return () => ctx.revert();
   }, []);
 
   // State hooks

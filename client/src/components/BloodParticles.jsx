@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 const BloodParticles = () => {
   const canvasRef = useRef(null);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -13,7 +14,15 @@ const BloodParticles = () => {
   }, []);
 
   useEffect(() => {
-    if (reducedMotion) return;
+    const mq = window.matchMedia('(max-width: 768px)');
+    setIsMobile(mq.matches);
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion || isMobile) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -164,9 +173,9 @@ const BloodParticles = () => {
       window.removeEventListener('resize', handleResize);
       observer.disconnect();
     };
-  }, [reducedMotion]);
+  }, [reducedMotion, isMobile]);
 
-  if (reducedMotion) return null;
+  if (reducedMotion || isMobile) return null;
 
   return (
     <canvas
