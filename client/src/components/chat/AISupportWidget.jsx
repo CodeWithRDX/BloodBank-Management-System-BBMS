@@ -423,9 +423,9 @@ const AISupportWidget = () => {
             {isGenerating && (
               <div style={{ alignSelf: 'flex-start', maxWidth: '80%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }} className="animate-fadeUp">
                 <div style={{
-                  background: 'var(--bg-surface, #0f172a)',
-                  border: '1px solid var(--border, #334155)',
-                  color: 'white',
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border)',
+                  color: 'var(--text-primary)',
                   padding: '0.625rem 0.875rem',
                   borderRadius: '1rem 1rem 1rem 0.2rem',
                   fontSize: '0.82rem',
