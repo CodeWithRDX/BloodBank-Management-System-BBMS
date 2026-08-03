@@ -400,9 +400,9 @@ const AISupportWidget = () => {
                   <div style={{
                     background: isUser
                       ? 'var(--accent, #e11d48)'
-                      : 'var(--bg-surface, #0f172a)',
-                    border: isUser ? 'none' : '1px solid var(--border, #334155)',
-                    color: 'white',
+                      : 'var(--bg-surface)',
+                    border: isUser ? 'none' : '1px solid var(--border)',
+                    color: isUser ? 'white' : 'var(--text-primary)',
                     padding: '0.625rem 0.875rem',
                     borderRadius: isUser ? '1rem 1rem 0.2rem 1rem' : '1rem 1rem 1rem 0.2rem',
                     fontSize: '0.82rem',
