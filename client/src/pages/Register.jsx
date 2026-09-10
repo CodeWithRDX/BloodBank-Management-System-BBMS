@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import PhoneInputComponent from 'react-phone-input-2';
@@ -298,7 +299,7 @@ const Register = () => {
               <button
                 type="button"
                 onClick={() => {
-                  const client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID || '918823726770-3uk2ad0cfhltnn1cj0s829rbtt16amnk.apps.googleusercontent.com';
+                  const client_id = import.meta.env.GOOGLE_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID || '918823726770-3uk2ad0cfhltnn1cj0s829rbtt16amnk.apps.googleusercontent.com';
                   const redirect_uri = encodeURIComponent(window.location.origin + '/register');
                   window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&redirect_uri=${redirect_uri}&response_type=id_token&scope=openid%20email%20profile&nonce=bbmsnonce`;
                 }}

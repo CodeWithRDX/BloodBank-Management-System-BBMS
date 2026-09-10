@@ -88,30 +88,35 @@ In the **Environment Variables** section on Vercel, add the following:
 
 ### Required Variables
 
-| Key | Example Value | Description |
+| Key | Example / Default | Description |
 | :--- | :--- | :--- |
-| `MONGO_URI` *(or `MONGODB_URI`)* | `mongodb+srv://user:pass@cluster0.../bloodbank` | Your MongoDB Atlas connection URI |
+| `MONGO_URI` | `mongodb+srv://user:pass@cluster0.../bloodbank` | Your MongoDB Atlas connection URI |
 | `NODE_ENV` | `production` | Production environment flag |
 | `JWT_SECRET` | `super_secure_random_key_min_32_chars` | Secret key for signing JWT tokens |
 | `JWT_EXPIRE` | `7d` | Token validity duration |
 | `JWT_COOKIE_EXPIRE` | `7` | Cookie expiration in days |
 | `MAX_FILE_SIZE` | `5242880` | Maximum file upload size in bytes (5 MB) |
 
-### Optional / Feature Variables
+### Optional / Feature Variables (Match your existing `.env`)
 
-| Key | Example Value | Description |
-| :--- | :--- | :--- |
-| `CLIENT_URL` | `https://your-project.vercel.app` | Production frontend domain (CORS auto-allows all `*.vercel.app` domains) |
-| `IMAGEKIT_PUBLIC_KEY` | `public_xxxxxxxxxxx` | ImageKit public key for cloud avatar/file uploads |
-| `IMAGEKIT_PRIVATE_KEY` | `private_xxxxxxxxxxx` | ImageKit private key |
-| `IMAGEKIT_URL_ENDPOINT` | `https://ik.imagekit.io/your_id` | ImageKit URL endpoint |
-| `SMTP_HOST` | `smtp.gmail.com` | SMTP host for sending emails |
-| `SMTP_PORT` | `587` | SMTP port |
-| `SMTP_USER` | `your_email@gmail.com` | SMTP sender email |
-| `SMTP_PASS` | `your_app_password` | SMTP app password |
-| `FROM_EMAIL` | `noreply@bbms.com` | "From" email address |
-| `FROM_NAME` | `BBMS Blood Bank` | "From" display name |
-| `VITE_GOOGLE_CLIENT_ID` | `xxxxxxxx.apps.googleusercontent.com` | Google OAuth Client ID for Google login |
+| Key | Description |
+| :--- | :--- |
+| `CLIENT_URL` | Frontend domain(s) for CORS (CORS also automatically allows all `*.vercel.app` domains) |
+| `GOOGLE_CLIENT_ID` | Google OAuth Client ID for Google login |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret |
+| `GEMINI_API_KEY` | Google Gemini API key for AI chat assistant |
+| `GEMINI_MODEL` | Gemini AI model (e.g. `gemini-1.5-flash` or `gemini-2.5-flash`) |
+| `IMAGEKIT_PUBLIC_KEY` | ImageKit public key for cloud avatar/file uploads |
+| `IMAGEKIT_PRIVATE_KEY` | ImageKit private key |
+| `IMAGEKIT_URL_ENDPOINT` | ImageKit URL endpoint |
+| `SMTP_HOST` | SMTP host for email notifications (e.g. `smtp.gmail.com`) |
+| `SMTP_PORT` | SMTP port (`587`) |
+| `SMTP_USER` | SMTP email address |
+| `SMTP_PASS` | SMTP app password |
+| `FROM_EMAIL` | Sender email address (`noreply@bbms.com`) |
+| `FROM_NAME` | Sender display name (`BBMS`) |
+| `TELEGRAM_BOT_TOKEN` | Telegram bot token |
+| `TELEGRAM_BOT_USERNAME` | Telegram bot username |
 
 ---
 
