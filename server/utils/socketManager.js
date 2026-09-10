@@ -17,10 +17,15 @@ export const initSocket = (io) => {
 };
 
 /**
- * Get the Socket.IO instance (throws if not initialized)
+ * Get the Socket.IO instance (returns safe no-op mock if not initialized in serverless)
  */
 export const getIO = () => {
-  if (!_io) throw new Error('Socket.IO not initialized');
+  if (!_io) {
+    return {
+      to: () => ({ emit: () => {} }),
+      emit: () => {},
+    };
+  }
   return _io;
 };
 

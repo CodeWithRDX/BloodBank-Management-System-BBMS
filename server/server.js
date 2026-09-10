@@ -46,23 +46,50 @@ import sseRoutes from './routes/sseRoutes.js';
 // Load env vars
 dotenv.config();
 
-// Connect to database
-connectDB();
+// Connect to database (non-blocking on startup, middleware guarantees connection)
+connectDB().catch((err) => {
+  console.error('Initial MongoDB connection error:', err.message);
+});
 
 const app = express();
 app.set('trust proxy', 1);
 const httpServer = createServer(app);
 
-// CORS Configuration
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
-const allowedOrigins = clientUrl.includes(',') 
-  ? clientUrl.split(',').map(url => url.trim()) 
-  : clientUrl;
+// CORS Configuration — supports localhost, Vercel deployments (*.vercel.app), and custom URLs
+const baseAllowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  process.env.CLIENT_URL,
+  process.env.FRONTEND_URL,
+].filter(Boolean).flatMap((url) => (url.includes(',') ? url.split(',').map((u) => u.trim()) : url));
+
+const corsOriginCheck = (origin, callback) => {
+  // Allow requests without origin (e.g. mobile apps, curl, server-to-server)
+  if (!origin) return callback(null, true);
+
+  const isAllowed = baseAllowedOrigins.some((allowed) =>
+    origin === allowed || (process.env.NODE_ENV !== 'production' && origin.startsWith(allowed))
+  );
+
+  // Dynamically allow Vercel subdomains (including preview URLs)
+  const isVercelOrigin =
+    origin.endsWith('.vercel.app') ||
+    origin === process.env.CLIENT_URL ||
+    origin === process.env.FRONTEND_URL;
+
+  if (isAllowed || isVercelOrigin) {
+    callback(null, true);
+  } else {
+    callback(null, false);
+  }
+};
 
 // ─── Socket.IO Setup ────────────────────────────────────────────────────────
 const io = new Server(httpServer, {
   cors: {
-    origin: allowedOrigins,
+    origin: corsOriginCheck,
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -224,9 +251,26 @@ app.use(helmet());
 app.use(mongoSanitize());
 app.use(xssClean());
 app.use(cors({
-  origin: allowedOrigins,
+  origin: corsOriginCheck,
   credentials: true,
 }));
+
+// Ensure database connection is ready before servicing API requests
+app.use(async (req, res, next) => {
+  if (req.path === '/api/health' || req.path === '/health') {
+    return next();
+  }
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    return res.status(503).json({
+      success: false,
+      message: 'Database connection unavailable',
+      error: err.message,
+    });
+  }
+});
 
 // Rate limiting
 const limiter = rateLimit({
@@ -284,15 +328,17 @@ app.get('/api/health', (req, res) => {
 // ─── Error handler ───────────────────────────────────────────────────────────
 app.use(errorHandler);
 
-// ─── Start Server ─────────────────────────────────────────────────────────────
+// ─── Start Server (Skipped in serverless / Vercel runtime) ─────────────────
 const PORT = process.env.PORT || 5000;
-httpServer.listen(PORT, () => {
-  console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-  console.log(`📡 Socket.IO enabled`);
-  // Start cron jobs after server is live
-  startScheduledJobs();
-  // Start Telegram Bot update polling
-  startTelegramBot();
-});
+if (!process.env.VERCEL) {
+  httpServer.listen(PORT, () => {
+    console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    console.log(`📡 Socket.IO enabled`);
+    // Start cron jobs after server is live
+    startScheduledJobs();
+    // Start Telegram Bot update polling
+    startTelegramBot();
+  });
+}
 
 export default app;

@@ -1,0 +1,23 @@
+# Git & Editor
+.git
+.gitignore
+.vscode
+.DS_Store
+
+# Docker & Deployment Artifacts
+docker-compose.yml
+.env.docker
+Dockerfile
+nginx/
+mongo/
+docs/
+
+# Logs & Temporary Files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Server Local Uploads
+server/uploads/*
+!server/uploads/.gitkeep
