@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Home as HomeIcon, 
@@ -10,30 +10,61 @@ import {
   Info, 
   LogIn, 
   UserPlus, 
+  LayoutDashboard,
+  LogOut,
+  User,
   Phone, 
   Mail, 
   Plus, 
   X 
 } from 'lucide-react';
+import { logout } from '../redux/slices/authSlice';
 import ThemePicker from '../components/ThemePicker';
 import AnimatedBackground from '../components/AnimatedBackground';
 
-const menuLinks = [
-  { label: 'Home', path: '/', icon: HomeIcon },
-  { label: 'Blood Availability', path: '/inventory', icon: Activity },
-  { label: 'Donation Camps', path: '/camps', icon: Calendar },
-  { label: 'Find Blood Banks', path: '/locator', icon: MapPin },
-  { label: 'About Us', path: '/about', icon: Info },
-  { label: 'Sign In', path: '/login', icon: LogIn },
-  { label: 'Register', path: '/register', icon: UserPlus },
-];
-
 const PublicLayout = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const customEase = [0.16, 1, 0.3, 1];
+
+  const getDashboardPath = (role) => {
+    if (role === 'branch_admin' || role === 'staff') return '/staff';
+    if (role === 'admin') return '/admin';
+    if (role === 'hospital') return '/hospital';
+    return '/donor';
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    setIsMenuOpen(false);
+    navigate('/');
+  };
+
+  const initials = user?.name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
+
+  const baseLinks = [
+    { label: 'Home', path: '/', icon: HomeIcon },
+    { label: 'Blood Availability', path: '/inventory', icon: Activity },
+    { label: 'Donation Camps', path: '/camps', icon: Calendar },
+    { label: 'Find Blood Banks', path: '/locator', icon: MapPin },
+    { label: 'About Us', path: '/about', icon: Info },
+  ];
+
+  const authLinks = isAuthenticated
+    ? [
+        { label: 'Dashboard', path: getDashboardPath(user?.role), icon: LayoutDashboard },
+        { label: 'Profile Settings', path: '/profile', icon: User },
+      ]
+    : [
+        { label: 'Sign In', path: '/login', icon: LogIn },
+        { label: 'Register', path: '/register', icon: UserPlus },
+      ];
+
+  const currentMenuLinks = [...baseLinks, ...authLinks];
 
   // Track scroll for transparent → glass navbar transition
   useEffect(() => {
@@ -151,9 +182,19 @@ const PublicLayout = () => {
             <div>
               <h4 style={{ fontSize: '0.875rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-primary)', marginBottom: '1rem' }}>Platform Access</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem' }}>
-                <Link to="/login" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.85rem' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>Sign In</Link>
-                <Link to="/register" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.85rem' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>Donor Registration</Link>
-                <Link to="/about" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.85rem' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>Clinical About Us</Link>
+                {isAuthenticated ? (
+                  <>
+                    <Link to={getDashboardPath(user?.role)} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.85rem' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>Dashboard</Link>
+                    <Link to="/profile" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.85rem' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>Profile Settings</Link>
+                    <Link to="/about" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.85rem' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>Clinical About Us</Link>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/login" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.85rem' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>Sign In</Link>
+                    <Link to="/register" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.85rem' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>Donor Registration</Link>
+                    <Link to="/about" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.85rem' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>Clinical About Us</Link>
+                  </>
+                )}
               </div>
             </div>
 
@@ -227,9 +268,78 @@ const PublicLayout = () => {
                 </button>
               </div>
 
+              {/* User Identity Banner (when logged in) */}
+              {isAuthenticated && user && (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    padding: '0.75rem 0.875rem',
+                    marginBottom: '1rem',
+                    borderRadius: '0.875rem',
+                    background: 'var(--glass-bg)',
+                    border: '1px solid var(--glass-border)',
+                    backdropFilter: 'blur(12px)',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '2.4rem',
+                      height: '2.4rem',
+                      borderRadius: '50%',
+                      background: 'var(--gradient-primary)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontWeight: 800,
+                      fontSize: '0.8rem',
+                      flexShrink: 0,
+                      overflow: 'hidden',
+                      boxShadow: '0 0 10px rgba(239, 68, 68, 0.3)',
+                    }}
+                  >
+                    {user?.avatar ? (
+                      <img src={user.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      initials
+                    )}
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <p style={{
+                      margin: 0,
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      color: 'var(--text-primary)',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}>
+                      {user?.name || 'User'}
+                    </p>
+                    <span style={{
+                      display: 'inline-block',
+                      marginTop: '0.15rem',
+                      padding: '0.1rem 0.45rem',
+                      background: 'var(--accent-soft)',
+                      border: '1px solid rgba(239, 68, 68, 0.25)',
+                      borderRadius: '50px',
+                      color: 'var(--accent)',
+                      fontSize: '0.65rem',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.04em',
+                    }}>
+                      {user?.role}
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* Navigation Items with Lucide Icons */}
               <ul className="slideover-nav-list">
-                {menuLinks.map((link, i) => {
+                {currentMenuLinks.map((link, i) => {
                   const IconComp = link.icon;
                   const active = location.pathname === link.path;
                   return (
@@ -251,6 +361,40 @@ const PublicLayout = () => {
                     </motion.li>
                   );
                 })}
+
+                {isAuthenticated && (
+                  <motion.li
+                    className="slideover-nav-item"
+                    initial={{ x: 20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 + currentMenuLinks.length * 0.04, duration: 0.4, ease: customEase }}
+                  >
+                    <button
+                      onClick={handleLogout}
+                      className="slideover-nav-link"
+                      style={{
+                        width: '100%',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        color: '#f87171',
+                        fontFamily: 'inherit',
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.color = '#ef4444';
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.color = '#f87171';
+                        e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      <LogOut size={16} />
+                      Sign Out
+                    </button>
+                  </motion.li>
+                )}
               </ul>
 
               {/* Slideover Bottom Cards */}
@@ -260,8 +404,12 @@ const PublicLayout = () => {
                   <span className="card-tag">Priority Coordination</span>
                   <h4 className="card-title">Emergency Portal</h4>
                   <p className="card-desc">Quick access to emergency blood requests and hospital coordination.</p>
-                  <Link to="/login" className="btn-open-portal" onClick={() => setIsMenuOpen(false)}>
-                    Open Portal
+                  <Link
+                    to={isAuthenticated ? getDashboardPath(user?.role) : "/login"}
+                    className="btn-open-portal"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {isAuthenticated ? 'Open Control Panel' : 'Open Portal'}
                   </Link>
                 </div>
 

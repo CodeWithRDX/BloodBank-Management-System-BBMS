@@ -432,7 +432,7 @@ const Home = () => {
             <div className="hero-action-ctas">
               {isAuthenticated ? (
                 <Link
-                  to={`/${user?.role}`}
+                  to={user?.role === 'branch_admin' ? '/staff' : `/${user?.role || 'donor'}`}
                   className="btn-primary"
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
@@ -755,7 +755,11 @@ const Home = () => {
                 <p className="journey-card-desc">{TIMELINE_STEPS[activeStep].desc}</p>
                 
                 <div className="journey-card-actions">
-                  <Link to="/register" className="btn-primary" style={{ padding: '0.75rem 1.75rem', fontSize: '0.9rem', textDecoration: 'none' }}>
+                  <Link 
+                    to={isAuthenticated ? (user?.role === 'donor' ? '/donor/appointments/new' : (user?.role === 'branch_admin' ? '/staff' : `/${user?.role || 'donor'}`)) : '/register'} 
+                    className="btn-primary" 
+                    style={{ padding: '0.75rem 1.75rem', fontSize: '0.9rem', textDecoration: 'none' }}
+                  >
                     Schedule Donation →
                   </Link>
                   <div className="journey-nav-buttons">
@@ -1070,18 +1074,29 @@ const Home = () => {
               Become a verified blood donor, schedule your screening appointments, check real-time stock levels, or manage branch inventory from a single premium control room.
             </p>
             <div className="cta-actions-group">
-              <Link
-                to="/register"
-                className="btn-primary cta-action-btn"
-              >
-                Register Now
-              </Link>
-              <Link
-                to="/login"
-                className="btn-ghost cta-action-btn"
-              >
-                Account Log In
-              </Link>
+              {isAuthenticated ? (
+                <Link
+                  to={user?.role === 'branch_admin' ? '/staff' : `/${user?.role || 'donor'}`}
+                  className="btn-primary cta-action-btn"
+                >
+                  Enter Control Panel →
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/register"
+                    className="btn-primary cta-action-btn"
+                  >
+                    Register Now
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="btn-ghost cta-action-btn"
+                  >
+                    Account Log In
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
