@@ -12,16 +12,8 @@ import {
   HiOutlineGlobe,
 } from 'react-icons/hi';
 import { FiAlertTriangle, FiCheckCircle, FiMapPin, FiAward } from 'react-icons/fi';
-import AnimatedBackground from '../components/AnimatedBackground';
 import ScrollReveal from '../components/ScrollReveal';
-import BloodParticles from '../components/BloodParticles';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { ReactLenis } from 'lenis/react';
-import 'lenis/dist/lenis.css';
 import './Home.css';
-
-gsap.registerPlugin(ScrollTrigger);
 
 const PhoneInput = PhoneInputComponent.default || PhoneInputComponent;
 
@@ -178,13 +170,13 @@ const renderTimelineIllustration = (idx) => {
             </div>
             <div className="reg-checklist">
               <div className="reg-check-item done">
-                <span style={{ color: '#22c55e', marginRight: '8px', fontWeight: 800 }}>✓</span> Photo ID Verified
+                <span style={{ color: 'var(--accent-success)', marginRight: '8px', fontWeight: 800 }}>✓</span> Photo ID Verified
               </div>
               <div className="reg-check-item done">
-                <span style={{ color: '#22c55e', marginRight: '8px', fontWeight: 800 }}>✓</span> Health Profile Match
+                <span style={{ color: 'var(--accent-success)', marginRight: '8px', fontWeight: 800 }}>✓</span> Health Profile Match
               </div>
               <div className="reg-check-item done">
-                <span style={{ color: '#22c55e', marginRight: '8px', fontWeight: 800 }}>✓</span> Digital Questionnaire
+                <span style={{ color: 'var(--accent-success)', marginRight: '8px', fontWeight: 800 }}>✓</span> Digital Questionnaire
               </div>
             </div>
           </div>
@@ -196,19 +188,19 @@ const renderTimelineIllustration = (idx) => {
           <div className="vitals-monitor-widget">
             <div className="vitals-header-row">
               <span className="vitals-lbl">LIVE SCREENING</span>
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#00ff66', display: 'inline-block', boxShadow: '0 0 8px #00ff66' }}></span>
+              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-success)', display: 'inline-block', boxShadow: '0 0 8px var(--accent-success)' }}></span>
             </div>
             <div className="vitals-grid">
               <div className="vitals-box">
-                <span className="v-val" style={{ color: '#00ff66' }}>120/80</span>
+                <span className="v-val" style={{ color: 'var(--accent-success)' }}>120/80</span>
                 <span className="v-unit">BP (mmHg)</span>
               </div>
               <div className="vitals-box">
-                <span className="v-val" style={{ color: '#00ff66' }}>98.6°</span>
+                <span className="v-val" style={{ color: 'var(--accent-success)' }}>98.6°</span>
                 <span className="v-unit">TEMP (F)</span>
               </div>
               <div className="vitals-box">
-                <span className="v-val" style={{ color: '#00ff66' }}>14.2</span>
+                <span className="v-val" style={{ color: 'var(--accent-success)' }}>14.2</span>
                 <span className="v-unit">HEMOGLOBIN</span>
               </div>
             </div>
@@ -225,20 +217,12 @@ const renderTimelineIllustration = (idx) => {
       return (
         <div className="timeline-illustration-container">
           <div className="donation-droplet-glow">
-            <div style={{ position: 'absolute', width: '180px', height: '180px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, transparent 70%)', filter: 'blur(10px)' }} />
-            <motion.svg 
-              width="120" 
-              height="160" 
+            <div style={{ position: 'absolute', width: '160px', height: '160px', borderRadius: '50%', background: 'radial-gradient(circle, var(--accent-glow) 0%, transparent 70%)' }} />
+            <svg 
+              width="110" 
+              height="150" 
               viewBox="0 0 100 130"
-              animate={{
-                y: [0, -10, 0],
-                scale: [1, 1.02, 1],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
+              style={{ filter: 'drop-shadow(0px 8px 24px rgba(239, 68, 68, 0.35))' }}
             >
               <defs>
                 <linearGradient id="dropletGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -251,15 +235,14 @@ const renderTimelineIllustration = (idx) => {
                 fill="url(#dropletGrad)" 
                 stroke="rgba(255,255,255,0.2)"
                 strokeWidth="1.5"
-                style={{ filter: 'drop-shadow(0px 8px 24px rgba(239, 68, 68, 0.45))' }}
               />
               <path 
                 d="M 43,80 H 57 M 50,73 V 87" 
-                stroke="rgba(255,255,255,0.6)" 
+                stroke="rgba(255,255,255,0.7)" 
                 strokeWidth="3.5" 
                 strokeLinecap="round" 
               />
-            </motion.svg>
+            </svg>
           </div>
         </div>
       );
@@ -268,14 +251,10 @@ const renderTimelineIllustration = (idx) => {
         <div className="timeline-illustration-container">
           <div className="recovery-cup-widget" style={{ width: '280px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '1rem' }}>
-              <span style={{ fontSize: '3rem', filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.3))' }}>🥤</span>
+              <span style={{ fontSize: '3rem' }}>🥤</span>
               <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--accent)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>15 Min Rest Area</span>
               <div style={{ width: '100%', background: 'var(--border)', borderRadius: '999px', height: '6px', overflow: 'hidden' }}>
-                <motion.div 
-                  style={{ height: '100%', background: 'var(--accent)' }}
-                  animate={{ width: ['0%', '100%'] }}
-                  transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-                />
+                <div style={{ height: '100%', width: '100%', background: 'var(--accent)' }} />
               </div>
               <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>Restoring hydration levels with snacks and fluids.</p>
             </div>
@@ -294,17 +273,13 @@ const renderTimelineIllustration = (idx) => {
               <span style={{ fontSize: '2.5rem' }}>🩸</span>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>3 Lives</span>
-                <span style={{ fontSize: '0.75rem', color: '#22c55e', fontWeight: 700 }}>Saved Per Unit</span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--accent-success)', fontWeight: 700 }}>Saved Per Unit</span>
               </div>
             </div>
             <div className="trans-progress-container">
-              <span className="trans-progress-lbl">Delivery Progress</span>
+              <span className="trans-progress-lbl">Delivery Progress · Complete</span>
               <div style={{ width: '100%', background: 'var(--border)', borderRadius: '999px', height: '6px', overflow: 'hidden' }}>
-                <motion.div 
-                  style={{ height: '100%', background: 'var(--accent)' }}
-                  animate={{ width: ['30%', '100%'] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                />
+                <div style={{ height: '100%', width: '100%', background: 'var(--accent)' }} />
               </div>
             </div>
           </div>
@@ -319,82 +294,7 @@ const Home = () => {
   const { isAuthenticated, user } = useSelector(s => s.auth);
   const statsRef = useRef(null);
   const statsInView = useInView(statsRef, { once: true, margin: '-100px' });
-
-  // GSAP Sticky Card Stacking ScrollTrigger setup
-  useEffect(() => {
-    let ctx = gsap.context(() => {
-      let mm = gsap.matchMedia();
-
-      // Desktop and tablet layout - active ScrollTrigger pinning
-      mm.add("(min-width: 769px)", () => {
-        const cards = gsap.utils.toArray('.timeline-card-scene');
-        if (cards.length === 0) return;
-
-        // Set initial position of all card scenes except the first one
-        gsap.set(cards.slice(1), { 
-          yPercent: 100, 
-          scale: 0.9, 
-          rotation: -3, 
-          opacity: 0,
-          filter: 'blur(0px)'
-        });
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: '.timeline-stack-wrapper',
-            start: 'top top+=90',
-            end: 'bottom+=4000 bottom',
-            scrub: 1.5,
-            pin: '.timeline-stack-container',
-            pinSpacing: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          }
-        });
-
-        cards.forEach((card, i) => {
-          if (i === 0) return;
-
-          // Card enters: translates up, scales to 1, rotates to 0, opacity to 1
-          tl.to(card, {
-            yPercent: 0,
-            scale: 1,
-            rotation: 0,
-            opacity: 1,
-            ease: 'power1.out'
-          }, i - 1);
-
-          // Preceding card scales down, translates up, blurs, and dims opacity
-          tl.to(cards[i-1], {
-            scale: 0.95 - (i - 1) * 0.02,
-            yPercent: -6,
-            opacity: 0.8,
-            filter: 'blur(3px)',
-            ease: 'power1.out'
-          }, i - 1);
-
-          // Completely hide cards two levels down to prevent overlay visual glitches
-          if (i > 1) {
-            tl.to(cards[i-2], {
-              opacity: 0,
-              ease: 'power1.out'
-            }, i - 1);
-          }
-        });
-
-        // Add a small spacer at the end to keep the final card state stable before unpinning
-        tl.to({}, { duration: 0.2 });
-      });
-
-      // Mobile layout - disable pinning and clear inline styles
-      mm.add("(max-width: 768px)", () => {
-        const cards = gsap.utils.toArray('.timeline-card-scene');
-        gsap.set(cards, { clearProps: "all" });
-      });
-    });
-
-    return () => ctx.revert();
-  }, []);
+  const [activeStep, setActiveStep] = useState(0);
 
   // State hooks
   const [currentQuote, setCurrentQuote] = useState(0);
@@ -499,91 +399,37 @@ const Home = () => {
   };
 
   return (
-    <ReactLenis root>
-      <div className="neural-container">
+    <div className="neural-container">
       
       {/* ═══ HERO SECTION — Split Column layout with 3D glass blood droplet ══════════════ */}
       <section className="hero-section">
-        {/* Premium animated background */}
-        <AnimatedBackground variant="hero" />
-        <BloodParticles />
-
         {/* Grid pattern overlay */}
         <div className="hero-grid-pattern" />
-
-        {/* Floating blood type elements */}
-        <div className="floating-bg-badges-container">
-          {BLOOD_GROUPS.map((g, i) => (
-            <motion.div
-              key={g}
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 0.35, scale: 1 }}
-              transition={{ delay: 0.8 + i * 0.12, duration: 0.6, ease: 'easeOut' }}
-              style={{
-                position: 'absolute',
-                top: `${12 + (i * 11) % 75}%`,
-                left: `${i % 2 === 0 ? (4 + i * 4) : (75 + i * 3)}%`,
-                padding: '0.4rem 0.85rem',
-                borderRadius: '999px',
-                background: 'var(--glass-bg)',
-                backdropFilter: 'blur(8px)',
-                border: '1px solid var(--glass-border)',
-                color: 'var(--accent)',
-                fontSize: '0.75rem',
-                fontWeight: 800,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-                animation: `float ${4 + i * 0.5}s ease-in-out infinite ${i * 0.3}s`,
-              }}
-            >
-              🩸 {g}
-            </motion.div>
-          ))}
-        </div>
 
         <div className="hero-grid-container">
           
           {/* Left Column: Hero Content */}
           <div className="hero-left-content">
             {/* Header Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: customEase }}
-              className="hero-header-badge"
-            >
+            <div className="hero-header-badge">
               <span className="hero-header-badge-dot" />
               <span>Live Platform · Real-Time Healthcare Network</span>
-            </motion.div>
+            </div>
 
             {/* Core Title */}
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15, duration: 0.7, ease: customEase }}
-              className="hero-main-title"
-            >
+            <h1 className="hero-main-title">
               Saving Lives<br />
               Through Smarter{' '}
               <span className="hero-gradient-span">Blood Management</span>.
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="hero-main-desc"
-            >
+            <p className="hero-main-desc">
               A premium next-generation blood bank gateway connecting voluntary donors, 
               local branch clinics, and hospitals instantly during critical emergencies.
-            </motion.p>
+            </p>
 
             {/* Action CTAs */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45, duration: 0.6 }}
-              className="hero-action-ctas"
-            >
+            <div className="hero-action-ctas">
               {isAuthenticated ? (
                 <Link
                   to={`/${user?.role}`}
@@ -622,13 +468,25 @@ const Home = () => {
                   </a>
                 </>
               )}
-            </motion.div>
+            </div>
 
             {/* Trust Badges */}
             <div className="hero-trust-badges">
               <span className="pill-tag" style={{ fontSize: '10px' }}>✓ Clinical Safety Grade</span>
               <span className="pill-tag" style={{ fontSize: '10px' }}>✓ WHO Compliant</span>
               <span className="pill-tag" style={{ fontSize: '10px' }}>✓ FDA Standards</span>
+            </div>
+
+            {/* Quick Blood Group Stock Navigator */}
+            <div className="hero-blood-groups-strip">
+              <span className="hero-strip-label">Quick Blood Stock:</span>
+              <div className="hero-strip-chips">
+                {BLOOD_GROUPS.map((g) => (
+                  <Link to="/inventory" key={g} className="hero-chip-badge" title={`Check stock for ${g}`}>
+                    {g}
+                  </Link>
+                ))}
+              </div>
             </div>
 
             {/* Live Metrics Grid restored from original counter cards */}
@@ -653,14 +511,10 @@ const Home = () => {
 
           </div>
 
-          {/* Right Column: Premium Animated 3D Glass Droplet Visualizer */}
+          {/* Right Column: Premium 3D Glass Droplet Visualizer */}
           <div className="hero-right-visual">
-            {/* Concentric glowing pulse rings */}
-            <motion.div
-              className="droplet-pulse-ring"
-              animate={{ scale: [0.75, 1.4], opacity: [0.7, 0] }}
-              transition={{ repeat: Infinity, duration: 4, ease: "easeOut" }}
-            />
+            {/* Concentric glowing pulse ring - CSS subtle */}
+            <div className="droplet-pulse-ring" />
 
             {/* DNA curved helix lines */}
             <svg className="dna-curve" viewBox="0 0 100 200">
@@ -668,63 +522,8 @@ const Home = () => {
               <path d="M90,10 Q10,50 90,100 T10,190" fill="none" stroke="var(--accent-secondary)" strokeWidth="1.5" strokeDasharray="3 3" />
             </svg>
 
-            {/* Floating red blood cells */}
-            <motion.div
-              className="floating-cell"
-              style={{ top: '20px', left: '20px' }}
-              animate={{ y: [0, -12, 0], x: [0, 5, 0], rotate: [0, 45, 0] }}
-              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-            >
-              <svg viewBox="0 0 40 40" width="30" height="30">
-                <radialGradient id="rbc1" cx="35%" cy="35%" r="60%">
-                  <stop offset="0%" stopColor="#ff7b7b" />
-                  <stop offset="70%" stopColor="#d32f2f" />
-                  <stop offset="100%" stopColor="#5f0909" />
-                </radialGradient>
-                <circle cx="20" cy="20" r="16" fill="url(#rbc1)" />
-                <circle cx="20" cy="20" r="5" fill="#7f1d1d" opacity="0.25" />
-              </svg>
-            </motion.div>
-
-            <motion.div
-              className="floating-cell"
-              style={{ bottom: '30px', right: '30px' }}
-              animate={{ y: [0, 10, 0], x: [0, -5, 0], rotate: [0, -30, 0] }}
-              transition={{ repeat: Infinity, duration: 7, ease: "easeInOut" }}
-            >
-              <svg viewBox="0 0 40 40" width="34" height="34">
-                <radialGradient id="rbc2" cx="35%" cy="35%" r="60%">
-                  <stop offset="0%" stopColor="#ff7b7b" />
-                  <stop offset="70%" stopColor="#d32f2f" />
-                  <stop offset="100%" stopColor="#5f0909" />
-                </radialGradient>
-                <circle cx="20" cy="20" r="16" fill="url(#rbc2)" />
-                <circle cx="20" cy="20" r="5" fill="#7f1d1d" opacity="0.25" />
-              </svg>
-            </motion.div>
-
-            <motion.div
-              className="floating-cell blur-cell"
-              style={{ top: '150px', right: '15px' }}
-              animate={{ y: [0, -8, 0], x: [0, -4, 0] }}
-              transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
-            >
-              <svg viewBox="0 0 40 40" width="22" height="22">
-                <radialGradient id="rbc3" cx="35%" cy="35%" r="60%">
-                  <stop offset="0%" stopColor="#ff7b7b" />
-                  <stop offset="70%" stopColor="#d32f2f" />
-                  <stop offset="100%" stopColor="#5f0909" />
-                </radialGradient>
-                <circle cx="20" cy="20" r="16" fill="url(#rbc3)" />
-              </svg>
-            </motion.div>
-
             {/* Droplet container */}
-            <motion.div
-              className="droplet-container"
-              animate={{ y: [0, -10, 0], rotate: [0, 4, -4, 0], scale: [1, 1.02, 1] }}
-              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-            >
+            <div className="droplet-container hero-droplet-card">
               <svg viewBox="0 0 200 200" width="220" height="220" style={{ filter: 'drop-shadow(0 15px 35px rgba(229,57,53,0.38))' }}>
                 <defs>
                   <radialGradient id="dropletGrad" cx="30%" cy="30%" r="70%">
@@ -752,7 +551,7 @@ const Home = () => {
                   <line x1="0" y1="-8" x2="0" y2="8" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" />
                 </g>
               </svg>
-            </motion.div>
+            </div>
           </div>
 
         </div>
@@ -916,36 +715,73 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ═══ DONATION PROCESS TIMELINE ═════════════════════ */}
+      {/* ═══ DONATION PROCESS TIMELINE — Lightweight Stepped Journey ═════════════════════ */}
       <section className="timeline-section">
         <div className="timeline-container">
           <div className="timeline-header">
-            <span className="timeline-subtitle">Timeline</span>
+            <span className="timeline-subtitle">Clinical Process</span>
             <h2 className="fluid-h2">The Donation Journey</h2>
             <p>
-              Track every stage of blood donation—from registration to successful transfusion—in one seamless journey.
+              Track every stage of blood donation—from initial registration to patient transfusion—in an intuitive step-by-step walkthrough.
             </p>
           </div>
 
-          <div className="timeline-stack-wrapper">
-            <div className="timeline-stack-container">
-              {TIMELINE_STEPS.map((card, idx) => (
-                <div key={card.step} className="timeline-card-scene">
-                  <div className="timeline-card-inner">
-                    <div className="time-card-left">
-                      <h4 className="time-card-step-num">{card.step}</h4>
-                      <h3 className="time-card-title">{card.title}</h3>
-                      <p className="time-card-desc">{card.desc}</p>
-                      <Link to="/register" className="btn-primary time-card-cta">
-                        Learn More →
-                      </Link>
-                    </div>
-                    <div className="time-card-right">
-                      {renderTimelineIllustration(idx)}
-                    </div>
+          <div className="journey-stepper-container">
+            {/* Step Selector Tabs */}
+            <div className="journey-step-tabs">
+              {TIMELINE_STEPS.map((s, idx) => {
+                const isActive = activeStep === idx;
+                return (
+                  <button
+                    key={s.step}
+                    onClick={() => setActiveStep(idx)}
+                    className={`journey-step-tab-btn ${isActive ? 'active' : ''}`}
+                    aria-label={`View Step ${s.step}: ${s.title}`}
+                  >
+                    <span className="journey-tab-num">{s.step}</span>
+                    <span className="journey-tab-title">{s.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Active Step Card */}
+            <div className="journey-card-display glass-premium">
+              <div className="journey-card-left">
+                <div className="journey-step-pill">
+                  Stage {TIMELINE_STEPS[activeStep].step} of 05
+                </div>
+                <h3 className="journey-card-title">{TIMELINE_STEPS[activeStep].title}</h3>
+                <p className="journey-card-desc">{TIMELINE_STEPS[activeStep].desc}</p>
+                
+                <div className="journey-card-actions">
+                  <Link to="/register" className="btn-primary" style={{ padding: '0.75rem 1.75rem', fontSize: '0.9rem', textDecoration: 'none' }}>
+                    Schedule Donation →
+                  </Link>
+                  <div className="journey-nav-buttons">
+                    <button
+                      onClick={() => setActiveStep(prev => (prev > 0 ? prev - 1 : TIMELINE_STEPS.length - 1))}
+                      className="btn-ghost journey-nav-btn"
+                      title="Previous Step"
+                      aria-label="Previous Step"
+                    >
+                      ← Prev
+                    </button>
+                    <button
+                      onClick={() => setActiveStep(prev => (prev < TIMELINE_STEPS.length - 1 ? prev + 1 : 0))}
+                      className="btn-ghost journey-nav-btn"
+                      title="Next Step"
+                      aria-label="Next Step"
+                    >
+                      Next →
+                    </button>
                   </div>
                 </div>
-              ))}
+              </div>
+
+              <div className="journey-card-right">
+                {renderTimelineIllustration(activeStep)}
+              </div>
             </div>
           </div>
         </div>
@@ -1261,8 +1097,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      </div>
-    </ReactLenis>
+    </div>
   );
 };
 

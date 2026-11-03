@@ -31,6 +31,8 @@ const CustomCursor = () => {
   useEffect(() => {
     if (isMobileOrTouch) return;
 
+    let currentHovering = false;
+
     const handleMouseMove = (e) => {
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
@@ -40,26 +42,31 @@ const CustomCursor = () => {
       if (!target) return;
 
       // Detect button, links, inputs, and elements matching select or clickable items
-      const isOverInteractive = target.closest(
+      const isOverInteractive = Boolean(target.closest(
         'a, button, input[type="submit"], input[type="button"], select, [role="button"], [data-cursor="blood-drop"]'
-      );
+      ));
 
-      if (isOverInteractive) {
-        setIsHovering(true);
-        document.body.classList.add('custom-cursor-none');
-      } else {
-        setIsHovering(false);
-        document.body.classList.remove('custom-cursor-none');
+      if (isOverInteractive !== currentHovering) {
+        currentHovering = isOverInteractive;
+        setIsHovering(isOverInteractive);
+        if (isOverInteractive) {
+          document.body.classList.add('custom-cursor-none');
+        } else {
+          document.body.classList.remove('custom-cursor-none');
+        }
       }
     };
 
     const handleMouseLeaveWindow = () => {
       setIsVisible(false);
-      setIsHovering(false);
-      document.body.classList.remove('custom-cursor-none');
+      if (currentHovering) {
+        currentHovering = false;
+        setIsHovering(false);
+        document.body.classList.remove('custom-cursor-none');
+      }
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     document.addEventListener('mouseleave', handleMouseLeaveWindow);
 
     return () => {
@@ -108,11 +115,9 @@ const CustomCursor = () => {
         animate={{
           scale: isHovering ? 1.15 : 0,
           opacity: isHovering ? 1 : 0,
-          rotate: isHovering ? [0, 8, -8, 0] : 0,
         }}
         transition={{
-          scale: { duration: 0.18 },
-          rotate: { repeat: Infinity, duration: 2.2, ease: 'easeInOut' },
+          scale: { duration: 0.18, ease: 'easeOut' },
         }}
         style={{
           position: 'absolute',

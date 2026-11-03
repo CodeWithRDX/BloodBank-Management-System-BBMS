@@ -64,7 +64,7 @@
   --card-radius:    1.5rem;
   --btn-radius:     50px;
   --input-radius:   0.875rem;
-  --font-display:   'Inter', system-ui, sans-serif;
+  --font-display:   'Space Grotesk', system-ui, sans-serif;
   --font-body:      'Inter', system-ui, sans-serif;
   --border-width:   1px;
   --card-style:     standard;
@@ -489,10 +489,8 @@ html.theme-light .input:focus {
   100% { background-position: 0% 50%; }
 }
 @keyframes orb-drift {
-  0%, 100% { transform: translate(0, 0) scale(1); border-radius: 50%; }
-  25% { transform: translate(40px, -30px) scale(1.1); border-radius: 40% 60% 55% 45%; }
-  50% { transform: translate(-20px, 20px) scale(0.95); border-radius: 55% 45% 50% 50%; }
-  75% { transform: translate(15px, -10px) scale(1.05); border-radius: 45% 55% 45% 55%; }
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(24px, -18px, 0); }
 }
 @keyframes glow-breathe {
   0%, 100% { opacity: 0.5; }
@@ -562,8 +560,11 @@ html.theme-light .input:focus {
 .animated-bg .orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.6;
+  filter: blur(50px);
+  opacity: 0.55;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
 }
 .animated-bg .orb-1 {
   width: 500px; height: 500px;

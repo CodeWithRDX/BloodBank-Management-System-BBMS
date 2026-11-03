@@ -94,14 +94,6 @@ const BloodParticles = () => {
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.globalAlpha = this.opacity;
-        
-        if (this.radius > 3.5) {
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = this.color;
-        } else {
-          ctx.shadowBlur = 0;
-        }
-
         ctx.fill();
       }
     }
