@@ -2,25 +2,14 @@ name: Server Setup & Configuration (Ansible via GitHub Actions)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Trigger manually from the GitHub Actions tab (Run workflow)
-# This executes Ansible playbooks against your EC2 instance from the GitHub cloud runner.
+# Sets up Docker, Docker Compose, and base firewall on the EC2 instance using Ansible
 # ──────────────────────────────────────────────────────────────────────────────
 on:
   workflow_dispatch:
-    inputs:
-      install_nagios:
-        description: 'Install and configure Nagios 4 monitoring (:8080)'
-        required: false
-        type: boolean
-        default: true
-      configure_nginx:
-        description: 'Configure and enable Nginx reverse proxy (:80)'
-        required: false
-        type: boolean
-        default: true
 
 jobs:
-  ansible-server-setup:
-    name: Run Ansible Playbooks from GitHub Runner
+  ansible-docker-setup:
+    name: Install Docker & Configure Host via Ansible
     runs-on: ubuntu-latest
 
     steps:
@@ -63,37 +52,50 @@ jobs:
           [bbms_servers]
           bbms-node-01 ansible_host=${{ secrets.EC2_HOST }} ansible_user=${{ secrets.EC2_USERNAME || 'ubuntu' }} ansible_ssh_private_key_file=~/.ssh/id_rsa
 
-          [monitoring_servers]
-          bbms-node-01 ansible_host=${{ secrets.EC2_HOST }} ansible_user=${{ secrets.EC2_USERNAME || 'ubuntu' }} ansible_ssh_private_key_file=~/.ssh/id_rsa
-
           [all:children]
           bbms_servers
-          monitoring_servers
           EOF
 
-      - name: Run Ansible Base & Server Configuration (site.yml)
+      - name: Run Ansible Docker & Base Setup (site.yml)
         env:
           ANSIBLE_HOST_KEY_CHECKING: "False"
         run: |
           cd ansible
           ansible-playbook -i inventory/hosts.ini playbooks/site.yml
 
-      - name: Run Ansible Nagios 4 Installation (install-nagios.yml)
-        if: ${{ inputs.install_nagios == true || inputs.install_nagios == 'true' || inputs.install_nagios == null }}
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: "False"
-        run: |
-          cd ansible
-          ansible-playbook -i inventory/hosts.ini playbooks/install-nagios.yml
-
-      - name: Verify Live Endpoints
-        run: |
-          echo "=========================================================="
-          echo "Testing Web Server on Port 80..."
-          curl -Is "http://${{ secrets.EC2_HOST }}" | head -n 1 || true
-          
-          echo "Testing Nagios 4 Dashboard on Port 8080..."
-          curl -Is "http://${{ secrets.EC2_HOST }}:8080/nagios/" | head -n 1 || true
-          echo "=========================================================="
-          echo "🎉 Server Configuration successfully completed via Ansible!"
-
+      - name: Bootstrap Initial BBMS Docker Compose Stack
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME || 'ubuntu' }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT || 22 }}
+          script_stop: true
+          script: |
+            echo "🚀 Bootstrapping BBMS repository and containers on EC2..."
+            APP_DIR="${{ secrets.EC2_DEPLOY_PATH || '/var/www/bbms' }}"
+            
+            if [ ! -d "$APP_DIR" ]; then
+              sudo mkdir -p "$APP_DIR"
+              sudo chown -R $USER:$USER "$APP_DIR"
+              git clone https://github.com/CodeWithRDX/BloodBank-Management-System-BBMS-.git "$APP_DIR"
+            fi
+            
+            cd "$APP_DIR"
+            git fetch origin main
+            git reset --hard origin/main
+            
+            if [ ! -f .env ]; then
+              echo "Generating production .env file from .env.docker template..."
+              cp .env.docker .env
+              # Generate random secure passwords if default placeholders are present
+              JWT_RANDOM=$(openssl rand -base64 32 | tr -d '=/+')
+              sed -i "s/change_me_to_a_very_long_random_string_in_production/$JWT_RANDOM/g" .env || true
+            fi
+            
+            echo "🐳 Starting BBMS container stack (nginx, client, server, mongo, nagios)..."
+            docker compose up -d --build
+            
+            echo "=========================================================="
+            echo "🎉 Server Configuration & Docker Stack Initialized Successfully!"
+            echo "=========================================================="

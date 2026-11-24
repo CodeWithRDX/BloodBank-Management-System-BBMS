@@ -12,7 +12,6 @@ on:
       - 'docs/**'
       - 'terraform/**'
       - 'ansible/**'
-      - 'nagios/**'
       - '.vscode/**'
       - '.gitignore'
       - '.vercelignore'
@@ -25,7 +24,6 @@ on:
       - 'docs/**'
       - 'terraform/**'
       - 'ansible/**'
-      - 'nagios/**'
   workflow_dispatch:
     inputs:
       deploy_to_ec2:
@@ -67,10 +65,10 @@ jobs:
           npm run build
 
   # ────────────────────────────────────────────────────────────────────────────
-  # 2. Continuous Deployment (CD) - Zero-Downtime Rollout to EC2
+  # 2. Continuous Deployment (CD) - Containerized Deployment on EC2
   # ────────────────────────────────────────────────────────────────────────────
   cd-deploy-to-ec2:
-    name: Continuous Deployment to Production EC2 (CD)
+    name: Continuous Deployment to Production EC2 (Docker Compose)
     runs-on: ubuntu-latest
     needs: ci-build-and-test
     if: >-
@@ -78,7 +76,7 @@ jobs:
       (github.event_name == 'workflow_dispatch' && (inputs.deploy_to_ec2 == true || inputs.deploy_to_ec2 == 'true' || inputs.deploy_to_ec2 == null))
 
     steps:
-      - name: Execute Deployment on EC2 Host via SSH
+      - name: Deploy Container Stack to EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -87,11 +85,10 @@ jobs:
           port: ${{ secrets.EC2_PORT || 22 }}
           script_stop: true
           script: |
-            echo "🚀 [CD Pipeline] Deploying latest BBMS changes to EC2..."
+            echo "🚀 [CD Pipeline] Deploying latest BBMS containers to EC2..."
             
             APP_DIR="${{ secrets.EC2_DEPLOY_PATH || '/var/www/bbms' }}"
             
-            # Ensure target directory exists and is owned by the current user
             if [ ! -d "$APP_DIR" ]; then
               echo "📁 Target directory $APP_DIR does not exist. Bootstrapping repository..."
               sudo mkdir -p "$APP_DIR"
@@ -105,32 +102,26 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             
-            # Verify Node.js and PM2 are installed (from Server Setup workflow)
-            if ! command -v node >/dev/null 2>&1 || ! command -v pm2 >/dev/null 2>&1; then
-              echo "⚠️ Node.js or PM2 is not installed on this EC2 instance yet!"
-              echo "👉 Please run the 'Server Setup & Configuration (Ansible via GitHub Actions)' workflow first to install Node.js, MongoDB, Nginx, and PM2."
-              exit 1
+            # Ensure .env exists from template if missing
+            if [ ! -f .env ]; then
+              echo "Creating .env from .env.docker template..."
+              cp .env.docker .env
             fi
             
-            echo "📦 Updating backend dependencies..."
-            cd "$APP_DIR/server"
-            npm ci --prefer-offline --no-audit
+            echo "🐳 Rebuilding and rolling out updated containers..."
+            docker compose up -d --build
             
-            echo "🔄 Performing zero-downtime PM2 backend reload..."
-            if pm2 describe bbms-backend >/dev/null 2>&1; then
-              pm2 reload ecosystem.config.cjs --update-env
-            else
-              pm2 start ecosystem.config.cjs
-            fi
-            pm2 save
+            echo "🧹 Pruning old unused Docker images..."
+            docker image prune -f
             
-            echo "🎨 Building optimized React SPA frontend bundle..."
-            cd "$APP_DIR/client"
-            npm ci --prefer-offline --no-audit
-            npm run build
+            echo "🩺 Verifying container status..."
+            sleep 10
+            docker compose ps
             
-            echo "🩺 Verifying backend health check endpoint..."
-            sleep 3
-            curl -sf http://127.0.0.1:5000/api/health || curl -sf http://127.0.0.1/api/health
+            echo "Checking Nginx Health..."
+            curl -sf http://127.0.0.1/nginx-health || true
             
-            echo "✅ [CD Pipeline] BBMS deployment successfully rolled out with zero downtime!"
+            echo "Checking API Health..."
+            curl -sf http://127.0.0.1/api/health || true
+            
+            echo "✅ [CD Pipeline] BBMS Docker containers successfully deployed!"

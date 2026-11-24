@@ -1,13 +1,6 @@
 ---
 # ──────────────────────────────────────────────────────────────────────────────
-# Master Playbook: End-to-End BBMS Provisioning & Deployment
+# Master Playbook: Server Configuration & Docker Engine Setup
 # ──────────────────────────────────────────────────────────────────────────────
-- name: Setup Server Environment, Runtimes, and Services
+- name: Setup Server Environment and Docker Engine
   import_playbook: setup-server.yml
-
-- name: Deploy BBMS Application Code & PM2 Management
-  import_playbook: deploy-bbms.yml
-
-- name: Configure and Reload Nginx Reverse Proxy
-  import_playbook: configure-nginx.yml
-

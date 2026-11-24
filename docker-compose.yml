@@ -261,6 +261,39 @@ services:
         max-size: "5m"
         max-file: "2"
 
+  # ────────────────────────────────────────────────────────────────────────────
+  # Nagios 4 Core Monitoring Service
+  # Web Dashboard on Port 8080
+  # ────────────────────────────────────────────────────────────────────────────
+  nagios:
+    image: jasonrivers/nagios:latest
+    container_name: bbms-nagios
+    restart: unless-stopped
+
+    ports:
+      - "8080:80"
+
+    environment:
+      NAGIOSADMIN_USER: nagiosadmin
+      NAGIOSADMIN_PASS: AdminBBMS@2026
+      NAGIOS_TIMEZONE: UTC
+
+    networks:
+      - bbms-frontend
+      - bbms-backend
+
+    depends_on:
+      - nginx
+      - server
+      - mongo
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # Networks
 # ══════════════════════════════════════════════════════════════════════════════
