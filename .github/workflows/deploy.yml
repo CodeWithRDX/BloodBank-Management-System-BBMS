@@ -90,11 +90,27 @@ jobs:
             echo "🚀 [CD Pipeline] Deploying latest BBMS changes to EC2..."
             
             APP_DIR="${{ secrets.EC2_DEPLOY_PATH || '/var/www/bbms' }}"
+            
+            # Ensure target directory exists and is owned by the current user
+            if [ ! -d "$APP_DIR" ]; then
+              echo "📁 Target directory $APP_DIR does not exist. Bootstrapping repository..."
+              sudo mkdir -p "$APP_DIR"
+              sudo chown -R $USER:$USER "$APP_DIR"
+              git clone https://github.com/CodeWithRDX/BloodBank-Management-System-BBMS-.git "$APP_DIR"
+            fi
+            
             cd "$APP_DIR"
             
             echo "📥 Pulling latest commits from origin/main..."
             git fetch origin main
             git reset --hard origin/main
+            
+            # Verify Node.js and PM2 are installed (from Server Setup workflow)
+            if ! command -v node >/dev/null 2>&1 || ! command -v pm2 >/dev/null 2>&1; then
+              echo "⚠️ Node.js or PM2 is not installed on this EC2 instance yet!"
+              echo "👉 Please run the 'Server Setup & Configuration (Ansible via GitHub Actions)' workflow first to install Node.js, MongoDB, Nginx, and PM2."
+              exit 1
+            fi
             
             echo "📦 Updating backend dependencies..."
             cd "$APP_DIR/server"
