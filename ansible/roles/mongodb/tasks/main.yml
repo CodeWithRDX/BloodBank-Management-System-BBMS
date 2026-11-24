@@ -1,0 +1,48 @@
+---
+- name: Install gnupg and curl for MongoDB repository setup
+  ansible.builtin.apt:
+    name:
+      - gnupg
+      - curl
+    state: present
+  when: mongodb_install_local | bool
+
+- name: Import MongoDB official GPG key
+  ansible.builtin.apt_key:
+    url: "https://www.mongodb.org/static/pgp/server-7.0.asc"
+    state: present
+    keyring: /usr/share/keyrings/mongodb-server-7.0.gpg
+  when: mongodb_install_local | bool
+
+- name: Add MongoDB official repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse"
+    state: present
+    filename: mongodb-org-7.0
+  when: mongodb_install_local | bool
+
+- name: Install MongoDB Community Server packages
+  ansible.builtin.apt:
+    name:
+      - mongodb-org
+    state: present
+    update_cache: yes
+  when: mongodb_install_local | bool
+
+- name: Configure MongoDB with secure local binding
+  ansible.builtin.template:
+    src: mongod.conf.j2
+    dest: /etc/mongod.conf
+    owner: root
+    group: root
+    mode: '0644'
+  when: mongodb_install_local | bool
+  notify: Restart mongod
+
+- name: Ensure MongoDB service is enabled and started
+  ansible.builtin.systemd:
+    name: mongod
+    enabled: yes
+    state: started
+  when: mongodb_install_local | bool
+

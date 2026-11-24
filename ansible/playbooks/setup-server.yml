@@ -1,0 +1,20 @@
+---
+# ──────────────────────────────────────────────────────────────────────────────
+# Playbook: Setup Infrastructure Dependencies and Runtimes
+# ──────────────────────────────────────────────────────────────────────────────
+- name: Configure Base System and Required Services on BBMS Hosts
+  hosts: bbms_servers
+  become: yes
+  vars_files:
+    - ../group_vars/all.yml.example
+  roles:
+    - role: common
+      tags: ['common', 'base', 'firewall']
+    - role: nodejs
+      tags: ['nodejs', 'pm2', 'runtime']
+    - role: mongodb
+      tags: ['mongodb', 'database']
+      when: mongodb_install_local | default(true) | bool
+    - role: nginx
+      tags: ['nginx', 'webserver']
+

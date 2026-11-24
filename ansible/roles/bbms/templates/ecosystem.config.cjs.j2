@@ -1,0 +1,27 @@
+// ──────────────────────────────────────────────────────────────────────────────
+// PM2 Ecosystem Configuration for BBMS Backend
+// Note: .cjs extension is used for compatibility with "type": "module" packages
+// ──────────────────────────────────────────────────────────────────────────────
+
+module.exports = {
+  apps: [
+    {
+      name: '{{ pm2_app_name | default("bbms-backend") }}',
+      script: 'server.js',
+      cwd: '{{ app_server_dir }}',
+      instances: 1,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '1G',
+      env: {
+        NODE_ENV: '{{ app_env | default("production") }}',
+        PORT: {{ backend_port | default(5000) }}
+      },
+      error_file: '/var/log/bbms/pm2-error.log',
+      out_file: '/var/log/bbms/pm2-combined.log',
+      merge_logs: true,
+      time: true
+    }
+  ]
+};
+

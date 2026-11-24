@@ -1,0 +1,9 @@
+---
+- name: Restart bbms
+  ansible.builtin.command: pm2 restart {{ pm2_app_name }}
+  become_user: "{{ app_user }}"
+
+- name: Reload bbms
+  ansible.builtin.command: pm2 reload {{ pm2_app_name }}
+  become_user: "{{ app_user }}"
+

@@ -1,0 +1,99 @@
+name: Server Setup & Configuration (Ansible via GitHub Actions)
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Trigger manually from the GitHub Actions tab (Run workflow)
+# This executes Ansible playbooks against your EC2 instance from the GitHub cloud runner.
+# ──────────────────────────────────────────────────────────────────────────────
+on:
+  workflow_dispatch:
+    inputs:
+      install_nagios:
+        description: 'Install and configure Nagios 4 monitoring (:8080)'
+        required: false
+        type: boolean
+        default: true
+      configure_nginx:
+        description: 'Configure and enable Nginx reverse proxy (:80)'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  ansible-server-setup:
+    name: Run Ansible Playbooks from GitHub Runner
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Ansible on GitHub Cloud Runner
+        run: |
+          pip install --upgrade pip
+          pip install ansible
+          ansible-galaxy collection install community.general
+
+      - name: Configure SSH Private Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Wait for EC2 SSH Reachability
+        run: |
+          echo "Connecting to ${{ secrets.EC2_HOST }} on port 22..."
+          for i in {1..30}; do
+            if nc -z -w 3 "${{ secrets.EC2_HOST }}" 22 2>/dev/null; then
+              echo "✅ SSH is reachable on ${{ secrets.EC2_HOST }}!"
+              break
+            fi
+            echo "Waiting for SSH to become ready ($i/30)..."
+            sleep 5
+          done
+
+      - name: Generate Dynamic Ansible Inventory
+        run: |
+          mkdir -p ansible/inventory
+          cat <<EOF > ansible/inventory/hosts.ini
+          [bbms_servers]
+          bbms-node-01 ansible_host=${{ secrets.EC2_HOST }} ansible_user=${{ secrets.EC2_USERNAME || 'ubuntu' }} ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+          [monitoring_servers]
+          bbms-node-01 ansible_host=${{ secrets.EC2_HOST }} ansible_user=${{ secrets.EC2_USERNAME || 'ubuntu' }} ansible_ssh_private_key_file=~/.ssh/id_rsa
+
+          [all:children]
+          bbms_servers
+          monitoring_servers
+          EOF
+
+      - name: Run Ansible Base & Server Configuration (site.yml)
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+        run: |
+          cd ansible
+          ansible-playbook -i inventory/hosts.ini playbooks/site.yml
+
+      - name: Run Ansible Nagios 4 Installation (install-nagios.yml)
+        if: ${{ inputs.install_nagios == true || inputs.install_nagios == 'true' || inputs.install_nagios == null }}
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
+        run: |
+          cd ansible
+          ansible-playbook -i inventory/hosts.ini playbooks/install-nagios.yml
+
+      - name: Verify Live Endpoints
+        run: |
+          echo "=========================================================="
+          echo "Testing Web Server on Port 80..."
+          curl -Is "http://${{ secrets.EC2_HOST }}" | head -n 1 || true
+          
+          echo "Testing Nagios 4 Dashboard on Port 8080..."
+          curl -Is "http://${{ secrets.EC2_HOST }}:8080/nagios/" | head -n 1 || true
+          echo "=========================================================="
+          echo "🎉 Server Configuration successfully completed via Ansible!"
+

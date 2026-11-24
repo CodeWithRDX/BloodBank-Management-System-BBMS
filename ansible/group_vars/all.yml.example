@@ -1,0 +1,40 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Non-sensitive Global Variables for BBMS
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Environment
+app_env: "production"
+app_name: "bbms"
+app_user: "ubuntu"
+app_group: "ubuntu"
+
+# Directory Structure on Monitored Server
+app_root_dir: "/var/www/bbms"
+app_client_dir: "{{ app_root_dir }}/client"
+app_server_dir: "{{ app_root_dir }}/server"
+app_uploads_dir: "{{ app_server_dir }}/uploads"
+
+# Git Repository
+git_repo_url: "https://github.com/CodeWithRDX/BloodBank-Management-System-BBMS-.git"
+git_branch: "main"
+
+# Node.js & Runtime
+nodejs_version: "20"
+pm2_app_name: "bbms-backend"
+backend_port: 5000
+
+# Database Configuration
+mongodb_install_local: true
+mongodb_port: 27017
+mongodb_bind_ip: "127.0.0.1"
+mongodb_database_name: "bloodbank"
+
+# Web Server (Nginx)
+nginx_domain: "_"  # Set to your domain (e.g., bbms.raushan.live) or "_" for default IP access
+client_build_dir: "{{ app_client_dir }}/dist"
+
+# Nagios Settings
+nagios_admin_user: "nagiosadmin"
+nagios_port: 8080
+nagios_contact_email: "admin@bbms.local"
+

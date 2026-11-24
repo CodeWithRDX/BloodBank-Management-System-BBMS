@@ -1,0 +1,13 @@
+---
+# ──────────────────────────────────────────────────────────────────────────────
+# Playbook: Install & Configure Nagios 4 Core and BBMS Monitoring
+# ──────────────────────────────────────────────────────────────────────────────
+- name: Install and Configure Nagios 4 Core and Application Health Checks
+  hosts: monitoring_servers
+  become: yes
+  vars_files:
+    - ../group_vars/all.yml.example
+  roles:
+    - role: nagios
+      tags: ['nagios', 'monitoring']
+

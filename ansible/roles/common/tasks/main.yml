@@ -1,0 +1,69 @@
+---
+- name: Update apt package cache
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Upgrade all safe packages
+  ansible.builtin.apt:
+    upgrade: dist
+  when: ansible_os_family == "Debian"
+
+- name: Install foundational packages and system utilities
+  ansible.builtin.apt:
+    name:
+      - curl
+      - wget
+      - git
+      - build-essential
+      - ufw
+      - htop
+      - net-tools
+      - software-properties-common
+      - ca-certificates
+      - gnupg
+      - lsb-release
+      - jq
+      - unzip
+    state: present
+
+- name: Set system timezone to UTC
+  community.general.timezone:
+    name: UTC
+  ignore_errors: yes
+
+- name: Configure UFW firewall defaults (deny incoming, allow outgoing)
+  community.general.ufw:
+    direction: "{{ item.direction }}"
+    policy: "{{ item.policy }}"
+  loop:
+    - { direction: 'incoming', policy: 'deny' }
+    - { direction: 'outgoing', policy: 'allow' }
+
+- name: Allow essential inbound ports through UFW
+  community.general.ufw:
+    rule: allow
+    port: "{{ item.port }}"
+    proto: tcp
+    comment: "{{ item.comment }}"
+  loop:
+    - { port: '22', comment: 'SSH Access' }
+    - { port: '80', comment: 'HTTP Web Traffic' }
+    - { port: '443', comment: 'HTTPS Web Traffic' }
+    - { port: '8080', comment: 'Nagios 4 Web UI' }
+
+- name: Enable UFW firewall
+  community.general.ufw:
+    state: enabled
+
+- name: Ensure application root directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_group }}"
+    mode: '0755'
+  loop:
+    - "{{ app_root_dir }}"
+    - "/var/log/bbms"
+

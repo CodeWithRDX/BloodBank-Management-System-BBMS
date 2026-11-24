@@ -1,0 +1,23 @@
+# /etc/mongod.conf
+# Managed by Ansible for BBMS
+
+storage:
+  dbPath: /var/lib/mongodb
+  journal:
+    enabled: true
+
+systemLog:
+  destination: file
+  logAppend: true
+  path: /var/log/mongodb/mongod.log
+
+# Network interfaces
+# CRITICAL SECURITY REQUIREMENT: Bind exclusively to 127.0.0.1.
+# Port 27017 must NEVER be exposed publicly on 0.0.0.0.
+net:
+  port: {{ mongodb_port | default(27017) }}
+  bindIp: {{ mongodb_bind_ip | default('127.0.0.1') }}
+
+processManagement:
+  timeZoneInfo: /usr/share/zoneinfo
+

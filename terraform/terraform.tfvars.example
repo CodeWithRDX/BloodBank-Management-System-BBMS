@@ -1,0 +1,25 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Example Terraform Variables Configuration (terraform.tfvars)
+# Copy this file to `terraform.tfvars` and customize before applying.
+# ──────────────────────────────────────────────────────────────────────────────
+
+aws_region           = "ap-south-1"
+environment          = "production"
+project_name         = "bbms"
+vpc_cidr             = "10.0.0.0/16"
+public_subnet_cidr   = "10.0.1.0/24"
+availability_zone    = "ap-south-1a"
+instance_type        = "t3.medium"
+root_volume_size     = 30
+
+# Name of your existing AWS SSH Key Pair (created in ap-south-1 Mumbai region)
+key_name             = "bbms-keypair"
+
+
+# Restrict SSH and Nagios access to your own trusted IP address (e.g., ["203.0.113.50/32"])
+allowed_ssh_cidrs    = ["0.0.0.0/0"]
+allowed_nagios_cidrs = ["0.0.0.0/0"]
+
+# Optional: Set a specific Ubuntu 22.04 LTS AMI ID if desired, or leave empty to auto-discover
+# ami_id             = "ami-0c7217cdde317cfec"
+

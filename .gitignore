@@ -56,3 +56,23 @@ Thumbs.db
 # Docker / Container local/temp files
 .docker/
 docker-compose.override.yml
+interview.md
+
+# Terraform artifacts
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ansible artifacts
+ansible/*.retry
+ansible/**/vault_password.txt
+ansible/**/*.retry
+

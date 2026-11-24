@@ -1,0 +1,37 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Sensitive Secrets Template (To be encrypted using Ansible Vault)
+# To create an encrypted vault:
+#   ansible-vault create ansible/group_vars/vault.yml
+# To edit an encrypted vault:
+#   ansible-vault edit ansible/group_vars/vault.yml
+# To execute playbooks using vault:
+#   ansible-playbook playbooks/site.yml --ask-vault-pass
+# ──────────────────────────────────────────────────────────────────────────────
+
+# JWT Authentication
+vault_jwt_secret: "super_secret_production_jwt_signing_key_replace_with_random_string_min_32_chars"
+vault_jwt_expire: "7d"
+vault_jwt_cookie_expire: 7
+
+# MongoDB Secrets (for local mongo authentication or cloud Atlas URI)
+vault_mongo_user: "bbms_admin"
+vault_mongo_password: "ReplaceWithAStrongMongoPassword123!"
+vault_mongo_uri: "mongodb://127.0.0.1:27017/bloodbank"
+
+# Email Configuration (Nodemailer SMTP)
+vault_smtp_host: "smtp.gmail.com"
+vault_smtp_port: 587
+vault_smtp_user: "notifications@example.com"
+vault_smtp_pass: "app_specific_email_password"
+vault_from_email: "noreply@bbms.org"
+vault_from_name: "Blood Bank Management System"
+
+# Nagios Web Dashboard Password
+vault_nagios_admin_password: "ChangeThisNagiosWebPassword123!"
+
+# Optional 3rd party APIs (ImageKit / Bot integrations)
+vault_imagekit_public_key: ""
+vault_imagekit_private_key: ""
+vault_imagekit_url_endpoint: ""
+vault_telegram_bot_token: ""
+

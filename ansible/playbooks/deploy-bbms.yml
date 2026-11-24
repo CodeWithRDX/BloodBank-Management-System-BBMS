@@ -1,0 +1,13 @@
+---
+# ──────────────────────────────────────────────────────────────────────────────
+# Playbook: Deploy BBMS Application (Code, Dependencies, Build, PM2 Reload)
+# ──────────────────────────────────────────────────────────────────────────────
+- name: Deploy BBMS Full-Stack Application
+  hosts: bbms_servers
+  become: yes
+  vars_files:
+    - ../group_vars/all.yml.example
+  roles:
+    - role: bbms
+      tags: ['bbms', 'deploy', 'app']
+

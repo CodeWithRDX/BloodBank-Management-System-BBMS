@@ -1,0 +1,13 @@
+---
+# ──────────────────────────────────────────────────────────────────────────────
+# Playbook: Configure Nginx Reverse Proxy for BBMS
+# ──────────────────────────────────────────────────────────────────────────────
+- name: Configure and Reload Nginx Reverse Proxy
+  hosts: bbms_servers
+  become: yes
+  vars_files:
+    - ../group_vars/all.yml.example
+  roles:
+    - role: nginx
+      tags: ['nginx', 'proxy']
+

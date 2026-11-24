@@ -1,0 +1,27 @@
+---
+- name: Ensure temporary Nagios install directory exists
+  ansible.builtin.file:
+    path: /tmp/bbms-nagios
+    state: directory
+    mode: '0755'
+
+- name: Copy Nagios source configurations, objects, and scripts
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../nagios/"
+    dest: /tmp/bbms-nagios/
+    mode: '0755'
+
+- name: Ensure Nagios installer script is executable
+  ansible.builtin.file:
+    path: /tmp/bbms-nagios/install-nagios.sh
+    mode: '0755'
+
+- name: Execute Nagios 4 automated installation script
+  ansible.builtin.command: /tmp/bbms-nagios/install-nagios.sh "{{ vault_nagios_admin_password | default('AdminBBMS@2026') }}"
+  register: nagios_install_output
+  changed_when: "'Nagios 4 Monitoring Setup Complete' in nagios_install_output.stdout"
+
+- name: Display Nagios installation summary
+  ansible.builtin.debug:
+    var: nagios_install_output.stdout_lines
+
